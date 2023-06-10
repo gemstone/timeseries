@@ -1,21 +1,21 @@
 <img align="right" src="img/gemstone-wide-600.png" alt="gemstone logo">
 
-# GemTem
+# Timeseries
 ### GPA Gemstone Library
 
-The Gemstone GemTem Library organizes all Gemstone functionality related to gemtem.
+The Gemstone Timeseries Library organizes all Gemstone functionality related to timeseries.
 
-[![GitHub license](https://img.shields.io/github/license/gemstone/gemtem?color=4CC61E)](https://github.com/gemstone/gemtem/blob/master/LICENSE)
-[![Build status](https://ci.appveyor.com/api/projects/status/ury75mtaq7tj1sp0?svg=true)](https://ci.appveyor.com/project/ritchiecarroll/gemtem)
-![CodeQL](https://github.com/gemstone/gemtem/workflows/CodeQL/badge.svg)
-[![NuGet](https://buildstats.info/nuget/Gemstone.GemTem)](https://www.nuget.org/packages/Gemstone.GemTem#readme-body-tab)
+[![GitHub license](https://img.shields.io/github/license/gemstone/timeseries?color=4CC61E)](https://github.com/gemstone/timeseries/blob/master/LICENSE)
+[![Build status](https://ci.appveyor.com/api/projects/status/ury75mtaq7tj1sp0?svg=true)](https://ci.appveyor.com/project/ritchiecarroll/timeseries)
+![CodeQL](https://github.com/gemstone/timeseries/workflows/CodeQL/badge.svg)
+[![NuGet](https://buildstats.info/nuget/Gemstone.Timeseries)](https://www.nuget.org/packages/Gemstone.Timeseries#readme-body-tab)
 
-This library includes helpful gemtem classes like the following:
+This library includes helpful timeseries classes like the following:
 
-* [Class](https://gemstone.github.io/gemtem/help/html/T_gemstone_gemtem_Class.htm):
-  * Represents a gemtem class for handling gemtem operations.
+* [Class](https://gemstone.github.io/timeseries/help/html/T_gemstone_timeseries_Class.htm):
+  * Represents a timeseries class for handling timeseries operations.
 
 Among others.
 
 ### Documentation
-[Full Library Documentation](https://gemstone.github.io/gemtem/help)
+[Full Library Documentation](https://gemstone.github.io/timeseries/help)

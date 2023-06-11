@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  NamespaceDoc.cs - Gbtc
+//  ConnectionException.cs - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,21 +16,47 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  10/16/2019 - J. Ritchie Carroll
+//  07/10/2019 - J. Ritchie Carroll
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using System.Runtime.CompilerServices;
+using System;
 
 namespace Gemstone.Timeseries;
 
 /// <summary>
-/// The <see cref="Gemstone.Timeseries"/> namespace organizes all Gemstone library functionality
-/// related to timeseries. The root timeseries namespace also includes common timeseries classes,
-/// e.g., <see cref="Measurement"/>.
+/// Represents an exception related to connection activities.
 /// </summary>
-[CompilerGenerated]
-class NamespaceDoc
+/// <remarks>
+/// This exception is used to filter connection exceptions into a separate log since
+/// these types of exceptions can be so frequent when a device is offline.
+/// </remarks>
+[Serializable]
+public class ConnectionException : Exception
 {
+    /// <summary>
+    /// Creates a new <see cref="ConnectionException"/>.
+    /// </summary>
+    public ConnectionException()
+    {            
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="ConnectionException"/> with the specified <paramref name="message"/>.
+    /// </summary>
+    /// <param name="message">Exception message.</param>
+    public ConnectionException(string message) : base(message)
+    {            
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="ConnectionException"/> with the specified <paramref name="message"/>
+    /// and <paramref name="innerException"/>.
+    /// </summary>
+    /// <param name="message">Exception message.</param>
+    /// <param name="innerException">Inner exception.</param>
+    public ConnectionException(string message, Exception innerException) : base(message, innerException)
+    {            
+    }
 }

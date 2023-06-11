@@ -1,14 +1,14 @@
 ﻿//******************************************************************************************************
-//  Class.cs - Gbtc
+//  NativeMethods.cs - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2013, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
-//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
-//  file except in compliance with the License. You may obtain a copy of the License at:
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may
+//  not use this file except in compliance with the License. You may obtain a copy of the License at:
 //
-//      http://opensource.org/licenses/MIT
+//      http://www.opensource.org/licenses/MIT
 //
 //  Unless agreed to in writing, the subject software distributed under the License is distributed on an
 //  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
@@ -16,17 +16,21 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  11/04/2019 - J. Ritchie Carroll
+//  02/20/2013 - J. Ritchie Carroll
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-namespace Gemstone.Timeseries
+using System;
+using System.Runtime.InteropServices;
+
+namespace Gemstone.Timeseries;
+
+/// <summary>
+/// Windows API methods available to time-series library.
+/// </summary>
+internal static class NativeMethods
 {
-    /// <summary>
-    /// Sample class for new Timeseries library.
-    /// </summary>
-    public class Class
-    {
-    }
+    [DllImport("User32.Dll", EntryPoint = "PostMessageA")]
+    public static extern bool PostMessage(IntPtr hWnd, uint msg, int wParam, int lParam);
 }

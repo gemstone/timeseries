@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  NamespaceDoc.cs - Gbtc
+//  Common.cs - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,21 +16,33 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  10/16/2019 - J. Ritchie Carroll
+//  11/15/2016 - Ritchie Carroll
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using System.Runtime.CompilerServices;
+//using Gemstone.Diagnostics;
+using Gemstone.Threading;
 
 namespace Gemstone.Timeseries;
 
 /// <summary>
-/// The <see cref="Gemstone.Timeseries"/> namespace organizes all Gemstone library functionality
-/// related to timeseries. The root timeseries namespace also includes common timeseries classes,
-/// e.g., <see cref="Measurement"/>.
+/// Defines common properties and functions for the time-series library.
 /// </summary>
-[CompilerGenerated]
-class NamespaceDoc
+internal class Common
 {
+    /// <summary>
+    /// Folder name for dynamically compiled assemblies.
+    /// </summary>
+    public const string DynamicAssembliesFolderName = "DynamicAssemblies";
+
+    // Common use static timer for the Time-Series Library
+    public static readonly SharedTimerScheduler TimerScheduler;
+
+    //Static Constructor
+    static Common()
+    {
+        //using Logger.AppendStackMessages("Owner", "TimeSeries.Common");
+        TimerScheduler = new SharedTimerScheduler();
+    }
 }

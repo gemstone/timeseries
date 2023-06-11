@@ -1,0 +1,2639 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>Gemstone.Timeseries</name>
+  </assembly>
+  <members>
+    <member name="T:Gemstone.Timeseries.Alarm">
+      <summary>
+            Represents an alarm that tests the values of
+            an incoming signal to determine the state of alarm.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Alarm.#ctor">
+      <summary>
+            Creates a new instance of the <see cref="T:Gemstone.Timeseries.Alarm" /> class.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Alarm.#ctor(Gemstone.Timeseries.AlarmOperation)">
+      <summary>
+            Creates a new instance of the <see cref="T:Gemstone.Timeseries.Alarm" /> class.
+            </summary>
+      <param name="operation">The operation to be performed when testing values from the incoming signal.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.AssociatedMeasurementID">
+      <summary>
+            Gets or sets the identification number of
+            the measurements generated for alarm events.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Cause">
+      <summary>
+            Gets the most recent measurement
+            that caused the alarm to be raised.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Alarm.Clone">
+      <summary>
+            Creates a new alarm that is a copy of the current instance.
+            </summary>
+      <returns>
+            A new alarm that is a copy of this instance.
+            </returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Delay">
+      <summary>
+            Gets or sets the amount of time that the
+            signal must be exhibiting alarming behavior
+            before the alarm is raised.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Description">
+      <summary>
+            Gets or sets the description of the alarm.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Hysteresis">
+      <summary>
+            Gets or sets the hysteresis used when clearing
+            alarms. This value is only relevant in greater
+            than (or equal) and less than (or equal) operations.
+            </summary>
+      <remarks>
+        <para>The hysteresis is an offset that provides padding between
+            the point at which the alarm is raised and the point at
+            which the alarm is cleared. For example, in the case of the
+            <see cref="F:Gemstone.Timeseries.AlarmOperation.GreaterOrEqual" /> operation:</para>
+        <list type="bullet">
+          <item>Raised: <c>value &gt;= SetPoint</c></item>
+          <item>Cleared: <c>value &lt; SetPoint - Hysteresis</c></item>
+        </list>
+        <para>The direction of the offset depends on whether the
+            operation is greater than (or equal) or less than (or equal).
+            The hysteresis must be greater than zero.</para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.ID">
+      <summary>
+            Gets or sets the identification number of the alarm.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Operation">
+      <summary>
+            Gets or sets the operation to be performed
+            when testing values from the incoming signal.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.SetPoint">
+      <summary>
+            Gets or sets the value to be compared against
+            the signal to determine whether to raise the
+            alarm. This value is irrelevant for the
+            <see cref="F:Gemstone.Timeseries.AlarmOperation.Flatline" /> operation.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Severity">
+      <summary>
+            Gets or sets the severity of the alarm.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.SignalID">
+      <summary>
+            Gets or sets the identification number of the
+            signal whose value is monitored by the alarm.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.State">
+      <summary>
+            Gets or sets the current state of the alarm (raised or cleared).
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.TagName">
+      <summary>
+            Gets or sets the tag name of the alarm.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Alarm.Test(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Tests the value of the given measurement to determine
+            whether the alarm should be raised or cleared.
+            </summary>
+      <param name="measurement">The measurement whose value is to be tested.</param>
+      <returns>true if the alarm's state changed; false otherwise</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.TimeRaised">
+      <summary>
+            Gets or sets the timestamp of the most recent
+            measurement that caused the alarm to be raised.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Tolerance">
+      <summary>
+            Gets or sets a tolerance window around the
+            <see cref="P:Gemstone.Timeseries.Alarm.SetPoint" /> to use when comparing
+            against the value of the signal. This value
+            is only relevant for the <see cref="F:Gemstone.Timeseries.AlarmOperation.Equal" />
+            and <see cref="F:Gemstone.Timeseries.AlarmOperation.NotEqual" /> operations.
+            </summary>
+      <remarks>
+        <para>The equal and not equal operations are actually
+            internal and external range tests based on the setpoint
+            and the tolerance. The two tests are performed as follows.</para>
+        <list type="bullet">
+          <item>Equal: <c>(value &gt;= SetPoint - Tolerance) &amp;&amp; (value &lt;= SetPoint + Tolerance)</c></item>
+          <item>Not equal: <c>(value &lt; SetPoint - Tolerance) || (value &gt; SetPoint + Tolerance)</c></item>
+        </list>
+      </remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.AlarmOperation">
+      <summary>
+            Represents the operation to be performed
+            when testing values from an incoming signal.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmOperation.Equal">
+      <summary>
+            Internal range test
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmOperation.NotEqual">
+      <summary>
+            External range test
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmOperation.GreaterOrEqual">
+      <summary>
+            Upper bound
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmOperation.LessOrEqual">
+      <summary>
+            Lower bound
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmOperation.GreaterThan">
+      <summary>
+            Upper limit
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmOperation.LessThan">
+      <summary>
+            Lower limit
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmOperation.Flatline">
+      <summary>
+            Latched value
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.AlarmSeverity">
+      <summary>
+            Represents the severity of alarms.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.None">
+      <summary>
+            Indicates that an alarm is of no importance.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.Information">
+      <summary>
+            Indicates that an alarm is informative, but not dangerous.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.Low">
+      <summary>
+            Indicates that an alarm is not very important.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.MediumLow">
+      <summary>
+            Indicates that an alarm is somewhat important.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.Medium">
+      <summary>
+            Indicates that an alarm is moderately importance.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.MediumHigh">
+      <summary>
+            Indicates that an alarm is important.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.High">
+      <summary>
+            Indicates that an alarm is very important.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.Unreasonable">
+      <summary>
+            Indicates an alarm for a value that is unreasonable.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.Critical">
+      <summary>
+            Indicates than an alarm signifies a dangerous situation.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.Latched">
+      <summary>
+            Indicates an alarm for a value that is latched, i.e., flat-lined.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmSeverity.Error">
+      <summary>
+            Indicates that an alarm reports bad data.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.AlarmState">
+      <summary>
+            Represents the two states that an alarm can be in: raised or cleared.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmState.Cleared">
+      <summary>
+            Indicates that an alarm is cleared.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmState.Raised">
+      <summary>
+            Indicates that an alarm has been raised.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.BufferBlockMeasurement">
+      <summary>
+            Represents a byte buffer that can be transported through the system as a <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.BufferBlockMeasurement.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.BufferBlockMeasurement" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.BufferBlockMeasurement.#ctor(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.BufferBlockMeasurement" /> from an existing buffer.
+            </summary>
+      <param name="buffer">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>buffer</parameter>
+            <parameter>M:Gemstone.Timeseries.BufferBlockMeasurement.#ctor(System.Byte[],System.Int32,System.Int32)</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="startIndex">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>startIndex</parameter>
+            <parameter>M:Gemstone.Timeseries.BufferBlockMeasurement.#ctor(System.Byte[],System.Int32,System.Int32)</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="length">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>length</parameter>
+            <parameter>M:Gemstone.Timeseries.BufferBlockMeasurement.#ctor(System.Byte[],System.Int32,System.Int32)</parameter>
+          </include>
+        </markup>
+      </param>
+      <exception cref="T:System.ArgumentNullException">
+        <paramref name="buffer" /> is null.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">
+        <paramref name="startIndex" /> or <paramref name="length" /> is less than 0 -or- 
+            <paramref name="startIndex" /> and <paramref name="length" /> will exceed <paramref name="buffer" /> length.
+            </exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.BufferBlockMeasurement.Buffer">
+      <summary>
+            Cached buffer image.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.BufferBlockMeasurement.Length">
+      <summary>
+            Valid length of cached buffer image.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.ConcentratorBase">
+      <summary>
+            Measurement concentrator base class.
+            </summary>
+      <remarks>
+        <para>
+            This class synchronizes (i.e., sorts by timestamp) real-time measurements.
+            </para>
+        <para>
+            Note that your lag time should be defined as it relates to the rate at which data is coming
+            into the concentrator. Make sure you allow enough time for transmission of data over the network
+            allowing any needed time for possible network congestion.  Lead time should be defined as your
+            confidence in the accuracy of your local clock (e.g., if you set lead time to 2, this means you
+            trust that your local clock is within plus or minus 2 seconds of real-time.)
+            </para>
+        <para>
+            This concentrator is designed to sort measurements being transmitted in real-time for data being
+            sent at rates of at least 1 sample per second. Slower rates (e.g., once every few seconds) are not
+            supported since sorting data at these speeds would be trivial. There is no defined maximum number
+            of supported samples per second - but keep in mind that CPU utilization will increase as the
+            measurement volume and frame rate increase.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.ConcentratorBase" />.
+            </summary>
+      <remarks>
+            Concentration will not begin until consumer "Starts" concentrator (i.e., calling <see cref="M:Gemstone.Timeseries.ConcentratorBase.Start" /> method or setting
+            <c><see cref="P:Gemstone.Timeseries.ConcentratorBase.Enabled" /> = true</c>).
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.#ctor(System.Int32,System.Double,System.Double)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> from specified parameters.
+            </summary>
+      <param name="framesPerSecond">Number of frames to publish per second.</param>
+      <param name="lagTime">Past time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
+      <param name="leadTime">Future time deviation tolerance, in seconds - this becomes the tolerated +/- accuracy of the local clock to real-time.</param>
+      <remarks>
+        <para>
+          <paramref name="framesPerSecond" /> must be greater then 0.
+            </para>
+        <para>
+          <paramref name="lagTime" /> must be greater than zero, but can be specified in sub-second intervals (e.g., set to .25 for a quarter-second lag time).
+            Note that this defines time sensitivity to past timestamps.
+            </para>
+        <para>
+          <paramref name="leadTime" /> must be greater than zero, but can be specified in sub-second intervals (e.g., set to .5 for a half-second lead time).
+            Note that this defines time sensitivity to future timestamps.
+            </para>
+        <para>
+            Concentration will not begin until consumer "Starts" concentrator (i.e., calling <see cref="M:Gemstone.Timeseries.ConcentratorBase.Start" /> method or setting
+            <c><see cref="P:Gemstone.Timeseries.ConcentratorBase.Enabled" /> = true</c>).
+            </para>
+      </remarks>
+      <exception cref="T:System.ArgumentOutOfRangeException">Specified argument is outside of allowed value range (see remarks).</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.AllowPreemptivePublishing">
+      <summary>
+            Gets or sets flag that allows system to preemptively publish frames assuming all <see cref="P:Gemstone.Timeseries.ConcentratorBase.ExpectedMeasurements" /> have arrived.
+            </summary>
+      <remarks>
+            In order for this property to used, the <see cref="P:Gemstone.Timeseries.ConcentratorBase.ExpectedMeasurements" /> must be defined.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.AllowSortsByArrival">
+      <summary>
+            Gets or sets flag that determines whether or not to allow incoming measurements with bad timestamps
+            to be sorted by arrival time.
+            </summary>
+      <remarks>
+        <para>
+            Value defaults to <c>true</c>, so any incoming measurement with a bad timestamp quality will be sorted
+            according to its arrival time. Setting the property to <c>false</c> will cause all measurements with a
+            bad timestamp quality to be discarded. This property will only be considered when
+            <see cref="P:Gemstone.Timeseries.ConcentratorBase.IgnoreBadTimestamps" /> is <c>false</c>.
+            </para>
+        <para>
+            Value will be forced to <c>false</c> if <see cref="P:Gemstone.Timeseries.ConcentratorBase.ProcessByReceivedTimestamp" /> is <c>true</c>.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.AssignMeasurementToFrame(Gemstone.Timeseries.IFrame,Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Assigns <see cref="T:Gemstone.Timeseries.IMeasurement" /> to its associated <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+      <param name="frame">The <see cref="T:Gemstone.Timeseries.IFrame" /> that is used.</param>
+      <param name="measurement">The type of <see cref="T:Gemstone.Timeseries.IMeasurement" /> to use."/&gt;</param>
+      <remarks>
+            Derived classes can choose to override this method to handle custom assignment of a <see cref="T:Gemstone.Timeseries.IMeasurement" /> to
+            its <see cref="T:Gemstone.Timeseries.IFrame" />. Default behavior simply assigns measurement to frame's keyed measurement dictionary:
+            <code language="cs">frame.Measurements[measurement.Key] = measurement;</code></remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.AveragePublicationTimePerFrame">
+      <summary>
+            Gets the average required frame publication time, in seconds.
+            </summary>
+      <remarks>
+            If user publication function, <see cref="M:Gemstone.Timeseries.ConcentratorBase.PublishFrame(Gemstone.Timeseries.IFrame,System.Int32)" />, consistently exceeds available publishing time
+            (i.e., <c>1 / <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" /></c>), concentration will fall behind.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.CreateNewFrame(Gemstone.Ticks)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.IFrame" /> for the given <paramref name="timestamp" />.
+            </summary>
+      <param name="timestamp">Timestamp for new <see cref="T:Gemstone.Timeseries.IFrame" /> in <see cref="T:Gemstone.Ticks" />.</param>
+      <returns>New <see cref="T:Gemstone.Timeseries.IFrame" /> at given <paramref name="timestamp" />.</returns>
+      <remarks>
+            Derived classes can override this method to create a new custom <see cref="T:Gemstone.Timeseries.IFrame" />. Default
+            behavior creates a basic <see cref="T:Gemstone.Timeseries.Frame" /> to hold synchronized measurements.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.DiscardedMeasurements">
+      <summary>
+            Gets the total number of measurements that have been discarded because of old timestamps
+            (i.e., measurements that were outside the time deviation tolerance from base time, past or future).
+            </summary>
+    </member>
+    <member name="E:Gemstone.Timeseries.ConcentratorBase.DiscardingMeasurements">
+      <summary>
+            This event is raised if there are any measurements being discarded during the sorting process.
+            </summary>
+      <remarks>
+        <see cref="F:Gemstone.EventArgs`1.Argument" /> is the enumeration of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values that are being discarded during the sorting process.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.Dispose">
+      <summary>
+            Releases all the resources used by the <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.Dispose(System.Boolean)">
+      <summary>
+            Releases the unmanaged resources used by the <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> object and optionally releases the managed resources.
+            </summary>
+      <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    </member>
+    <member name="E:Gemstone.Timeseries.ConcentratorBase.Disposed">
+      <summary>
+            This event is raised when <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> is disposed.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.DownsampledMeasurements">
+      <summary>
+            Gets the total number of down-sampled measurements processed by the concentrator.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.DownsamplingMethod">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.Timeseries.DownsamplingMethod" /> to be used by the concentrator.
+            </summary>
+      <remarks>
+            The down-sampling method determines the algorithm to use if input is being received at a higher-resolution than the defined output.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.Enabled">
+      <summary>
+            Gets or sets the current enabled state of concentrator.
+            </summary>
+      <returns>Current enabled state of concentrator</returns>
+      <remarks>
+            Concentrator must be started by calling <see cref="M:Gemstone.Timeseries.ConcentratorBase.Start" /> method or setting
+            <c><see cref="P:Gemstone.Timeseries.ConcentratorBase.Enabled" /> = true</c>) before concentration will begin.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.ExpectedMeasurements">
+      <summary>
+            Gets or sets the expected number of measurements to be assigned to a single frame.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.Finalize">
+      <summary>
+            Releases the unmanaged resources before the <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> object is reclaimed by <see cref="T:System.GC" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.FramesAheadOfSchedule">
+      <summary>
+            Gets the total number of frames ahead of schedule processed by the concentrator.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond">
+      <summary>
+            Gets or sets the number of frames per second.
+            </summary>
+      <remarks>
+            Valid frame rates for a <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> are greater than 0 frames per second.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.IgnoreBadTimestamps">
+      <summary>
+            Gets or sets flag that determines if bad timestamps (as determined by measurement's timestamp quality)
+            should be ignored when sorting measurements.
+            </summary>
+      <remarks>
+            Setting this property to <c>true</c> forces system to use timestamps as-is without checking quality.
+            If this property is <c>true</c>, it will supersede operation of <see cref="P:Gemstone.Timeseries.ConcentratorBase.AllowSortsByArrival" />.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.LagTicks">
+      <summary>
+            Gets defined past time deviation tolerance, in ticks.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.LagTime">
+      <summary>
+            Gets or sets the allowed past time deviation tolerance, in seconds (can be sub-second).
+            </summary>
+      <remarks>
+        <para>Defines the time sensitivity to past measurement timestamps.</para>
+        <para>The number of seconds allowed before assuming a measurement timestamp is too old.</para>
+        <para>This becomes the amount of delay introduced by the concentrator to allow time for data to flow into the system.</para>
+      </remarks>
+      <exception cref="T:System.ArgumentOutOfRangeException">LagTime must be greater than zero, but it can be less than one.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.LastDiscardedMeasurement">
+      <summary>
+            Gets a reference the last <see cref="T:Gemstone.Timeseries.IMeasurement" /> that was discarded by the concentrator.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.LastDiscardedMeasurementLatency">
+      <summary>
+            Gets the calculated latency of the last <see cref="T:Gemstone.Timeseries.IMeasurement" /> that was discarded by the concentrator.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.LastFrame">
+      <summary>
+            Gets reference to the last published <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.LatestMeasurements">
+      <summary>
+            Gets reference to the collection of absolute latest received measurement values.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.LeadTime">
+      <summary>
+            Gets or sets the allowed future time deviation tolerance, in seconds (can be sub-second).
+            </summary>
+      <remarks>
+        <para>Defines the time sensitivity to future measurement timestamps.</para>
+        <para>The number of seconds allowed before assuming a measurement timestamp is too advanced.</para>
+        <para>This becomes the tolerated +/- accuracy of the local clock to real-time.</para>
+      </remarks>
+      <exception cref="T:System.ArgumentOutOfRangeException">LeadTime must be greater than zero, but it can be less than one.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.Log">
+      <summary>
+            Log messages generated by an adapter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.MaximumPublicationTimeout">
+      <summary>
+            Gets or sets the maximum frame publication timeout in milliseconds, set to <see cref="F:System.Threading.Timeout.Infinite" />(-1) to wait indefinitely.
+            </summary>
+      <remarks>
+        <para>
+            The concentrator automatically defines a precision timer to provide the heartbeat for frame publication, however if the system
+            gets busy the heartbeat signals can be missed. This property defines a maximum wait timeout before reception of the heartbeat
+            signal to make sure frame publications continue to occur in a timely fashion even when a system is under stress.
+            </para>
+        <para>
+            This property is automatically defined as 2% more than the number of milliseconds per frame when the <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" />
+            property is set. Users can override this default value to provide custom behavior for this timeout.
+            </para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.MeasurementsSortedByArrival">
+      <summary>
+            Gets the total number of measurements that were sorted by arrival because the measurement reported a bad timestamp quality.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.MillisecondsFromRealTime(Gemstone.Ticks)">
+      <summary>
+            Returns the deviation, in milliseconds, that the given number of ticks is from real-time (i.e., <see cref="P:Gemstone.Timeseries.ConcentratorBase.RealTime" />).
+            </summary>
+      <param name="timestamp">Timestamp to calculate distance from real-time.</param>
+      <returns>A <see cref="T:System.Double" /> value indicating the deviation in milliseconds.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.MissedSortsByTimeout">
+      <summary>
+            Gets the total number of missed sorts by timeout processed by the concentrator.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.OnDiscardingMeasurements(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.IMeasurement})">
+      <summary>
+            Raises the <see cref="E:Gemstone.Timeseries.ConcentratorBase.DiscardingMeasurements" /> event.
+            </summary>
+      <param name="measurements">Enumeration of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values being discarded.</param>
+      <remarks>
+            Allows derived classes to raise a discarding measurements event.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.OnProcessException(Gemstone.Diagnostics.MessageLevel,System.Exception,System.String,Gemstone.Diagnostics.MessageFlags)">
+      <summary>
+            Raises the <see cref="E:Gemstone.Timeseries.ConcentratorBase.ProcessException" /> event.
+            </summary>
+      <param name="level">The <see cref="T:Gemstone.Diagnostics.MessageLevel" /> to assign to this message</param>
+      <param name="exception">Processing <see cref="T:System.Exception" />.</param>
+      <param name="eventName">A fixed string to classify this event; defaults to <c>null</c>.</param>
+      <param name="flags">
+        <see cref="T:Gemstone.Diagnostics.MessageFlags" /> to use, if any; defaults to <see cref="F:Gemstone.Diagnostics.MessageFlags.None" />.</param>
+      <remarks>
+        <see pref="eventName" /> should be a constant string value associated with what type of message is being
+            generated. In general, there should only be a few dozen distinct event names per class. Exceeding this
+            threshold will cause the EventName to be replaced with a general warning that a usage issue has occurred.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.OnProcessException(System.Exception)">
+      <summary>
+            Raises the <see cref="E:Gemstone.Timeseries.ConcentratorBase.ProcessException" /> event.
+            </summary>
+      <param name="ex">Processing <see cref="T:System.Exception" />.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.OnUnpublishedSamples(System.Int32)">
+      <summary>
+            Raises the <see cref="E:Gemstone.Timeseries.ConcentratorBase.UnpublishedSamples" /> event.
+            </summary>
+      <param name="seconds">Total number of unpublished seconds of data.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.PerformTimestampReasonabilityCheck">
+      <summary>
+            Gets or sets flag that determines if timestamp reasonability checks should be performed on incoming
+            measurements (i.e., measurement timestamps are compared to system clock for reasonability using
+            <see cref="P:Gemstone.Timeseries.ConcentratorBase.LeadTime" /> tolerance).
+            </summary>
+      <remarks>
+            Setting this value to <c>false</c> will make the concentrator use the latest value received as "real-time"
+            without validation; this is not recommended in production since time reported by source devices may
+            be grossly incorrect. For non-production configurations, setting this value to false will allow
+            concentration of historical data.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.ProcessByReceivedTimestamp">
+      <summary>
+            Gets or sets flag that determines if concentrator should sort measurements by received time.
+            </summary>
+      <remarks>
+        <para>
+            Setting this value to <c>true</c> will make concentrator use the timestamp of measurement
+            reception, which is typically the <see cref="T:Gemstone.Timeseries.IMeasurement" /> creation time, for sorting and
+            publication. This is useful in scenarios where the concentrator will be receiving very large
+            volumes of data but not necessarily in real-time, such as, reading values from a file where
+            you want data to be sorted and processed as fast as possible.
+            </para>
+        <para>
+            Setting this value to <c>true</c> will force <see cref="P:Gemstone.Timeseries.ConcentratorBase.UseLocalClockAsRealTime" /> to be <c>true</c>
+            and <see cref="P:Gemstone.Timeseries.ConcentratorBase.AllowSortsByArrival" /> to be <c>false</c>.
+            </para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.ProcessedMeasurements">
+      <summary>
+            Gets the total number of measurements successfully sorted.
+            </summary>
+    </member>
+    <member name="E:Gemstone.Timeseries.ConcentratorBase.ProcessException">
+      <summary>
+            This event is raised if there is an exception encountered while attempting to process a frame in the sample queue.
+            </summary>
+      <remarks>
+        <para>
+          <see cref="F:Gemstone.EventArgs`1.Argument" /> is the <see cref="T:System.Exception" /> encountered while parsing the data stream.
+            </para>
+        <para>
+            Processing will not stop for any exceptions thrown by the user function, but any captured exceptions will be exposed through this event.
+            </para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.ProcessingInterval">
+      <summary>
+            Gets or sets the desired processing interval, in milliseconds, for the adapter.
+            </summary>
+      <remarks>
+        <para>
+            This property is normally only used when you need the concentrator to send data at faster than real-time speeds,
+            e.g., faster than the defined <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" />. A use case would be pushing historical data through
+            the concentrator where you want to sort and publish data as quickly as possible.
+            </para>
+        <para>
+            With the exception of the values of -1 and 0, this value specifies the desired processing interval for data, e.g.,
+            a timer interval, over which to process data. A value of -1 means to use the default processing interval, i.e., use
+            the <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" />, while a value of 0 means to process data as fast as possible.
+            </para>
+        <para>
+            From a real-time perspective the <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> defines its general processing interval based on
+            the defined <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" /> property. The frames per second property, however, is more than a basic
+            processing interval since it is used to define the intervals in one second that will become the time sorting
+            destination "buckets" used by the concentrator irrespective of the data rate of the incoming data. As an example,
+            if the frames per second of the concentrator is set to 30 and the source data rate is 60fps, then data will be
+            down-sampled to 30 frames of sorted incoming data but the assigned processing interval will be used to publish the
+            frames at the specified rate.
+            </para>
+        <para>
+            The implemented functionality of the process interval property will be to respond to values in the following way:
+            <list type="table"><listheader><term>Value</term><description>Response</description></listheader><item><term>&lt; 0</term><description>
+                    In this case the default processing interval has been requested, as a result the <see cref="P:Gemstone.Timeseries.ConcentratorBase.ProcessByReceivedTimestamp" />
+                    will be set to <c>false</c> and the concentrator processing interval will be defined based on the currently defined
+                    <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" /> property, e.g., if the frames per second is 30 the processing interval will be 33.33ms.
+                    </description></item><item><term>0</term><description>
+                    In this case the processing interval has been defined to process data as fast as possible, as a result the
+                    <see cref="P:Gemstone.Timeseries.ConcentratorBase.ProcessByReceivedTimestamp" /> property will be set to <c>true</c> and <see cref="P:Gemstone.Timeseries.ConcentratorBase.UsePrecisionTimer" /> property
+                    will be set to <c>false</c>. With a processing interval of zero data is expected to flow into the concentrator as quick as
+                    it can be provided. The <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" /> property will still be used to sort data by time into appropriate
+                    frames, but the concentrator will use the reception time of the measurements against the defined lag-time to make sure
+                    needed data has arrived before publication and frames will be published at the same rate of data arrival.
+                    </description></item><item><term>&gt; 0</term><description>
+                    In this case a specific processing interval has been defined for processing data, as a result both the
+                    <see cref="P:Gemstone.Timeseries.ConcentratorBase.ProcessByReceivedTimestamp" /> and <see cref="P:Gemstone.Timeseries.ConcentratorBase.UsePrecisionTimer" /> properties will be set to <c>true</c>. With
+                    a specifically defined processing interval, data is expected to flow into the concentrator at a similar rate. The
+                    <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" /> property will still be used to sort data by time into appropriate frames, but the concentrator
+                    will use the reception time of the measurements against the defined lag-time to make sure needed data has arrived before
+                    publication and frames will be published on the specified interval. If multiple frames are ready for publication when the
+                    processing interval executes, then all the ready frames will be published sequentially as quickly as possible.
+                    </description></item></list></para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.PublishedFrames">
+      <summary>
+            Gets the total number of published frames.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.PublishedMeasurements">
+      <summary>
+            Gets the total number of published measurements.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.PublishFrame(Gemstone.Timeseries.IFrame,System.Int32)">
+      <summary>
+            Publish <see cref="T:Gemstone.Timeseries.IFrame" /> of time-aligned collection of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values that arrived within the
+            concentrator's defined <see cref="P:Gemstone.Timeseries.ConcentratorBase.LagTime" />.
+            </summary>
+      <param name="frame">
+        <see cref="T:Gemstone.Timeseries.IFrame" /> of measurements with the same timestamp that arrived within <see cref="P:Gemstone.Timeseries.ConcentratorBase.LagTime" /> that are ready for processing.</param>
+      <param name="index">Index of <see cref="T:Gemstone.Timeseries.IFrame" /> within a second ranging from zero to <c><see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" /> - 1</c>.</param>
+      <remarks>
+            If user implemented publication function consistently exceeds available publishing time (i.e., <c>1 / <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" /></c> seconds),
+            concentration will fall behind. A small amount of this time is required by the <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> for processing overhead, so actual total time
+            available for user function process will always be slightly less than <c>1 / <see cref="P:Gemstone.Timeseries.ConcentratorBase.FramesPerSecond" /></c> seconds.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.QueueState">
+      <summary>
+            Gets detailed state of concentrator frame queue.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.RealTime">
+      <summary>
+            Gets the most accurate time value that is available. If <see cref="P:Gemstone.Timeseries.ConcentratorBase.UseLocalClockAsRealTime" /> = <c>true</c>, then
+            this function will return <see cref="P:System.DateTime.UtcNow" />. Otherwise, this function will return the timestamp of the
+            most recent measurement, or <see cref="P:System.DateTime.UtcNow" /> if no measurement timestamps are within time deviation
+            tolerances as specified by the <see cref="P:Gemstone.Timeseries.ConcentratorBase.LeadTime" /> value.
+            </summary>
+      <remarks>
+            Because the measurements being received by remote devices are often measured relative to GPS time, these timestamps
+            are typically more accurate than the local clock. As a result, we can use the latest received timestamp as the best
+            local time measurement we have (ignoring transmission delays); but, even these times can be incorrect so we still have
+            to apply reasonability checks to these times. To do this, we use the local system time and the <see cref="P:Gemstone.Timeseries.ConcentratorBase.LeadTime" />
+            value to validate the latest measured timestamp. If the newest received measurement timestamp gets too old or creeps
+            too far into the future (both validated + and - against defined lead time property value), we will fall back on local
+            system time. Note that this creates a dependency on a fairly accurate local clock - the smaller the lead time deviation
+            tolerance, the better the needed local clock accuracy. For example, a lead time deviation tolerance of a few seconds
+            might only require keeping the local clock synchronized to an NTP time source; but, a sub-second tolerance would
+            require that the local clock be very close to GPS time.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.ReceivedMeasurements">
+      <summary>
+            Gets the total number of measurements ever requested for sorting.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.ResetStatistics">
+      <summary>
+            Resets the statistics of the concentrator.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.RoundToNearestTimestamp">
+      <summary>
+            Gets or sets a value to indicate whether the concentrator should round to the
+            nearest frame timestamp rather than rounding down to the nearest timestamps.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.RunTime">
+      <summary>
+            Gets the total amount of time, in seconds, that the concentrator has been active.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.SecondsFromRealTime(Gemstone.Ticks)">
+      <summary>
+            Returns the deviation, in seconds, that the given number of ticks is from real-time (i.e., <see cref="P:Gemstone.Timeseries.ConcentratorBase.RealTime" />).
+            </summary>
+      <param name="timestamp">Timestamp to calculate distance from real-time.</param>
+      <returns>A <see cref="T:System.Double" /> value indicating the deviation, in seconds, from real-time.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.SortMeasurement(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Sorts the <see cref="T:Gemstone.Timeseries.IMeasurement" /> placing the data point in its proper <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> to sort.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.SortMeasurements(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.IMeasurement})">
+      <summary>
+            Sorts each <see cref="T:Gemstone.Timeseries.IMeasurement" /> placing each data point in its proper <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+      <param name="measurements">Collection of <see cref="T:Gemstone.Timeseries.IMeasurement" />'s to sort.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.Start">
+      <summary>
+            Starts the concentrator, if it is not already running.
+            </summary>
+      <remarks>
+            Concentrator must be started by calling <see cref="M:Gemstone.Timeseries.ConcentratorBase.Start" /> method or setting
+            <c><see cref="P:Gemstone.Timeseries.ConcentratorBase.Enabled" /> = true</c>) before concentration will begin.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.StartTime">
+      <summary>
+            Gets the UTC time the concentrator was started.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.Status">
+      <summary>
+            Gets current detailed state and status of concentrator for display purposes.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.Stop">
+      <summary>
+            Stops the concentrator.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.StopTime">
+      <summary>
+            Gets the UTC time the concentrator was stopped.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.TicksPerFrame">
+      <summary>
+            Gets the number of ticks per frame.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.TimeResolution">
+      <summary>
+            Gets or sets the maximum time resolution, in ticks, to use when sorting measurements by timestamps into their proper destination frame.
+            </summary>
+      <remarks>
+        <list type="table">
+          <listheader>
+            <term>Desired maximum resolution</term>
+            <description>Value to assign</description>
+          </listheader>
+          <item>
+            <term>Seconds</term>
+            <description>
+              <see cref="T:Gemstone.Ticks" />.<see cref="F:Gemstone.Ticks.PerSecond" /></description>
+          </item>
+          <item>
+            <term>Milliseconds</term>
+            <description>
+              <see cref="T:Gemstone.Ticks" />.<see cref="F:Gemstone.Ticks.PerMillisecond" /></description>
+          </item>
+          <item>
+            <term>Microseconds</term>
+            <description>
+              <see cref="T:Gemstone.Ticks" />.<see cref="F:Gemstone.Ticks.PerMicrosecond" /></description>
+          </item>
+          <item>
+            <term>100-Nanoseconds</term>
+            <description>0</description>
+          </item>
+        </list>
+            Assigning values less than zero will be set to zero since minimum possible concentrator resolution is one tick (100-nanoseconds). Assigning
+            values greater than <see cref="T:Gemstone.Ticks" />.<see cref="F:Gemstone.Ticks.PerSecond" /> will be set to <see cref="T:Gemstone.Ticks" />.<see cref="F:Gemstone.Ticks.PerSecond" />
+            since maximum possible concentrator resolution is one second (i.e., 1 frame per second).
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.TotalPublicationTime">
+      <summary>
+            Gets the total number of seconds frames have spent in the publication process since concentrator started.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.TrackLatestMeasurements">
+      <summary>
+            Gets or sets flag to start tracking the absolute latest received measurement values.
+            </summary>
+      <remarks>
+            Latest received measurement value will be available via the <see cref="P:Gemstone.Timeseries.ConcentratorBase.LatestMeasurements" /> property.
+            Note that enabling this option will slightly increase the required sorting time.
+            </remarks>
+    </member>
+    <member name="E:Gemstone.Timeseries.ConcentratorBase.UnpublishedSamples">
+      <summary>
+            This event is raised every 5 seconds allowing consumer to track current number of unpublished seconds of data in the queue.
+            </summary>
+      <remarks>
+        <see cref="F:Gemstone.EventArgs`1.Argument" /> is the total number of unpublished seconds of data.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.UseLocalClockAsRealTime">
+      <summary>
+            Gets or sets flag that determines whether or not to use the local clock time as real-time.
+            </summary>
+      <remarks>
+        <para>
+            Use your local system clock as real-time only if the time is locally GPS-synchronized,
+            or if the measurement values being sorted were not measured relative to a GPS-synchronized clock.
+            </para>
+        <para>
+            If <see cref="P:Gemstone.Timeseries.ConcentratorBase.ProcessByReceivedTimestamp" /> is <c>true</c>, <see cref="P:Gemstone.Timeseries.ConcentratorBase.UseLocalClockAsRealTime" /> will
+            always be set to <c>true</c>, even if you try to set it to <c>false</c>.
+            </para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.UsePrecisionTimer">
+      <summary>
+            Gets or sets flag that determines if precision timer should be used for frame publication.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ConcentratorBase.WaitHandleExpirations">
+      <summary>
+            Gets the total number of wait handle expirations encountered due to delayed precision timer releases.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.ConnectionException">
+      <summary>
+            Represents an exception related to connection activities.
+            </summary>
+      <remarks>
+            This exception is used to filter connection exceptions into a separate log since
+            these types of exceptions can be so frequent when a device is offline.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConnectionException.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.ConnectionException" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConnectionException.#ctor(System.String)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.ConnectionException" /> with the specified <paramref name="message" />.
+            </summary>
+      <param name="message">Exception message.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConnectionException.#ctor(System.String,System.Exception)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.ConnectionException" /> with the specified <paramref name="message" />
+            and <paramref name="innerException" />.
+            </summary>
+      <param name="message">Exception message.</param>
+      <param name="innerException">Inner exception.</param>
+    </member>
+    <member name="T:Gemstone.Timeseries.DownsamplingMethod">
+      <summary>
+            Down-sampling method enumeration.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.DownsamplingMethod.LastReceived">
+      <summary>
+            Down-samples to the last measurement received.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.DownsamplingMethod.Closest">
+      <summary>
+            Down-samples to the measurement closest to frame time.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.DownsamplingMethod.Filtered">
+      <summary>
+            Down-samples by applying a user-defined value filter over all received measurements to anti-alias the results.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.DownsamplingMethod.BestQuality">
+      <summary>
+            Down-samples to the measurement that has the best quality closest to frame time.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Frame">
+      <summary>
+            Implementation of a basic <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+      <remarks>
+            A frame represents a collection of measurements at a given time.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.#ctor(Gemstone.Ticks,System.Collections.Generic.IDictionary{Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement})">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.Frame" /> given the specified parameters.
+            </summary>
+      <param name="timestamp">Timestamp, in ticks, for this <see cref="T:Gemstone.Timeseries.Frame" />.</param>
+      <param name="measurements">Initial set of measurements to load into the <see cref="T:Gemstone.Timeseries.Frame" />, if any.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.#ctor(Gemstone.Ticks,System.Int32)">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.Frame" /> given the specified parameters.
+            </summary>
+      <param name="timestamp">Timestamp, in ticks, for this <see cref="T:Gemstone.Timeseries.Frame" />.</param>
+      <param name="expectedMeasurements">Expected number of measurements for the <see cref="T:Gemstone.Timeseries.Frame" />.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.Clone">
+      <summary>
+            Create a copy of this <see cref="T:Gemstone.Timeseries.Frame" /> and its measurements.
+            </summary>
+      <returns>A cloned <see cref="T:Gemstone.Timeseries.Frame" />.</returns>
+      <remarks>
+            The measurement dictionary of this <see cref="T:Gemstone.Timeseries.Frame" /> is synclocked during copy.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.CompareTo(Gemstone.Timeseries.IFrame)">
+      <summary>
+            Compares the <see cref="T:Gemstone.Timeseries.Frame" /> with an <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+      <param name="other">The <see cref="T:Gemstone.Timeseries.IFrame" /> to compare with the current <see cref="T:Gemstone.Timeseries.Frame" />.</param>
+      <returns>A 32-bit signed integer that indicates the relative order of the objects being compared.</returns>
+      <remarks>This implementation of a basic frame compares itself by timestamp.</remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.CompareTo(System.Object)">
+      <summary>
+            Compares the <see cref="T:Gemstone.Timeseries.Frame" /> with the specified <see cref="T:System.Object" />.
+            </summary>
+      <param name="obj">The <see cref="T:System.Object" /> to compare with the current <see cref="T:Gemstone.Timeseries.Frame" />.</param>
+      <returns>A 32-bit signed integer that indicates the relative order of the objects being compared.</returns>
+      <remarks>This implementation of a basic frame compares itself by timestamp.</remarks>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="obj" /> is not an <see cref="T:Gemstone.Timeseries.IFrame" />.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.Frame.CreatedTimestamp">
+      <summary>
+            Gets timestamp, in ticks, of when this <see cref="T:Gemstone.Timeseries.Frame" /> was created.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.Equals(Gemstone.Timeseries.IFrame)">
+      <summary>
+            Determines whether the specified <see cref="T:Gemstone.Timeseries.IFrame" /> is equal to the current <see cref="T:Gemstone.Timeseries.Frame" />.
+            </summary>
+      <param name="other">The <see cref="T:Gemstone.Timeseries.IFrame" /> to compare with the current <see cref="T:Gemstone.Timeseries.Frame" />.</param>
+      <returns>
+            true if the specified <see cref="T:Gemstone.Timeseries.IFrame" /> is equal to the current <see cref="T:Gemstone.Timeseries.Frame" />;
+            otherwise, false.
+            </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.Equals(System.Object)">
+      <summary>
+            Determines whether the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:Gemstone.Timeseries.Frame" />.
+            </summary>
+      <param name="obj">The <see cref="T:System.Object" /> to compare with the current <see cref="T:Gemstone.Timeseries.Frame" />.</param>
+      <returns>
+            true if the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:Gemstone.Timeseries.Frame" />;
+            otherwise, false.
+            </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.GetHashCode">
+      <summary>
+            Serves as a hash function for the current <see cref="T:Gemstone.Timeseries.Frame" />.
+            </summary>
+      <returns>A hash code for the current <see cref="T:Gemstone.Timeseries.Frame" />.</returns>
+      <remarks>Hash code based on timestamp of frame.</remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Frame.LastSortedMeasurement">
+      <summary>
+            Gets or sets reference to last measurement that was sorted into this <see cref="T:Gemstone.Timeseries.Frame" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Frame.Lifespan">
+      <summary>
+            Gets the life-span of this <see cref="T:Gemstone.Timeseries.Frame" /> since its creation.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Frame.Measurements">
+      <summary>
+            Keyed measurements in this <see cref="T:Gemstone.Timeseries.Frame" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.op_Equality(Gemstone.Timeseries.Frame,Gemstone.Timeseries.Frame)">
+      <summary>
+            Compares two <see cref="T:Gemstone.Timeseries.Frame" /> timestamps for equality.
+            </summary>
+      <param name="frame1">The <see cref="T:Gemstone.Timeseries.Frame" /> left hand operand.</param>
+      <param name="frame2">The <see cref="T:Gemstone.Timeseries.Frame" /> right hand operand.</param>
+      <returns>A <see cref="T:System.Boolean" /> representing the result of the operation.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.op_GreaterThan(Gemstone.Timeseries.Frame,Gemstone.Timeseries.Frame)">
+      <summary>
+            Returns true if left <see cref="T:Gemstone.Timeseries.Frame" /> timestamp is greater than right <see cref="T:Gemstone.Timeseries.Frame" /> timestamp.
+            </summary>
+      <param name="frame1">The <see cref="T:Gemstone.Timeseries.Frame" /> left hand operand.</param>
+      <param name="frame2">The <see cref="T:Gemstone.Timeseries.Frame" /> right hand operand.</param>
+      <returns>A <see cref="T:System.Boolean" /> representing the result of the operation.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.op_GreaterThanOrEqual(Gemstone.Timeseries.Frame,Gemstone.Timeseries.Frame)">
+      <summary>
+            Returns true if left <see cref="T:Gemstone.Timeseries.Frame" /> timestamp is greater than or equal to right <see cref="T:Gemstone.Timeseries.Frame" /> timestamp.
+            </summary>
+      <param name="frame1">The <see cref="T:Gemstone.Timeseries.Frame" /> left hand operand.</param>
+      <param name="frame2">The <see cref="T:Gemstone.Timeseries.Frame" /> right hand operand.</param>
+      <returns>A <see cref="T:System.Boolean" /> representing the result of the operation.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.op_Inequality(Gemstone.Timeseries.Frame,Gemstone.Timeseries.Frame)">
+      <summary>
+            Compares two <see cref="T:Gemstone.Timeseries.Frame" /> timestamps for inequality.
+            </summary>
+      <param name="frame1">The <see cref="T:Gemstone.Timeseries.Frame" /> left hand operand.</param>
+      <param name="frame2">The <see cref="T:Gemstone.Timeseries.Frame" /> right hand operand.</param>
+      <returns>A <see cref="T:System.Boolean" /> representing the result of the operation.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.op_LessThan(Gemstone.Timeseries.Frame,Gemstone.Timeseries.Frame)">
+      <summary>
+            Returns true if left <see cref="T:Gemstone.Timeseries.Frame" /> timestamp is less than right <see cref="T:Gemstone.Timeseries.Frame" /> timestamp.
+            </summary>
+      <param name="frame1">The <see cref="T:Gemstone.Timeseries.Frame" /> left hand operand.</param>
+      <param name="frame2">The <see cref="T:Gemstone.Timeseries.Frame" /> right hand operand.</param>
+      <returns>A <see cref="T:System.Boolean" /> representing the result of the operation.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Frame.op_LessThanOrEqual(Gemstone.Timeseries.Frame,Gemstone.Timeseries.Frame)">
+      <summary>
+            Returns true if left <see cref="T:Gemstone.Timeseries.Frame" /> timestamp is less than or equal to right <see cref="T:Gemstone.Timeseries.Frame" /> timestamp.
+            </summary>
+      <param name="frame1">The <see cref="T:Gemstone.Timeseries.Frame" /> left hand operand.</param>
+      <param name="frame2">The <see cref="T:Gemstone.Timeseries.Frame" /> right hand operand.</param>
+      <returns>A <see cref="T:System.Boolean" /> representing the result of the operation.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Frame.Published">
+      <summary>
+            Gets or sets published state of this <see cref="T:Gemstone.Timeseries.Frame" /> (pre-processing).
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Frame.SortedMeasurements">
+      <summary>
+            Gets or sets total number of measurements that have been sorted into this <see cref="T:Gemstone.Timeseries.Frame" />.
+            </summary>
+      <remarks>
+            If this property has not been assigned a value, the property will return measurement count.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Frame.Timestamp">
+      <summary>
+            Gets or sets exact timestamp, in <see cref="T:Gemstone.Ticks" />, of the data represented in this <see cref="T:Gemstone.Timeseries.Frame" />.
+            </summary>
+      <remarks>
+            The value of this property represents the number of 100-nanosecond intervals that have elapsed since 12:00:00 midnight, January 1, 0001.
+            </remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.IDevice">
+      <summary>
+            Represents a device that acts as a source of <see cref="T:Gemstone.Timeseries.IMeasurement" />s.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IDevice.DataQualityErrors">
+      <summary>
+            Gets or sets total data quality errors of this <see cref="T:Gemstone.Timeseries.IDevice" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IDevice.DeviceErrors">
+      <summary>
+            Gets or sets total device errors of this <see cref="T:Gemstone.Timeseries.IDevice" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IDevice.MeasurementsDefined">
+      <summary>
+            Gets or sets the number of measurements (per frame) defined for this <see cref="T:Gemstone.Timeseries.IDevice" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IDevice.MeasurementsExpected">
+      <summary>
+            Gets or sets total measurements expected to have been received for this <see cref="T:Gemstone.Timeseries.IDevice" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IDevice.MeasurementsReceived">
+      <summary>
+            Gets or sets total measurements received for this <see cref="T:Gemstone.Timeseries.IDevice" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IDevice.MeasurementsWithError">
+      <summary>
+            Gets or sets the number of measurements received while this <see cref="T:Gemstone.Timeseries.IDevice" /> was reporting errors.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IDevice.TimeQualityErrors">
+      <summary>
+            Gets or sets total time quality errors of this <see cref="T:Gemstone.Timeseries.IDevice" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.IFrame">
+      <summary>
+            Abstract frame interface representing a collection of measurements at an exact moment in time.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IFrame.CreatedTimestamp">
+      <summary>
+            Gets timestamp, in ticks, of when this <see cref="T:Gemstone.Timeseries.IFrame" /> was created.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IFrame.LastSortedMeasurement">
+      <summary>
+            Gets or sets reference to last <see cref="T:Gemstone.Timeseries.IMeasurement" /> that was sorted into this <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+      <remarks>
+        <para>This value is used to help monitor slow moving measurements that are being sorted into the <see cref="T:Gemstone.Timeseries.IFrame" />.</para>
+        <para>Implementers need only track the value.</para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.IFrame.Lifespan">
+      <summary>
+            Gets the life-span of this <see cref="T:Gemstone.Timeseries.IFrame" /> since its creation.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IFrame.Measurements">
+      <summary>
+            Keyed measurements in this <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+      <remarks>
+            Represents a concurrent dictionary of measurements, keyed by <see cref="T:Gemstone.Timeseries.MeasurementKey" />.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.IFrame.Published">
+      <summary>
+            Gets or sets published state of this <see cref="T:Gemstone.Timeseries.IFrame" /> (pre-processing).
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IFrame.SortedMeasurements">
+      <summary>
+            Gets or sets total number of measurements that have been sorted into this <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+      <remarks>
+            If this property has not been assigned a value, implementers should return measurement count.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.IFrame.Timestamp">
+      <summary>
+            Gets or sets exact timestamp, in <see cref="T:Gemstone.Ticks" />, of the data represented in this <see cref="T:Gemstone.Timeseries.IFrame" />.
+            </summary>
+      <remarks>
+            The value of this property represents the number of 100-nanosecond intervals that have elapsed since 12:00:00 midnight, January 1, 0001.
+            </remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.IMeasurement">
+      <summary>
+            Represents an interface for an abstract measurement value measured by a device at an exact time.
+            </summary>
+      <remarks>
+            This interface abstractly represents a measured value at an exact time interval.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.Adder">
+      <summary>
+            Defines an offset to add to the <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.
+            </summary>
+      <remarks>
+            Implementers should make sure this value defaults to zero.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.AdjustedValue">
+      <summary>
+            Gets the adjusted numeric value of this <see cref="T:Gemstone.Timeseries.IMeasurement" />, taking into account the specified <see cref="P:Gemstone.Timeseries.IMeasurement.Adder" /> and <see cref="P:Gemstone.Timeseries.IMeasurement.Multiplier" /> offsets.
+            </summary>
+      <remarks>
+        <para>Implementers need to account for <see cref="P:Gemstone.Timeseries.IMeasurement.Adder" /> and <see cref="P:Gemstone.Timeseries.IMeasurement.Multiplier" /> in return value, e.g.:<br /><c>return <see cref="P:Gemstone.Timeseries.ITimeSeriesValue`1.Value" /> * <see cref="P:Gemstone.Timeseries.IMeasurement.Multiplier" /> + <see cref="P:Gemstone.Timeseries.IMeasurement.Adder" /></c></para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.CreatedTimestamp">
+      <summary>
+            Gets timestamp, in ticks, of when this <see cref="T:Gemstone.Timeseries.IMeasurement" /> was created.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.Key">
+      <summary>
+            Gets or sets the primary key of this <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.Lifespan">
+      <summary>
+            Gets the life-span of this <see cref="T:Gemstone.Timeseries.IMeasurement" /> since its creation.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.MeasurementValueFilter">
+      <summary>
+            Gets or sets function used to apply a down-sampling filter over a sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.Metadata">
+      <summary>
+            Gets or sets associated metadata values for the <see cref="T:Gemstone.Timeseries.IMeasurement" /> .
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.Multiplier">
+      <summary>
+            Defines a multiplicative offset to apply to the <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.
+            </summary>
+      <remarks>
+            Implementers should make sure this value defaults to one.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.StateFlags">
+      <summary>
+            Gets or sets <see cref="T:Gemstone.Timeseries.MeasurementStateFlags" /> associated with this <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.IMeasurement.TagName">
+      <summary>
+            Gets or sets the text based tag name of this <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.IMeasurementExtensions">
+      <summary>
+            Defines static extension functions for <see cref="T:Gemstone.Timeseries.IMeasurement" /> implementations.
+            </summary>
+      <remarks>
+            These helper functions map to the previously defined corresponding properties to help with the transition of <see cref="T:Gemstone.Timeseries.MeasurementStateFlags" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.DeriveQualityFlags(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.IMeasurement})">
+      <summary>
+            Gets derived quality flags from a set of source measurements.
+            </summary>
+      <param name="measurements">Source measurements.</param>
+      <returns>Derived quality flags.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.GetDataColumn(Gemstone.Timeseries.IMeasurement[0:,0:],System.Int32)">
+      <summary>
+            Gets a single column of measurement data from a two dimensional data window.
+            </summary>
+      <param name="dataWindow">Target data window.</param>
+      <param name="columnIndex">Index of column to return.</param>
+      <returns>All values from <paramref name="columnIndex" /> in <paramref name="dataWindow" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.GetSignalType(Gemstone.Timeseries.IMeasurement,System.Data.DataSet)">
+      <summary>
+            Gets a unique (run-time only) signal type ID for the given <paramref name="measurement" /> useful for sorting.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> to obtain signal type for.</param>
+      <param name="dataSource">
+        <see cref="T:System.Data.DataSet" /> that contains measurement metadata.</param>
+      <returns>Unique (run-time only) signal type ID for the given <paramref name="measurement" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.IsCalculated(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Returns <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.CalculatedValue" /> is set.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> instance to test.</param>
+      <returns>
+        <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.CalculatedValue" /> is not set.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.IsDiscarded(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Returns <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.DiscardedValue" /> is set.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> instance to test.</param>
+      <returns>
+        <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.DiscardedValue" /> is not set.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.MeasurementKeys(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.IMeasurement})">
+      <summary>
+            Returns the <see cref="T:Gemstone.Timeseries.MeasurementKey" /> values of a <see cref="T:Gemstone.Timeseries.IMeasurement" /> enumeration.
+            </summary>
+      <param name="measurements">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> enumeration to convert.</param>
+      <returns>
+        <see cref="T:Gemstone.Timeseries.MeasurementKey" /> values of the <see cref="T:Gemstone.Timeseries.IMeasurement" /> enumeration.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.RuntimeSignalID(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Returns the measurement ID if defined, otherwise the run-time signal ID associated with the measurement key.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> instance to test.</param>
+      <returns>Measurement ID if defined, otherwise the run-time signal ID associated with the measurement key.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.SetAdder(Gemstone.Timeseries.IMeasurement,System.Double)">
+      <summary>
+            Sets the adder (i.e., "b" of y = mx + b) for a <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> to create new <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> for.</param>
+      <param name="adder">New adder value to assign to measurement's metadata.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.SetKey(Gemstone.Timeseries.IMeasurement,Gemstone.Timeseries.MeasurementKey)">
+      <summary>
+            Sets the associated <see cref="T:Gemstone.Timeseries.MeasurementKey" /> for a <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> to create new <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> for.</param>
+      <param name="key">New measurement key value to assign to measurement's metadata.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.SetMultiplier(Gemstone.Timeseries.IMeasurement,System.Double)">
+      <summary>
+            Sets the multiplier (i.e., "m" of y = mx + b) for a <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> to create new <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> for.</param>
+      <param name="multiplier">New multiplier value to assign to measurement's metadata.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.SetTagName(Gemstone.Timeseries.IMeasurement,System.String)">
+      <summary>
+            Sets the tag name for a <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> to create new <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> for.</param>
+      <param name="tagName">New tag name value to assign to measurement's metadata.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.TimestampQualityIsGood(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Returns <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.BadTime" /> is not set.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> instance to test.</param>
+      <returns>
+        <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.BadTime" /> is not set.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.TimestampQualityIsSuspect(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Returns <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.SuspectTime" /> is set.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> instance to test.</param>
+      <returns>
+        <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.SuspectTime" /> is set.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.ValueQualityIsGood(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Returns <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.BadData" /> is not set.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> instance to test.</param>
+      <returns>
+        <c>true</c> if <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.BadData" /> is not set.</returns>
+    </member>
+    <member name="T:Gemstone.Timeseries.ImmediateMeasurements">
+      <summary>
+            Represents the absolute latest measurement values received by a <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> implementation.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.#ctor">
+      <summary>
+            Creates a new instance of the <see cref="T:Gemstone.Timeseries.ImmediateMeasurements" /> class.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.AddTaggedMeasurement(System.String,Gemstone.Timeseries.MeasurementKey)">
+      <summary>
+            Associates a new measurement ID with a tag, creating the new tag if needed.
+            </summary>
+      <param name="tag">A <see cref="T:System.String" /> to represent the key.</param>
+      <param name="id">A <see cref="T:System.Guid" /> ID to associate with the tag.</param>
+      <remarks>Allows you to define "grouped" points so you can aggregate certain measurements.</remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.CalculateAverage(System.Int32@)">
+      <summary>
+            Calculates an average of all measurements.
+            </summary>
+      <param name="count">An <see cref="T:System.Int32" /> value to get the count of values averaged.</param>
+      <returns>A <see cref="T:System.Double" /> value representing the average of the measurements.</returns>
+      <remarks>This is only useful if all measurements represent the same type of measurement.</remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.CalculateTagAverage(System.String,System.Int32@)">
+      <summary>
+            Calculates an average of all measurements associated with the specified tag.
+            </summary>
+      <param name="count">An <see cref="T:System.Int32" /> value to get the count of values averaged.</param>
+      <param name="tag">The type of measurements to average.</param>
+      <returns>A <see cref="T:System.Double" /> value representing the average of the tags.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.ClearMeasurementCache">
+      <summary>
+            Clears the existing measurement cache.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.DefineTaggedMeasurements(System.Data.DataTable)">
+      <summary>
+            Defines tagged measurements from a data table.
+            </summary>
+      <param name="taggedMeasurements">A <see cref="T:System.Data.DataTable" /> to use for defining the tagged measurements.</param>
+      <remarks>Expects <see cref="T:System.String" /> based tag field to be aliased as "Tag" and <see cref="T:System.Guid" /> based measurement ID field to be aliased as "ID".</remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.Dispose">
+      <summary>
+            Releases all the resources used by the <see cref="T:Gemstone.Timeseries.ImmediateMeasurements" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.Dispose(System.Boolean)">
+      <summary>
+            Releases the unmanaged resources used by the <see cref="T:Gemstone.Timeseries.ImmediateMeasurements" /> object and optionally releases the managed resources.
+            </summary>
+      <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.Finalize">
+      <summary>
+            Releases the unmanaged resources before the <see cref="T:Gemstone.Timeseries.ImmediateMeasurements" /> object is reclaimed by <see cref="T:System.GC" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.Item(Gemstone.Timeseries.MeasurementKey)">
+      <summary>
+            We retrieve adjusted measurement values within time tolerance of concentrator real-time.
+            </summary>
+      <param name="id">A <see cref="T:System.Guid" /> representing the measurement ID.</param>
+      <returns>A <see cref="T:System.Double" /> representing the adjusted measurement value.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.LagTime">
+      <summary>
+            Gets or sets the allowed past time deviation tolerance, in seconds (can be sub-second).
+            </summary>
+      <remarks>
+        <para>Defines the time sensitivity to past measurement timestamps.</para>
+        <para>The number of seconds allowed before assuming a measurement timestamp is too old.</para>
+      </remarks>
+      <exception cref="T:System.ArgumentOutOfRangeException">LagTime must be greater than zero, but it can be less than one.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.LeadTime">
+      <summary>
+            Gets or sets the allowed future time deviation tolerance, in seconds (can be sub-second).
+            </summary>
+      <remarks>
+        <para>Defines the time sensitivity to future measurement timestamps.</para>
+        <para>The number of seconds allowed before assuming a measurement timestamp is too advanced.</para>
+      </remarks>
+      <exception cref="T:System.ArgumentOutOfRangeException">LeadTime must be greater than zero, but it can be less than one.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.Maximum">
+      <summary>
+            Returns the maximum value of all measurements.
+            </summary>
+      <remarks>This is only useful if all measurements represent the same type of measurement.</remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.Measurement(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Retrieves the specified immediate temporal measurement, creating it if needed.
+            </summary>
+      <param name="measurement">Source <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.</param>
+      <returns>A <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> object.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.Measurement(Gemstone.Timeseries.MeasurementKey)">
+      <summary>
+            Retrieves the specified immediate temporal measurement, creating it if needed.
+            </summary>
+      <param name="id">
+        <see cref="T:System.Guid" /> based signal ID of measurement.</param>
+      <returns>A <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> object.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.MeasurementIDs">
+      <summary>Returns collection of measurement ID's.</summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.Minimum">
+      <summary>
+            Returns the minimum value of all measurements.
+            </summary>
+      <remarks>This is only useful if all measurements represent the same type of measurement.</remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.OnLagTimeUpdated(System.Double)">
+      <summary>
+            Updates the tracked temporal measurements lag time.
+            </summary>
+      <param name="lagTime">New lag time.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.OnLeadTimeUpdated(System.Double)">
+      <summary>
+            Updates the tracked temporal measurements lead time.
+            </summary>
+      <param name="leadTime">New lead time.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.OutlierOperation">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.Timeseries.TemporalOutlierOperation" /> for the <see cref="T:Gemstone.Timeseries.ImmediateMeasurements" /> when
+            timestamp is outside defined Lag/Lead time bounds.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.OutlierState">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.Timeseries.MeasurementStateFlags" /> to apply to the <see cref="T:Gemstone.Timeseries.ImmediateMeasurements" /> when
+            <see cref="P:Gemstone.Timeseries.ImmediateMeasurements.OutlierOperation" /> is set to <see cref="F:Gemstone.Timeseries.TemporalOutlierOperation.PublishWithBadState" /> and
+            timestamp is outside defined Lag/Lead time bounds.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.RealTimeFunction">
+      <summary>
+            Gets or sets function to return real-time.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.TaggedMeasurementKeys(System.String)">
+      <summary>
+            Returns measurement list of specified tag, if it exists.
+            </summary>
+      <param name="tag">A <see cref="T:System.String" /> that indicates the tag to use.</param>
+      <returns>A collection of measurement keys.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.TagMaximum(System.String)">
+      <summary>
+            Returns the maximum value of all measurements associated with the specified tag.
+            </summary>
+      <param name="tag">The tag group to evaluate.</param>
+      <returns>A <see cref="T:System.Double" /> value representing the tag maximum.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.TagMinimum(System.String)">
+      <summary>
+            Returns the minimum value of all measurements associated with the specified tag.
+            </summary>
+      <param name="tag">The tag group to evaluate.</param>
+      <returns>A <see cref="T:System.Double" /> value representing the tag minimum.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.ImmediateMeasurements.Tags">
+      <summary>Returns ID collection for measurement tags.</summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.UpdateMeasurementValue(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Store new measurement.
+            </summary>
+      <param name="newMeasurement">New measurement value to update.</param>
+      <remarks>Value is only stored if it is newer than the cached value.</remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.ITimeSeriesValue">
+      <summary>
+            Represents the fundamental binary value interface for a time-series value.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ITimeSeriesValue.GetHashCode">
+      <summary>
+            Get the hash code for the <see cref="P:Gemstone.Timeseries.ITimeSeriesValue.ID" />.
+            </summary>
+      <returns>Hash code for the <see cref="P:Gemstone.Timeseries.ITimeSeriesValue.ID" />.</returns>
+      <remarks>Implementers should always return the hash code based on <see cref="P:Gemstone.Timeseries.ITimeSeriesValue.ID" /> of measurement.</remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ITimeSeriesValue.ID">
+      <summary>
+            Gets or sets the <see cref="T:System.Guid" /> based signal ID of this <see cref="T:Gemstone.Timeseries.ITimeSeriesValue`1" />.
+            </summary>
+      <remarks>
+            This is the fundamental identifier of the <see cref="T:Gemstone.Timeseries.ITimeSeriesValue`1" />.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ITimeSeriesValue.Timestamp">
+      <summary>
+            Gets or sets exact timestamp, in ticks, of the data represented by this <see cref="T:Gemstone.Timeseries.ITimeSeriesValue`1" />.
+            </summary>
+      <remarks>
+            The value of this property represents the number of 100-nanosecond intervals that have elapsed since 12:00:00 midnight, January 1, 0001.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ITimeSeriesValue.Value">
+      <summary>
+            Gets or sets the raw value of this <see cref="T:Gemstone.Timeseries.ITimeSeriesValue`1" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.ITimeSeriesValue`1">
+      <summary>
+            Represents the fundamental typed interface for a time-series value.
+            </summary>
+      <typeparam name="T">
+        <see cref="T:System.Type" /> of the time-series value.</typeparam>
+    </member>
+    <member name="P:Gemstone.Timeseries.ITimeSeriesValue`1.Value">
+      <summary>
+            Gets or sets the raw typed value of this <see cref="T:Gemstone.Timeseries.ITimeSeriesValue`1" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Measurement">
+      <summary>
+            Represents a basic measurement implementation.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.#ctor">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.Measurement" /> using default settings.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.Adder">
+      <summary>
+            Gets an offset to add to the measurement value. This defaults to 0.0.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.AdjustedValue">
+      <summary>
+            Gets the adjusted numeric value of this measurement, taking into account the specified <see cref="P:Gemstone.Timeseries.Measurement.Adder" /> and <see cref="P:Gemstone.Timeseries.Measurement.Multiplier" /> offsets.
+            </summary>
+      <returns>
+        <see cref="P:Gemstone.Timeseries.Measurement.Value" /> offset by <see cref="P:Gemstone.Timeseries.Measurement.Adder" /> and <see cref="P:Gemstone.Timeseries.Measurement.Multiplier" /> (i.e., <c><see cref="P:Gemstone.Timeseries.Measurement.Value" /> * <see cref="P:Gemstone.Timeseries.Measurement.Multiplier" /> + <see cref="P:Gemstone.Timeseries.Measurement.Adder" /></c>).</returns>
+      <remarks>
+            Note that returned value will be offset by <see cref="P:Gemstone.Timeseries.Measurement.Adder" /> and <see cref="P:Gemstone.Timeseries.Measurement.Multiplier" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.AverageAngleValueFilter(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.IMeasurement})">
+      <summary>
+            Calculates an average of the specified sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> phase angle values.
+            </summary>
+      <param name="source">Sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values over which to run calculation.</param>
+      <returns>Average of the specified sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> phase angle values.</returns>
+      <remarks>
+            Phase angles wrap, so this algorithm takes the wrapping into account when calculating the average.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.AverageValueFilter(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.IMeasurement})">
+      <summary>
+            Calculates an average of the specified sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values.
+            </summary>
+      <param name="source">Sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values over which to run calculation.</param>
+      <returns>Average of the specified sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.Clone(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Creates a copy of the specified measurement.
+            </summary>
+      <param name="measurementToClone">Specified measurement to clone.</param>
+      <returns>A copy of the <see cref="T:Gemstone.Timeseries.Measurement" /> object.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.Clone(Gemstone.Timeseries.IMeasurement,Gemstone.Ticks)">
+      <summary>
+            Creates a copy of the specified measurement using a new timestamp.
+            </summary>
+      <param name="measurementToClone">Specified measurement to clone.</param>
+      <param name="timestamp">New timestamp, in ticks, for cloned measurement.</param>
+      <returns>A copy of the <see cref="T:Gemstone.Timeseries.Measurement" /> object.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.Clone(Gemstone.Timeseries.IMeasurement,System.Double,Gemstone.Ticks)">
+      <summary>
+            Creates a copy of the specified measurement using a new value and timestamp.
+            </summary>
+      <param name="measurementToClone">Specified measurement to clone.</param>
+      <param name="value">New value for cloned measurement.</param>
+      <param name="timestamp">New timestamp, in ticks, for cloned measurement.</param>
+      <returns>A copy of the <see cref="T:Gemstone.Timeseries.Measurement" /> object.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.Clone(Gemstone.Timeseries.IMeasurement,System.Double,Gemstone.Ticks,Gemstone.Timeseries.MeasurementStateFlags,System.Boolean)">
+      <summary>
+            Creates a copy of the specified measurement using a new value, timestamp and state flags.
+            </summary>
+      <param name="measurementToClone">Specified measurement to clone.</param>
+      <param name="value">New value for cloned measurement.</param>
+      <param name="timestamp">New timestamp, in ticks, for cloned measurement.</param>
+      <param name="stateFlags">New state flags for cloned measurement.</param>
+      <param name="replaceFlags">Determines if <paramref name="stateFlags" /> should assigned as new (default) or be Or'd with existing flags.</param>
+      <returns>A copy of the <see cref="T:Gemstone.Timeseries.Measurement" /> object.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.CompareTo(Gemstone.Timeseries.ITimeSeriesValue)">
+      <summary>
+            Compares the <see cref="T:Gemstone.Timeseries.Measurement" /> with an <see cref="T:Gemstone.Timeseries.ITimeSeriesValue" />.
+            </summary>
+      <param name="other">The <see cref="T:Gemstone.Timeseries.ITimeSeriesValue" /> to compare with the current <see cref="T:Gemstone.Timeseries.Measurement" />.</param>
+      <returns>A 32-bit signed integer that indicates the relative order of the objects being compared.</returns>
+      <remarks>Measurement implementations should compare by hash code.</remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.CompareTo(System.Object)">
+      <summary>
+            Compares the <see cref="T:Gemstone.Timeseries.Measurement" /> with the specified <see cref="T:System.Object" />.
+            </summary>
+      <param name="obj">The <see cref="T:System.Object" /> to compare with the current <see cref="T:Gemstone.Timeseries.Measurement" />.</param>
+      <returns>A 32-bit signed integer that indicates the relative order of the objects being compared.</returns>
+      <remarks>Measurement implementations should compare by hash code.</remarks>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="obj" /> is not an <see cref="T:Gemstone.Timeseries.Measurement" />.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.CreatedTimestamp">
+      <summary>
+            Gets timestamp, in ticks, of when this <see cref="T:Gemstone.Timeseries.Measurement" /> was created.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.Equals(Gemstone.Timeseries.ITimeSeriesValue)">
+      <summary>
+            Determines whether the specified <see cref="T:Gemstone.Timeseries.ITimeSeriesValue" /> is equal to the current <see cref="T:Gemstone.Timeseries.Measurement" />.
+            </summary>
+      <param name="other">The <see cref="T:Gemstone.Timeseries.ITimeSeriesValue" /> to compare with the current <see cref="T:Gemstone.Timeseries.Measurement" />.</param>
+      <returns>
+            true if the specified <see cref="T:Gemstone.Timeseries.ITimeSeriesValue" /> is equal to the current <see cref="T:Gemstone.Timeseries.Measurement" />;
+            otherwise, false.
+            </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.Equals(System.Object)">
+      <summary>
+            Determines whether the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:Gemstone.Timeseries.Measurement" />.
+            </summary>
+      <param name="obj">The <see cref="T:System.Object" /> to compare with the current <see cref="T:Gemstone.Timeseries.Measurement" />.</param>
+      <returns>
+            true if the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:Gemstone.Timeseries.Measurement" />;
+            otherwise, false.
+            </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.GetHashCode">
+      <summary>
+            Serves as a hash function for the current <see cref="T:Gemstone.Timeseries.Measurement" />.
+            </summary>
+      <returns>A hash code for the current <see cref="T:Gemstone.Timeseries.Measurement" />.</returns>
+      <remarks>Hash code based on value of measurement.</remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.ID">
+      <summary>
+            Gets the <see cref="T:System.Guid" /> based signal ID of the <see cref="T:Gemstone.Timeseries.Measurement" /> implementation.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.Key">
+      <summary>
+            Gets the primary <see cref="T:Gemstone.Timeseries.MeasurementKey" /> of this <see cref="T:Gemstone.Timeseries.Measurement" /> implementation.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.Lifespan">
+      <summary>
+            Gets the life-span of this <see cref="T:Gemstone.Timeseries.Measurement" /> since its creation.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.MajorityValueFilter(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.IMeasurement})">
+      <summary>
+            Returns the majority value of the specified sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values.
+            </summary>
+      <param name="source">Sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values over which to run calculation.</param>
+      <returns>Majority value of the specified sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.MeasurementValueFilter">
+      <summary>
+            Gets function used to apply a down-sampling filter over a sequence of <see cref="T:Gemstone.Timeseries.Measurement" /> values.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.Metadata">
+      <summary>
+            Gets or sets associated metadata values for the <see cref="T:Gemstone.Timeseries.Measurement" /> implementation.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.Multiplier">
+      <summary>
+            Gets a multiplicative offset to apply to the measurement value. This defaults to 1.0.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.op_Equality(Gemstone.Timeseries.Measurement,Gemstone.Timeseries.Measurement)">
+      <summary>
+            Compares two <see cref="T:Gemstone.Timeseries.Measurement" /> values for equality.
+            </summary>
+      <param name="measurement1">A <see cref="T:Gemstone.Timeseries.Measurement" /> left hand operand.</param>
+      <param name="measurement2">A <see cref="T:Gemstone.Timeseries.Measurement" /> right hand operand.</param>
+      <returns>A boolean representing the result.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.op_GreaterThan(Gemstone.Timeseries.Measurement,Gemstone.Timeseries.Measurement)">
+      <summary>
+            Returns true if left <see cref="T:Gemstone.Timeseries.Measurement" /> value is greater than right <see cref="T:Gemstone.Timeseries.Measurement" /> value.
+            </summary>
+      <param name="measurement1">A <see cref="T:Gemstone.Timeseries.Measurement" /> left hand operand.</param>
+      <param name="measurement2">A <see cref="T:Gemstone.Timeseries.Measurement" /> right hand operand.</param>
+      <returns>A boolean representing the result.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.op_GreaterThanOrEqual(Gemstone.Timeseries.Measurement,Gemstone.Timeseries.Measurement)">
+      <summary>
+            Returns true if left <see cref="T:Gemstone.Timeseries.Measurement" /> value is greater than or equal to right <see cref="T:Gemstone.Timeseries.Measurement" /> value.
+            </summary>
+      <param name="measurement1">A <see cref="T:Gemstone.Timeseries.Measurement" /> left hand operand.</param>
+      <param name="measurement2">A <see cref="T:Gemstone.Timeseries.Measurement" /> right hand operand.</param>
+      <returns>A boolean representing the result.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.op_Inequality(Gemstone.Timeseries.Measurement,Gemstone.Timeseries.Measurement)">
+      <summary>
+            Compares two <see cref="T:Gemstone.Timeseries.Measurement" /> values for inequality.
+            </summary>
+      <param name="measurement1">A <see cref="T:Gemstone.Timeseries.Measurement" /> left hand operand.</param>
+      <param name="measurement2">A <see cref="T:Gemstone.Timeseries.Measurement" /> right hand operand.</param>
+      <returns>A boolean representing the result.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.op_LessThan(Gemstone.Timeseries.Measurement,Gemstone.Timeseries.Measurement)">
+      <summary>
+            Returns true if left <see cref="T:Gemstone.Timeseries.Measurement" /> value is less than right <see cref="T:Gemstone.Timeseries.Measurement" /> value.
+            </summary>
+      <param name="measurement1">A <see cref="T:Gemstone.Timeseries.Measurement" /> left hand operand.</param>
+      <param name="measurement2">A <see cref="T:Gemstone.Timeseries.Measurement" /> right hand operand.</param>
+      <returns>A boolean representing the result.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.op_LessThanOrEqual(Gemstone.Timeseries.Measurement,Gemstone.Timeseries.Measurement)">
+      <summary>
+            Returns true if left <see cref="T:Gemstone.Timeseries.Measurement" /> value is less than or equal to right <see cref="T:Gemstone.Timeseries.Measurement" /> value.
+            </summary>
+      <param name="measurement1">A <see cref="T:Gemstone.Timeseries.Measurement" /> left hand operand.</param>
+      <param name="measurement2">A <see cref="T:Gemstone.Timeseries.Measurement" /> right hand operand.</param>
+      <returns>A boolean representing the result.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.StateFlags">
+      <summary>
+            Gets or sets <see cref="T:Gemstone.Timeseries.MeasurementStateFlags" /> associated with this <see cref="T:Gemstone.Timeseries.Measurement" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.TagName">
+      <summary>
+            Gets the text based tag name of this <see cref="T:Gemstone.Timeseries.Measurement" /> implementation.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.Timestamp">
+      <summary>
+            Gets or sets exact timestamp, in ticks, of the data represented by this <see cref="T:Gemstone.Timeseries.Measurement" />.
+            </summary>
+      <remarks>
+            The value of this property represents the number of 100-nanosecond intervals that have elapsed since 12:00:00 midnight, January 1, 0001.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:Gemstone.Timeseries.Measurement" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:Gemstone.Timeseries.Measurement" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Measurement.ToString(Gemstone.Timeseries.IMeasurement,System.Boolean)">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the specified <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> to convert to a <see cref="T:System.String" /> representation.</param>
+      <param name="includeTagName">Set to <c>true</c> to include measurement's tag name, if defined; otherwise set to <c>false</c>.</param>
+      <returns>A <see cref="T:System.String" /> that represents the specified <see cref="T:Gemstone.Timeseries.IMeasurement" />.</returns>
+    </member>
+    <member name="F:Gemstone.Timeseries.Measurement.Undefined">
+      <summary>
+            Represents an undefined measurement.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Measurement.Value">
+      <summary>
+            Gets or sets the raw measurement value that is not offset by <see cref="P:Gemstone.Timeseries.Measurement.Adder" /> and <see cref="P:Gemstone.Timeseries.Measurement.Multiplier" />.
+            </summary>
+      <returns>Raw value of this <see cref="T:Gemstone.Timeseries.Measurement" /> (i.e., value that is not offset by <see cref="P:Gemstone.Timeseries.Measurement.Adder" /> and <see cref="P:Gemstone.Timeseries.Measurement.Multiplier" />).</returns>
+    </member>
+    <member name="T:Gemstone.Timeseries.MeasurementKey">
+      <summary>
+            Represents a primary key for a measurement.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.CreateOrUpdate(System.Guid,System.String)">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.MeasurementKey" /> given the specified parameters.
+            </summary>
+      <param name="signalID">
+        <see cref="T:System.Guid" /> ID of associated signal, if defined.</param>
+      <param name="value">A string representation of the <see cref="T:Gemstone.Timeseries.MeasurementKey" />.</param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.MeasurementKey.CreateOrUpdate(System.Guid,System.String)</parameter>
+          </include>
+        </markup>
+      </returns>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="signalID" /> cannot be empty</exception>
+      <exception cref="T:System.FormatException">The value is not in the correct format for a <see cref="T:Gemstone.Timeseries.MeasurementKey" /> value.</exception>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.CreateOrUpdate(System.Guid,System.String,System.UInt64)">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.MeasurementKey" /> given the specified parameters.
+            </summary>
+      <param name="signalID">
+        <see cref="T:System.Guid" /> ID of associated signal, if defined.</param>
+      <param name="source">Source of the measurement that this <see cref="T:Gemstone.Timeseries.MeasurementKey" /> represents (e.g., name of archive).</param>
+      <param name="id">Numeric ID of the measurement that this <see cref="T:Gemstone.Timeseries.MeasurementKey" /> represents.</param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.MeasurementKey.CreateOrUpdate(System.Guid,System.String,System.UInt64)</parameter>
+          </include>
+        </markup>
+      </returns>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="signalID" /> cannot be empty.</exception>
+      <exception cref="T:System.ArgumentNullException">
+        <paramref name="source" /> cannot be null.</exception>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.EstablishDefaultCache(System.Data.IDbConnection,System.Type,System.String)">
+      <summary>
+            Establish default <see cref="T:Gemstone.Timeseries.MeasurementKey" /> cache.
+            </summary>
+      <param name="connection">The database connection.</param>
+      <param name="adapterType">The database adapter type.</param>
+      <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
+      <remarks>
+            Source tables are expected to have at least the following fields:
+            <code>
+                 ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
+                 SignalID    GUID        Unique identification for measurement
+            </code></remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.GetHashCode">
+      <summary>
+            Serves as a hash function for the current <see cref="T:Gemstone.Timeseries.MeasurementKey" />.
+            </summary>
+      <returns>A hash code for the current <see cref="T:Gemstone.Timeseries.MeasurementKey" />.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementKey.ID">
+      <summary>
+            Gets or sets the numeric ID of this <see cref="T:Gemstone.Timeseries.MeasurementKey" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.LookUpBySignalID(System.Guid)">
+      <summary>
+            Looks up the measurement key associated with the given signal ID.
+            </summary>
+      <param name="signalID">The signal ID of the measurement key.</param>
+      <returns>The measurement key associated with the given signal ID.</returns>
+      <remarks>
+            If no measurement key is found with the given signal ID,
+            this method returns <see cref="F:Gemstone.Timeseries.MeasurementKey.Undefined" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.LookUpBySource(System.String,System.UInt64)">
+      <summary>
+            Looks up the measurement key associated with the given source and ID.
+            </summary>
+      <param name="source">The source of the signal.</param>
+      <param name="id">The source-specific unique integer identifier.</param>
+      <returns>The measurement key associated with the given source and ID.</returns>
+      <remarks>
+            If no measurement key is found with the given source and ID,
+            this method returns <see cref="F:Gemstone.Timeseries.MeasurementKey.Undefined" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.LookUpOrCreate(System.Guid,System.String)">
+      <summary>
+            Performs a lookup by signal ID and, failing that, attempts to create
+            the key using the given signal ID and the parsed source, and ID.
+            </summary>
+      <param name="signalID">The signal ID of the key to be looked up.</param>
+      <param name="value">A string representation of the <see cref="T:Gemstone.Timeseries.MeasurementKey" />.</param>
+      <returns>
+            If the lookup succeeds, an existing measurement key with a matching signalID.
+            If creation succeeds, a new measurement key with matching signal ID, source, and ID.
+            Otherwise, <see cref="F:Gemstone.Timeseries.MeasurementKey.Undefined" />.
+            </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.LookUpOrCreate(System.Guid,System.String,System.UInt64)">
+      <summary>
+            Performs a lookup by signal ID and, failing that, attempts to
+            create the key using the given signal ID, source, and ID.
+            </summary>
+      <param name="signalID">The signal ID of the key to be looked up.</param>
+      <param name="source">The source to use for the key if the lookup fails.</param>
+      <param name="id">The ID to use for the key if the lookup fails.</param>
+      <returns>
+            If the lookup succeeds, an existing measurement key with a matching signalID.
+            If creation succeeds, a new measurement key with matching signal ID, source, and ID.
+            Otherwise, <see cref="F:Gemstone.Timeseries.MeasurementKey.Undefined" />.
+            </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.LookUpOrCreate(System.String)">
+      <summary>
+            Performs a lookup by source and, failing that, attempts to create
+            the key using a newly generated signal ID and the parsed source and ID.
+            </summary>
+      <param name="value">A string representation of the <see cref="T:Gemstone.Timeseries.MeasurementKey" />.</param>
+      <returns>
+            If the lookup succeeds, an existing measurement key with a matching signalID.
+            If creation succeeds, a new measurement key with matching signal ID, source, and ID.
+            Otherwise, <see cref="F:Gemstone.Timeseries.MeasurementKey.Undefined" />.
+            </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.LookUpOrCreate(System.String,System.UInt64)">
+      <summary>
+            Performs a lookup by source and, failing that, attempts to create
+            the key using a newly generated signal ID and the given source and ID.
+            </summary>
+      <param name="source">The source to use for the key if the lookup fails.</param>
+      <param name="id">The ID to use for the key if the lookup fails.</param>
+      <returns>
+            If the lookup succeeds, an existing measurement key with a matching signalID.
+            If creation succeeds, a new measurement key with matching signal ID, source, and ID.
+            Otherwise, <see cref="F:Gemstone.Timeseries.MeasurementKey.Undefined" />.
+            </returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementKey.Metadata">
+      <summary>
+            Gets the <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> as they appear in the primary adapter metadata.
+            </summary>
+      <remarks>
+            This is to be considered the reference value. Adapters are free to change this inside specific <see cref="T:Gemstone.Timeseries.IMeasurement" /> instances
+            This value should only be updated upon change in the primary data source using <see cref="M:Gemstone.Timeseries.MeasurementKey.SetMeasurementMetadata(System.String,System.Double,System.Double,Gemstone.Timeseries.MeasurementValueFilterFunction)" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.Parse(System.String)">
+      <summary>
+            Converts the string representation of a <see cref="T:Gemstone.Timeseries.MeasurementKey" /> into its value equivalent.
+            </summary>
+      <param name="value">A string representing the <see cref="T:Gemstone.Timeseries.MeasurementKey" /> to convert.</param>
+      <returns>A <see cref="T:Gemstone.Timeseries.MeasurementKey" /> value equivalent the representation contained in <paramref name="value" />.</returns>
+      <exception cref="T:System.FormatException">The value is not in the correct format for a <see cref="T:Gemstone.Timeseries.MeasurementKey" /> value.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementKey.RuntimeID">
+      <summary>
+            A unique ID that is assigned at runtime to identify this instance of <see cref="T:Gemstone.Timeseries.MeasurementKey" />. 
+            This value will change between life cycles, so it cannot be used to compare <see cref="T:Gemstone.Timeseries.MeasurementKey" />
+            instances that are running out of process or in a separate <see cref="T:System.AppDomain" />.
+            </summary>
+      <remarks>
+            Since each <see cref="P:Gemstone.Timeseries.MeasurementKey.SignalID" /> is only tied to a single <see cref="T:Gemstone.Timeseries.MeasurementKey" /> object, 
+            this provides another unique identifier that is zero indexed. 
+            This allows certain optimizations such as array lookups.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.SetMeasurementMetadata(System.String,System.Double,System.Double,Gemstone.Timeseries.MeasurementValueFilterFunction)">
+      <summary>
+            Updates the values of the <see cref="P:Gemstone.Timeseries.MeasurementKey.Metadata" />.
+            </summary>
+      <param name="tagName">Gets or sets the text based tag name.</param>
+      <param name="adder">Defines an offset to add to the <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.</param>
+      <param name="multiplier">Defines a multiplicative offset to apply to the <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.</param>
+      <param name="valueFilter">Defines the <see cref="T:Gemstone.Timeseries.MeasurementValueFilterFunction" /> to use when downsampling this type of <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementKey.SignalID">
+      <summary>
+            Gets or sets <see cref="T:System.Guid" /> ID of signal associated with this <see cref="T:Gemstone.Timeseries.MeasurementKey" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementKey.Source">
+      <summary>
+            Gets or sets the source of this <see cref="T:Gemstone.Timeseries.MeasurementKey" />.
+            </summary>
+      <remarks>
+            This value is typically used to track the archive name in which the measurement, that this <see cref="T:Gemstone.Timeseries.MeasurementKey" /> represents, is stored.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:Gemstone.Timeseries.MeasurementKey" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:Gemstone.Timeseries.MeasurementKey" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.TryCreateOrUpdate(System.Guid,System.String,Gemstone.Timeseries.MeasurementKey@)">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.MeasurementKey" /> given the specified parameters.
+            </summary>
+      <param name="signalID">
+        <see cref="T:System.Guid" /> ID of associated signal, if defined.</param>
+      <param name="value">A string representation of the <see cref="T:Gemstone.Timeseries.MeasurementKey" />.</param>
+      <param name="key">The measurement key that was created or updated or <see cref="F:Gemstone.Timeseries.MeasurementKey.Undefined" />.</param>
+      <returns>True if the measurement key was successfully created or updated, false otherwise.</returns>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="signalID" /> cannot be empty.</exception>
+      <exception cref="T:System.ArgumentNullException">Measurement key Source cannot be null.</exception>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.TryCreateOrUpdate(System.Guid,System.String,System.UInt64,Gemstone.Timeseries.MeasurementKey@)">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.MeasurementKey" /> given the specified parameters.
+            </summary>
+      <param name="signalID">
+        <see cref="T:System.Guid" /> ID of associated signal, if defined.</param>
+      <param name="source">Source of the measurement that this <see cref="T:Gemstone.Timeseries.MeasurementKey" /> represents (e.g., name of archive).</param>
+      <param name="id">Numeric ID of the measurement that this <see cref="T:Gemstone.Timeseries.MeasurementKey" /> represents.</param>
+      <param name="key">The measurement key that was created or updated or <see cref="F:Gemstone.Timeseries.MeasurementKey.Undefined" />.</param>
+      <returns>True if the measurement key was successfully created or updated, false otherwise.</returns>
+      <exception cref="T:System.ArgumentException">
+        <paramref name="signalID" /> cannot be empty.</exception>
+      <exception cref="T:System.ArgumentNullException">
+        <paramref name="source" /> cannot be null.</exception>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementKey.TryParse(System.String,Gemstone.Timeseries.MeasurementKey@)">
+      <summary>
+            Attempts to convert the string representation of a <see cref="T:Gemstone.Timeseries.MeasurementKey" /> into its value equivalent.
+            </summary>
+      <param name="value">A string representing the <see cref="T:Gemstone.Timeseries.MeasurementKey" /> to convert.</param>
+      <param name="key">Output <see cref="T:Gemstone.Timeseries.MeasurementKey" /> in which to stored parsed value.</param>
+      <returns>A <c>true</c> if <see cref="T:Gemstone.Timeseries.MeasurementKey" />representation contained in <paramref name="value" /> could be parsed; otherwise <c>false</c>.</returns>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementKey.Undefined">
+      <summary>
+            Represents an undefined measurement key.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.MeasurementMetadata">
+      <summary>
+            Represents a set of meta-data fields for <see cref="T:Gemstone.Timeseries.IMeasurement" /> that should rarely change.
+            </summary>
+      <remarks>
+            This class allows measurement meta-data to be quickly transferred from one <see cref="T:Gemstone.Timeseries.IMeasurement" /> to 
+            another. This class is immutable, so any change to these values requires that the class be recreated.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementMetadata.#ctor(Gemstone.Timeseries.MeasurementKey,System.String,System.Double,System.Double,Gemstone.Timeseries.MeasurementValueFilterFunction)">
+      <summary>
+            Creates a <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /></summary>
+      <param name="key">Gets or sets the primary key of this <see cref="T:Gemstone.Timeseries.IMeasurement" />.</param>
+      <param name="tagName">Gets or sets the text based tag name of this <see cref="T:Gemstone.Timeseries.IMeasurement" />.</param>
+      <param name="adder">Defines an offset to add to the <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.</param>
+      <param name="multiplier">Defines a multiplicative offset to apply to the <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.</param>
+      <param name="measurementValueFilter">Gets or sets function used to apply a down-sampling filter over a sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values.</param>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementMetadata.Adder">
+      <summary>
+            Defines an offset to add to the <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.
+            </summary>
+      <remarks>
+            Implementers should make sure this value defaults to zero.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementMetadata.ChangeAdder(System.Double)">
+      <summary>
+            Creates a new instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="adder" />. All other fields remain the same.
+            </summary>
+      <param name="adder">The adder to set.</param>
+      <returns>New instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="adder" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementMetadata.ChangeAdderMultiplier(System.Double,System.Double)">
+      <summary>
+            Creates a new instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="adder" /> and <paramref name="multiplier" />. All other fields remain the same.
+            </summary>
+      <param name="adder">The adder to set.</param>
+      <param name="multiplier">The multiplier to set.</param>
+      <returns>New instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="adder" /> and <paramref name="multiplier" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementMetadata.ChangeKey(Gemstone.Timeseries.MeasurementKey)">
+      <summary>
+            Creates a new instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided measurement <paramref name="key" />. All other fields remain the same.
+            </summary>
+      <param name="key">The key to set.</param>
+      <returns>New instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided measurement <paramref name="key" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementMetadata.ChangeMeasurementValueFilter(Gemstone.Timeseries.MeasurementValueFilterFunction)">
+      <summary>
+            Creates a new instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="measurementValueFilter" />. All other fields remain the same.
+            </summary>
+      <param name="measurementValueFilter">the measurementValueFilter to set.</param>
+      <returns>New instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="measurementValueFilter" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementMetadata.ChangeMultiplier(System.Double)">
+      <summary>
+            Creates a new instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="multiplier" />. All other fields remain the same.
+            </summary>
+      <param name="multiplier">The multiplier to set.</param>
+      <returns>New instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="multiplier" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementMetadata.ChangeTagName(System.String)">
+      <summary>
+            Creates a new instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="tagName" />. All other fields remain the same.
+            </summary>
+      <param name="tagName">The tag name to set.</param>
+      <returns>New instance of <see cref="T:Gemstone.Timeseries.MeasurementMetadata" /> using the provided <paramref name="tagName" />.</returns>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementMetadata.Key">
+      <summary>
+            Gets or sets the primary key of this <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementMetadata.MeasurementValueFilter">
+      <summary>
+            Gets or sets function used to apply a down-sampling filter over a sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementMetadata.Multiplier">
+      <summary>
+            Defines a multiplicative offset to apply to the <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.
+            </summary>
+      <remarks>
+            Implementers should make sure this value defaults to one.
+            </remarks>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementMetadata.TagName">
+      <summary>
+            Gets or sets the text based tag name of this <see cref="T:Gemstone.Timeseries.IMeasurement" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementMetadata.Undefined">
+      <summary>
+            Represents an undefined <see cref="T:Gemstone.Timeseries.MeasurementMetadata" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.MeasurementStateFlags">
+      <summary>
+            Measurement state flags.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.Normal">
+      <summary>
+            Defines normal state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.BadData">
+      <summary>
+            Defines bad data state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.SuspectData">
+      <summary>
+            Defines suspect data state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.OverRangeError">
+      <summary>
+            Defines over range error, i.e., unreasonable high value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.UnderRangeError">
+      <summary>
+            Defines under range error, i.e., unreasonable low value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.AlarmHigh">
+      <summary>
+            Defines alarm for high value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.AlarmLow">
+      <summary>
+            Defines alarm for low value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.WarningHigh">
+      <summary>
+            Defines warning for high value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.WarningLow">
+      <summary>
+            Defines warning for low value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.FlatlineAlarm">
+      <summary>
+            Defines alarm for flat-lined value, i.e., latched value test alarm.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.ComparisonAlarm">
+      <summary>
+            Defines comparison alarm, i.e., outside threshold of comparison with a real-time value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.ROCAlarm">
+      <summary>
+            Defines rate-of-change alarm.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.ReceivedAsBad">
+      <summary>
+            Defines bad value received.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.CalculatedValue">
+      <summary>
+            Defines calculated value state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.CalculationError">
+      <summary>
+            Defines calculation error with the value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.CalculationWarning">
+      <summary>
+            Defines calculation warning with the value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.ReservedQualityFlag">
+      <summary>
+            Defines reserved quality flag.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.BadTime">
+      <summary>
+            Defines bad time state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.SuspectTime">
+      <summary>
+            Defines suspect time state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.LateTimeAlarm">
+      <summary>
+            Defines late time alarm.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.FutureTimeAlarm">
+      <summary>
+            Defines future time alarm.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.UpSampled">
+      <summary>
+            Defines up-sampled state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.DownSampled">
+      <summary>
+            Defines down-sampled state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.DiscardedValue">
+      <summary>
+            Defines discarded value state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.ReservedTimeFlag">
+      <summary>
+            Defines reserved time flag.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.UserDefinedFlag1">
+      <summary>
+            Defines user defined flag 1.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.UserDefinedFlag2">
+      <summary>
+            Defines user defined flag 2.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.UserDefinedFlag3">
+      <summary>
+            Defines user defined flag 3.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.UserDefinedFlag4">
+      <summary>
+            Defines user defined flag 4.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.UserDefinedFlag5">
+      <summary>
+            Defines user defined flag 5.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.SystemError">
+      <summary>
+            Defines system error state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.SystemWarning">
+      <summary>
+            Defines system warning state.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.MeasurementStateFlags.MeasurementError">
+      <summary>
+            Defines measurement error flag.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.MeasurementValueFilterFunction">
+      <summary>
+            Method signature for function used to apply a value filter over a sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values.
+            </summary>
+      <param name="source">Sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values over which to apply filter.</param>
+      <returns>Result of filter applied to sequence of <see cref="T:Gemstone.Timeseries.IMeasurement" /> values.</returns>
+    </member>
+    <member name="T:Gemstone.Timeseries.PrecisionInputTimer">
+      <summary>
+            Precision input timer.
+            </summary>
+      <remarks>
+            This class is used to create highly accurate simulated data inputs aligned to the local clock.<br />
+            One static instance of this internal class is created per encountered frame rate.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.PrecisionInputTimer.AddReference">
+      <summary>
+            Adds a reference to this <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.PrecisionInputTimer.Attach(System.Int32,System.Action{System.Exception})">
+      <summary>
+            Attach to a <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" /> for the specified <paramref name="framesPerSecond" />.
+            </summary>
+      <param name="framesPerSecond">Desired frames per second for the input timer.</param>
+      <param name="exceptionHandler">Optional delegate to handle exception reporting from the timer.</param>
+      <returns>A <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" /> that can be used for the specified <paramref name="framesPerSecond" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.PrecisionInputTimer.Detach(Gemstone.Timeseries.PrecisionInputTimer@)">
+      <summary>
+            Detach from the <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" />.
+            </summary>
+      <param name="timer">Timer instance to detach from.</param>
+      <remarks>
+            Timer reference will be set to <c>null</c> after detach.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.PrecisionInputTimer.Dispose">
+      <summary>
+            Releases all the resources used by the <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" /> object.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.PrecisionInputTimer.ExceptionHandler">
+      <summary>
+            Gets or sets function used to handle exceptions.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.PrecisionInputTimer.Finalize">
+      <summary>
+            Releases the unmanaged resources before the <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" /> object is reclaimed by <see cref="T:System.GC" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.PrecisionInputTimer.FrameMilliseconds">
+      <summary>
+            Gets array of frame millisecond times for this <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.PrecisionInputTimer.FramesPerSecond">
+      <summary>
+            Gets frames per second for this <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.PrecisionInputTimer.FrameWaitHandle">
+      <summary>
+            Gets a reference to the frame wait handle.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.PrecisionInputTimer.LastFrameTime">
+      <summary>
+            Gets time of last frame, in ticks.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.PrecisionInputTimer.ReferenceCount">
+      <summary>
+            Gets reference count for this <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.PrecisionInputTimer.RemoveReference">
+      <summary>
+            Removes a reference to this <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.PrecisionInputTimer.Resynchronizations">
+      <summary>
+            Gets number of resynchronizations that have occurred for this <see cref="T:Gemstone.Timeseries.PrecisionInputTimer" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.TemporalMeasurement">
+      <summary>
+            Represents a time constrained measured value.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.TemporalMeasurement.#ctor(Gemstone.Timeseries.IMeasurement,System.Double,System.Double)">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> given the specified parameters.
+            </summary>
+      <param name="measurement">Source <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.</param>
+      <param name="lagTime">Past time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
+      <param name="leadTime">Future time deviation tolerance, in seconds - this becomes the tolerated +/- accuracy of the local clock to real-time.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.TemporalMeasurement.#ctor(System.Double,System.Double)">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> given the specified parameters.
+            </summary>
+      <param name="lagTime">Past time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
+      <param name="leadTime">Future time deviation tolerance, in seconds - this becomes the tolerated +/- accuracy of the local clock to real-time.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.TemporalMeasurement.GetAdjustedValue(Gemstone.Ticks)">
+      <summary>
+            Gets numeric adjusted value of this <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />, constrained within specified ticks.
+            </summary>
+      <param name="timestamp">Timestamp used to constrain <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> (typically set to real-time, i.e. "now").</param>
+      <returns>Value offset by adder and multiplier (i.e., Value * Multiplier + Adder).</returns>
+      <remarks>
+        <para>Operation will return NaN if ticks are outside of time deviation tolerances.</para>
+        <para>Note that returned value will be offset by adder and multiplier.</para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.TemporalMeasurement.GetValue(Gemstone.Ticks)">
+      <summary>
+            Gets numeric value of this <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />, constrained within specified ticks.
+            </summary>
+      <param name="timestamp">Timestamp, in ticks, used to constrain <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> (typically set to real-time, i.e. "now").</param>
+      <returns>Raw value of this measurement (i.e., value that is not offset by adder and multiplier).</returns>
+      <remarks>
+        <para>Operation will return NaN if ticks are outside of time deviation tolerances.</para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.TemporalMeasurement.LagTime">
+      <summary>Allowed past time deviation tolerance in seconds (can be sub-second).</summary>
+      <remarks>
+        <para>This value defines the time sensitivity to past measurement timestamps.</para>
+        <para>Defined the number of seconds allowed before assuming a measurement timestamp is too old.</para>
+      </remarks>
+      <exception cref="T:System.ArgumentOutOfRangeException">LagTime must be greater than zero, but it can be less than one.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.TemporalMeasurement.LeadTime">
+      <summary>Allowed future time deviation tolerance in seconds (can be sub-second).</summary>
+      <remarks>
+        <para>This value defines the time sensitivity to future measurement timestamps.</para>
+        <para>Defined the number of seconds allowed before assuming a measurement timestamp is too advanced.</para>
+      </remarks>
+      <exception cref="T:System.ArgumentOutOfRangeException">LeadTime must be greater than zero, but it can be less than one.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.TemporalMeasurement.OutlierOperation">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.Timeseries.TemporalOutlierOperation" /> for this <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> when
+            timestamp is outside defined Lag/Lead time bounds.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.TemporalMeasurement.OutlierState">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.Timeseries.MeasurementStateFlags" /> to apply to this <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> when
+            <see cref="P:Gemstone.Timeseries.TemporalMeasurement.OutlierOperation" /> is set to <see cref="F:Gemstone.Timeseries.TemporalOutlierOperation.PublishWithBadState" /> and
+            timestamp is outside defined Lag/Lead time bounds.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.TemporalMeasurement.SetValue(Gemstone.Ticks,System.Double,Gemstone.Timeseries.MeasurementStateFlags)">
+      <summary>
+            Sets numeric value and timestamp, as ticks, of this <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />.
+            </summary>
+      <param name="timestamp">New timestamp, in ticks, for <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />.</param>
+      <param name="value">New value for <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />, only stored if <paramref name="timestamp" /> are newer than current <see cref="T:Gemstone.Ticks" />.</param>
+      <param name="flags">New flags for <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />.</param>
+      <returns>
+        <c>true</c> if value was updated; otherwise <c>false</c>.</returns>
+      <remarks>
+        <para>Operation will only store a value that is newer than the cached value.</para>
+      </remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.TemporalOutlierOperation">
+      <summary>
+            Enumeration that defines how to handle <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />
+            values that are outside of the defined Lag/Lead time bounds.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.TemporalOutlierOperation.PublishValueAsNan">
+      <summary>
+            Measurement value is set to <see cref="F:System.Double.NaN" /> if it is outside of the
+            defined time bounds. This is the default behavior.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.TemporalOutlierOperation.PublishWithBadState">
+      <summary>
+            Measurement value is preserved if it is outside of the time bounds, but the state
+            flags are set to <see cref="P:Gemstone.Timeseries.TemporalMeasurement.OutlierState" /> which defaults to
+            <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.SuspectTime" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.TimeSeriesStartupOperations">
+      <summary>
+            Defines a data operations to be performed at startup.
+            </summary>
+    </member>
+  </members>
+</doc>

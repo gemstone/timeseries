@@ -14,7 +14,6 @@ This library includes helpful timeseries classes like the following:
 
 * [Measurement](https://gemstone.github.io/timeseries/help/html/T_Gemstone_Timeseries_Measurement.htm):
   * Represents a basic measured value as a timeseries data unit.
-
 * [ConcentratorBase](https://gemstone.github.io/timeseries/help/html/T_Gemstone_Timeseries_ConcentratorBase.htm):
   * Represents a base class that synchronizes (i.e., sorts by timestamp) real-time measurements.
 

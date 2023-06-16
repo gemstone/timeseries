@@ -388,7 +388,7 @@
       <remarks>
             Derived classes can choose to override this method to handle custom assignment of a <see cref="T:Gemstone.Timeseries.IMeasurement" /> to
             its <see cref="T:Gemstone.Timeseries.IFrame" />. Default behavior simply assigns measurement to frame's keyed measurement dictionary:
-            <code language="cs">frame.Measurements[measurement.Key] = measurement;</code></remarks>
+            <code>frame.Measurements[measurement.Key] = measurement;</code></remarks>
     </member>
     <member name="P:Gemstone.Timeseries.ConcentratorBase.AveragePublicationTimePerFrame">
       <summary>
@@ -1946,7 +1946,7 @@
       <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
       <remarks>
             Source tables are expected to have at least the following fields:
-            <code language="cs">
+            <code>
                  ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
                  SignalID    GUID        Unique identification for measurement
             </code></remarks>

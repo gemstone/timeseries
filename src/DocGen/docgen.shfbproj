@@ -54,6 +54,94 @@
         <component id="API Token Resolution">{@TokenFiles}
 <replace elements="/*//token" item="string(.)" /></component>
       </ComponentConfig>
+      <ComponentConfig id="Resolve ThirdParty Reference Links" enabled="True">
+        <component id="Resolve ThirdParty Reference Links">
+          <configuration>
+            <urlProviders>
+              <formattedProvider title="Gemstone.Numeric URL Provider">
+                <targetMatcher pattern=".:Gemstone\.Numeric\..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/numeric/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <formattedProvider title="Gemstone.Data URL Provider">
+                <targetMatcher pattern=".:Gemstone\.Data\..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/data/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <formattedProvider title="Gemstone.Threading URL Provider">
+                <targetMatcher pattern=".:Gemstone\.Threading\..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/threading/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <formattedProvider title="Gemstone.Diagnostics URL Provider">
+                <targetMatcher pattern=".:Gemstone\.Diagnostics\..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/diagnostics/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <formattedProvider title="Gemstone.IO URL Provider">
+                <targetMatcher pattern=".:Gemstone\.IO\.(?!Parsing\.).+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/io/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+              <!-- Add Gemstone root namespace last because it has the widest match criteria -->
+              <!-- Pattern excludes target namespace so local memmbers are not redirected to common -->
+              <formattedProvider title="Gemstone Common URL Provider">
+                <targetMatcher pattern=".:Gemstone\.(?!Timeseries\.)..+" fullyQualifiedMemberName="false" />
+                <targetFormatter>
+                  <steps>
+                    <replace pattern="T:" with="T_" />
+                    <replace pattern="E:" with="E_" />
+                    <replace pattern="M:" with="M_" />
+                    <replace pattern="P:" with="P_" />
+                    <replace pattern="\." with="_" />
+                  </steps>
+                </targetFormatter>
+                <urlFormatter format="https://gemstone.github.io/common/help/html/{target}.htm" target="_self" />
+              </formattedProvider>
+            </urlProviders>
+          </configuration>
+        </component>
+      </ComponentConfig>
       <ComponentConfig id="IntelliSense Component" enabled="True">
         <component id="IntelliSense Component">
           <output includeNamespaces="false" namespacesFile="Namespaces" folder="{@OutputFolder}" boundedCapacity="100" />
@@ -92,7 +180,7 @@
       </PlugInConfig>
 <PlugInConfig id="Additional Reference Links" enabled="True"><configuration>
   <targets>
-    <target htmlSdkLinkType="None" helpViewerSdkLinkType="Id" websiteSdkLinkType="Msdn" helpFileProject="..\..\..\common\src\DocGen\docgen.shfbproj" />
+    <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\..\common\src\DocGen\docgen.shfbproj" />
   </targets>
 </configuration></PlugInConfig></PlugInConfigurations>
     <DocumentationSources>

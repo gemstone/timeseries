@@ -172,6 +172,7 @@ public class MeasurementKey
     /// <param name="value">A string representation of the <see cref="MeasurementKey"/>.</param>
     /// <exception cref="ArgumentException"><paramref name="signalID"/> cannot be empty</exception>
     /// <exception cref="FormatException">The value is not in the correct format for a <see cref="MeasurementKey"/> value.</exception>
+    /// <returns>A <see cref="MeasurementKey"/> object constructed from the specified parameters.</returns>
     public static MeasurementKey CreateOrUpdate(Guid signalID, string value)
     {
         if (!TrySplit(value, out string source, out ulong id))
@@ -188,6 +189,7 @@ public class MeasurementKey
     /// <param name="id">Numeric ID of the measurement that this <see cref="MeasurementKey"/> represents.</param>
     /// <exception cref="ArgumentException"><paramref name="signalID"/> cannot be empty.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> cannot be null.</exception>
+    /// <returns>A <see cref="MeasurementKey"/> object constructed from the specified parameters.</returns>
     public static MeasurementKey CreateOrUpdate(Guid signalID, string source, ulong id)
     {
         if (signalID == Guid.Empty)

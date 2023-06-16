@@ -42,6 +42,9 @@ public class BufferBlockMeasurement : Measurement
     /// <summary>
     /// Creates a new <see cref="BufferBlockMeasurement"/> from an existing buffer.
     /// </summary>
+    /// <param name="buffer">Source buffer.</param>
+    /// <param name="startIndex">Start index of valid data in source buffer.</param>
+    /// <param name="length">Valid length of source buffer.</param>
     /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="startIndex"/> or <paramref name="length"/> is less than 0 -or- 

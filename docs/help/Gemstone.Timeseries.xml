@@ -275,33 +275,9 @@
       <summary>
             Creates a new <see cref="T:Gemstone.Timeseries.BufferBlockMeasurement" /> from an existing buffer.
             </summary>
-      <param name="buffer">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>buffer</parameter>
-            <parameter>M:Gemstone.Timeseries.BufferBlockMeasurement.#ctor(System.Byte[],System.Int32,System.Int32)</parameter>
-          </include>
-        </markup>
-      </param>
-      <param name="startIndex">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>startIndex</parameter>
-            <parameter>M:Gemstone.Timeseries.BufferBlockMeasurement.#ctor(System.Byte[],System.Int32,System.Int32)</parameter>
-          </include>
-        </markup>
-      </param>
-      <param name="length">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>length</parameter>
-            <parameter>M:Gemstone.Timeseries.BufferBlockMeasurement.#ctor(System.Byte[],System.Int32,System.Int32)</parameter>
-          </include>
-        </markup>
-      </param>
+      <param name="buffer">Source buffer.</param>
+      <param name="startIndex">Start index of valid data in source buffer.</param>
+      <param name="length">Valid length of source buffer.</param>
       <exception cref="T:System.ArgumentNullException">
         <paramref name="buffer" /> is null.</exception>
       <exception cref="T:System.ArgumentOutOfRangeException">
@@ -1942,14 +1918,7 @@
       <param name="signalID">
         <see cref="T:System.Guid" /> ID of associated signal, if defined.</param>
       <param name="value">A string representation of the <see cref="T:Gemstone.Timeseries.MeasurementKey" />.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.Timeseries.MeasurementKey.CreateOrUpdate(System.Guid,System.String)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <returns>A <see cref="T:Gemstone.Timeseries.MeasurementKey" /> object constructed from the specified parameters.</returns>
       <exception cref="T:System.ArgumentException">
         <paramref name="signalID" /> cannot be empty</exception>
       <exception cref="T:System.FormatException">The value is not in the correct format for a <see cref="T:Gemstone.Timeseries.MeasurementKey" /> value.</exception>
@@ -1962,14 +1931,7 @@
         <see cref="T:System.Guid" /> ID of associated signal, if defined.</param>
       <param name="source">Source of the measurement that this <see cref="T:Gemstone.Timeseries.MeasurementKey" /> represents (e.g., name of archive).</param>
       <param name="id">Numeric ID of the measurement that this <see cref="T:Gemstone.Timeseries.MeasurementKey" /> represents.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.Timeseries.MeasurementKey.CreateOrUpdate(System.Guid,System.String,System.UInt64)</parameter>
-          </include>
-        </markup>
-      </returns>
+      <returns>A <see cref="T:Gemstone.Timeseries.MeasurementKey" /> object constructed from the specified parameters.</returns>
       <exception cref="T:System.ArgumentException">
         <paramref name="signalID" /> cannot be empty.</exception>
       <exception cref="T:System.ArgumentNullException">
@@ -1984,7 +1946,7 @@
       <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
       <remarks>
             Source tables are expected to have at least the following fields:
-            <code>
+            <code language="cs">
                  ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
                  SignalID    GUID        Unique identification for measurement
             </code></remarks>

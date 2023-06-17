@@ -59,7 +59,7 @@
           <configuration>
             <urlProviders>
               <formattedProvider title="Gemstone.Numeric URL Provider">
-                <targetMatcher pattern=".:Gemstone\.Numeric\..+" fullyQualifiedMemberName="false" />
+                <targetMatcher pattern=".:Gemstone\.Numeric(\.|$).*" fullyQualifiedMemberName="false" />
                 <targetFormatter>
                   <steps>
                     <replace pattern=":|\.|`" with="_" />
@@ -69,7 +69,7 @@
                 <urlFormatter format="https://gemstone.github.io/numeric/help/html/{target}.htm" target="_self" />
               </formattedProvider>
               <formattedProvider title="Gemstone.Data URL Provider">
-                <targetMatcher pattern=".:Gemstone\.Data\..+" fullyQualifiedMemberName="false" />
+                <targetMatcher pattern=".:Gemstone\.Data(\.|$).*" fullyQualifiedMemberName="false" />
                 <targetFormatter>
                   <steps>
                     <replace pattern=":|\.|`" with="_" />
@@ -79,7 +79,7 @@
                 <urlFormatter format="https://gemstone.github.io/data/help/html/{target}.htm" target="_self" />
               </formattedProvider>
               <formattedProvider title="Gemstone.Threading URL Provider">
-                <targetMatcher pattern=".:Gemstone\.Threading\..+" fullyQualifiedMemberName="false" />
+                <targetMatcher pattern=".:Gemstone\.Threading(\.|$).*" fullyQualifiedMemberName="false" />
                 <targetFormatter>
                   <steps>
                     <replace pattern=":|\.|`" with="_" />
@@ -89,7 +89,7 @@
                 <urlFormatter format="https://gemstone.github.io/threading/help/html/{target}.htm" target="_self" />
               </formattedProvider>
               <formattedProvider title="Gemstone.Diagnostics URL Provider">
-                <targetMatcher pattern=".:Gemstone\.Diagnostics\..+" fullyQualifiedMemberName="false" />
+                <targetMatcher pattern=".:Gemstone\.Diagnostics(\.|$).*" fullyQualifiedMemberName="false" />
                 <targetFormatter>
                   <steps>
                     <replace pattern=":|\.|`" with="_" />
@@ -100,7 +100,7 @@
               </formattedProvider>
               <!-- Match Gemstone IO namespace for classes not in common -->
               <formattedProvider title="Gemstone.IO URL Provider">
-                <targetMatcher pattern=".:Gemstone\.IO\.(?!(?:Block|FilePath|Parsing\.I?Binary|Parsing\.Boolean|Parsing\.ISupportBinary|Parsing\.StringParser)).+" fullyQualifiedMemberName="false" />
+                <targetMatcher pattern=".:Gemstone\.IO\.(?!(Block|FilePath|Parsing\.I?Binary|Parsing\.Boolean|Parsing\.ISupportBinary|Parsing\.StringParser)).+" fullyQualifiedMemberName="false" />
                 <targetFormatter>
                   <steps>
                     <replace pattern=":|\.|`" with="_" />
@@ -112,7 +112,7 @@
               <!-- Add Gemstone root namespace last because it has the widest match criteria -->
               <!-- Pattern excludes target namespace so local memmbers are not redirected to common -->
               <formattedProvider title="Gemstone Common URL Provider">
-                <targetMatcher pattern=".:Gemstone\.(?!Timeseries\.)..+" fullyQualifiedMemberName="false" />
+                <targetMatcher pattern=".:Gemstone\.(?!Timeseries(\.|$)).*" fullyQualifiedMemberName="false" />
                 <targetFormatter>
                   <steps>
                     <replace pattern=":|\.|`" with="_" />

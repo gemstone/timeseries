@@ -26,7 +26,7 @@
 using System;
 using Gemstone.Diagnostics;
 
-namespace Gemstone.TimeSeries.Model;
+namespace Gemstone.Timeseries.Model;
 
 internal class GlobalSettings
 {

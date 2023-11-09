@@ -33,7 +33,7 @@ using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Gemstone.TimeSeries.Reports;
+namespace Gemstone.Timeseries.Reports;
 
 /// <summary>
 /// Represents the process that generates completeness reports for the time-series service.

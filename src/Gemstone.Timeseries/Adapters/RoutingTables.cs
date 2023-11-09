@@ -37,7 +37,7 @@ using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries;
 using Gemstone.Units;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents the routing tables for the Iaon adapters.

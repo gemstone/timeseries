@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters
+namespace Gemstone.Timeseries.Adapters
 {
     /// <summary>
     /// Represents a module that processes input measurements on

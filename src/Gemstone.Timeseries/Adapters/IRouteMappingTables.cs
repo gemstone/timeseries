@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// An interface to provide a custom implementation of the routing functionality of the <see cref="RoutingTables"/>

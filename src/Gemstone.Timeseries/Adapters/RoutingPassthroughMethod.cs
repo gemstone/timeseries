@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters
+namespace Gemstone.Timeseries.Adapters
 {
     /// <summary>
     /// A set of methods that can be called to route measurements to an adapter that implements <see cref="IOptimizedRoutingConsumer"/>

@@ -35,7 +35,7 @@ using Gemstone.StringExtensions;
 using Gemstone.Timeseries;
 
 // ReSharper disable InconsistentlySynchronizedField
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents a new Input, Action, Output interface session.

@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Indicates how the <see cref="RoutingTables"/> have changed from one route calculation to another.

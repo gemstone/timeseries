@@ -31,7 +31,7 @@ using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Data.Model;
 using Gemstone.Expressions.Model;
 
-namespace Gemstone.TimeSeries.Model;
+namespace Gemstone.Timeseries.Model;
 
 [PrimaryLabel(nameof(Label))]
 public class Phasor

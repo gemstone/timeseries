@@ -43,7 +43,7 @@ using Gemstone.Timeseries;
 using Gemstone.Units;
 
 // ReSharper disable TryCastAlwaysSucceeds
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents the base class for any adapter.
@@ -294,7 +294,7 @@ public abstract class AdapterBase : IAdapter
     [ConnectionStringParameter]
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("GSF.TimeSeries.UI.WPF.dll", "GSF.TimeSeries.UI.Editors.MeasurementEditor")]
+    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     public virtual MeasurementKey[] InputMeasurementKeys
     {
         get => m_inputMeasurementKeys;
@@ -320,7 +320,7 @@ public abstract class AdapterBase : IAdapter
     [ConnectionStringParameter]
     [DefaultValue(null)]
     [Description("Defines primary keys of output measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("GSF.TimeSeries.UI.WPF.dll", "GSF.TimeSeries.UI.Editors.MeasurementEditor")]
+    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     public virtual IMeasurement[] OutputMeasurements
     {
         get => m_outputMeasurements;

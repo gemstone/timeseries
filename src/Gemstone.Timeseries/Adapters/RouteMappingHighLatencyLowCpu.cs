@@ -30,7 +30,7 @@ using Gemstone.Diagnostics;
 using Gemstone.Threading;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents an alternative routing table that has intentional delays to lower overall CPU utilization.

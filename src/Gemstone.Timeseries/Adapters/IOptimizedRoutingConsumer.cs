@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Provides an alternative means of routing messages one at a time if an adapter

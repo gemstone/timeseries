@@ -26,9 +26,9 @@
 
 using System.Collections.Generic;
 using System.Data;
-using Gemstone.TimeSeries.Adapters;
+using Gemstone.Timeseries.Adapters;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents the abstract interface for a collection of adapters.

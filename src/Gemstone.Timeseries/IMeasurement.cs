@@ -187,7 +187,7 @@ public enum MeasurementStateFlags : uint
 /// <remarks>
 /// This interface abstractly represents a measured value at an exact time interval.
 /// </remarks>
-public interface IMeasurement : ITimeSeriesValue<double>, IEquatable<ITimeSeriesValue>, IComparable<ITimeSeriesValue>, IComparable
+public interface IMeasurement : ITimeseriesValue<double>, IEquatable<ITimeseriesValue>, IComparable<ITimeseriesValue>, IComparable
 {
     /// <summary>
     /// Gets or sets associated metadata values for the <see cref="IMeasurement"/> .
@@ -209,7 +209,7 @@ public interface IMeasurement : ITimeSeriesValue<double>, IEquatable<ITimeSeries
     /// </summary>
     /// <remarks>
     /// <para>Implementers need to account for <see cref="Adder"/> and <see cref="Multiplier"/> in return value, e.g.:<br/>
-    /// <c>return <see cref="ITimeSeriesValue{T}.Value"/> * <see cref="Multiplier"/> + <see cref="Adder"/></c>
+    /// <c>return <see cref="ITimeseriesValue{T}.Value"/> * <see cref="Multiplier"/> + <see cref="Adder"/></c>
     /// </para>
     /// </remarks>
     double AdjustedValue { get; }

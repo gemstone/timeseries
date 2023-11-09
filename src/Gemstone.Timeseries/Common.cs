@@ -42,7 +42,7 @@ internal class Common
     //Static Constructor
     static Common()
     {
-        //using Logger.AppendStackMessages("Owner", "TimeSeries.Common");
+        //using Logger.AppendStackMessages("Owner", "Timeseries.Common");
         TimerScheduler = new SharedTimerScheduler();
     }
 }

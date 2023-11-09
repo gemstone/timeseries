@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-namespace Gemstone.TimeSeries.Reports
+namespace Gemstone.Timeseries.Reports
 {
     /// <summary>
     /// Represents the process that generates correctness reports for the time-series service.

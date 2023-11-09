@@ -29,7 +29,7 @@ using Gemstone.Data;
 using Gemstone.Diagnostics;
 using Gemstone.Numeric.EE;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents the interface for implementations of independent adapter collection managers.

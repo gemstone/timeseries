@@ -32,9 +32,9 @@ using Gemstone.Data;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
 using Gemstone.Timeseries;
-using ConnectionStringParser = Gemstone.Configuration.ConnectionStringParser<Gemstone.TimeSeries.Adapters.ConnectionStringParameterAttribute>;
+using ConnectionStringParser = Gemstone.Configuration.ConnectionStringParser<Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute>;
 
-namespace Gemstone.TimeSeries.Adapters
+namespace Gemstone.Timeseries.Adapters
 {
     // Common implementation extension handlers for independent adapter collection managers.
     internal static class IndependentAdapterManagerHandlers

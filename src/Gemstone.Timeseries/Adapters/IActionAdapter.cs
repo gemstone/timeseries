@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents the abstract interface for any action adapter.

@@ -29,7 +29,7 @@ using System.Threading;
 using Gemstone.Diagnostics;
 using Gemstone.TypeExtensions;
 
-namespace Gemstone.TimeSeries.Reports;
+namespace Gemstone.Timeseries.Reports;
 
 /// <summary>
 /// Represents a collection of <see cref="IReportingProcess"/> items.

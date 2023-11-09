@@ -33,7 +33,7 @@ using Gemstone.Threading;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents the base class for any incoming input adapter.

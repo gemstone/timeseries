@@ -19,7 +19,7 @@
 //  01/31/2012 - Stephen C. Wills
 //       Generated original version of source code.
 //  02/10/2012 - Stephen C. Wills
-//       Moved to TimeSeriesFramework project.
+//       Moved to TimeseriesFramework project.
 //  12/20/2012 - Starlynn Danyelle Gilliam
 //       Modified Header.
 //

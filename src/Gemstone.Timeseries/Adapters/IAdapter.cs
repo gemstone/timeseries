@@ -31,7 +31,7 @@ using System.Linq;
 using System.Threading;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents the abstract interface for any adapter.

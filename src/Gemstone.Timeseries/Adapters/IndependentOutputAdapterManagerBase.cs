@@ -34,9 +34,9 @@ using Gemstone.Data;
 using Gemstone.Diagnostics;
 using Gemstone.Numeric.EE;
 using Gemstone.Timeseries;
-using Gemstone.TimeSeries.Adapters;
+using Gemstone.Timeseries.Adapters;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents an adapter base class that provides functionality to manage and distribute measurements to a collection of output adapters.
@@ -66,7 +66,7 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     /// </summary>
     [ConnectionStringParameter]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("GSF.TimeSeries.UI.WPF.dll", "GSF.TimeSeries.UI.Editors.MeasurementEditor")]
+    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     [DefaultValue(null)]
     public override MeasurementKey[] InputMeasurementKeys
     {

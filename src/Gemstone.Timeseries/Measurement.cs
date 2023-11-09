@@ -163,7 +163,7 @@ public class Measurement : IMeasurement
     public Ticks CreatedTimestamp => m_lifespan.UtcTime.Ticks;
 
     // Big-Endian binary value interpretation
-    object ITimeSeriesValue.Value
+    object ITimeseriesValue.Value
     {
         get => m_value;
         set => m_value = (double)value;
@@ -181,14 +181,14 @@ public class Measurement : IMeasurement
         ToString(this);
 
     /// <summary>
-    /// Determines whether the specified <see cref="ITimeSeriesValue"/> is equal to the current <see cref="Measurement"/>.
+    /// Determines whether the specified <see cref="ITimeseriesValue"/> is equal to the current <see cref="Measurement"/>.
     /// </summary>
-    /// <param name="other">The <see cref="ITimeSeriesValue"/> to compare with the current <see cref="Measurement"/>.</param>
+    /// <param name="other">The <see cref="ITimeseriesValue"/> to compare with the current <see cref="Measurement"/>.</param>
     /// <returns>
-    /// true if the specified <see cref="ITimeSeriesValue"/> is equal to the current <see cref="Measurement"/>;
+    /// true if the specified <see cref="ITimeseriesValue"/> is equal to the current <see cref="Measurement"/>;
     /// otherwise, false.
     /// </returns>
-    public bool Equals(ITimeSeriesValue? other) => 
+    public bool Equals(ITimeseriesValue? other) => 
         CompareTo(other) == 0;
 
     /// <summary>
@@ -200,15 +200,15 @@ public class Measurement : IMeasurement
     /// otherwise, false.
     /// </returns>
     public override bool Equals(object? obj) => 
-        obj is ITimeSeriesValue other && Equals(other);
+        obj is ITimeseriesValue other && Equals(other);
 
     /// <summary>
-    /// Compares the <see cref="Measurement"/> with an <see cref="ITimeSeriesValue"/>.
+    /// Compares the <see cref="Measurement"/> with an <see cref="ITimeseriesValue"/>.
     /// </summary>
-    /// <param name="other">The <see cref="ITimeSeriesValue"/> to compare with the current <see cref="Measurement"/>.</param>
+    /// <param name="other">The <see cref="ITimeseriesValue"/> to compare with the current <see cref="Measurement"/>.</param>
     /// <returns>A 32-bit signed integer that indicates the relative order of the objects being compared.</returns>
     /// <remarks>Measurement implementations should compare by hash code.</remarks>
-    public int CompareTo(ITimeSeriesValue? other) => 
+    public int CompareTo(ITimeseriesValue? other) => 
         other is not null ? GetHashCode().CompareTo(other.GetHashCode()) : 1;
 
     /// <summary>
@@ -220,7 +220,7 @@ public class Measurement : IMeasurement
     /// <remarks>Measurement implementations should compare by hash code.</remarks>
     public int CompareTo(object? obj)
     {
-        if (obj is ITimeSeriesValue other)
+        if (obj is ITimeseriesValue other)
             return CompareTo(other);
 
         throw new ArgumentException("Measurement can only be compared with other measurements or time-series values");

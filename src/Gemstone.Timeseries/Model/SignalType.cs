@@ -28,7 +28,7 @@
 using System.ComponentModel.DataAnnotations;
 using Gemstone.Data.Model;
 
-namespace Gemstone.TimeSeries.Model;
+namespace Gemstone.Timeseries.Model;
 
 public class SignalType
 {

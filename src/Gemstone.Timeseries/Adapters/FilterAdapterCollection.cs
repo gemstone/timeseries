@@ -31,7 +31,7 @@ using Gemstone.Data.DataExtensions;
 using Gemstone.Diagnostics;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters
+namespace Gemstone.Timeseries.Adapters
 {
     /// <summary>
     /// Represents a collection of <see cref="IFilterAdapter"/> implementations.

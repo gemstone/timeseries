@@ -29,7 +29,7 @@ using System.Linq;
 using Gemstone.StringExtensions;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters
+namespace Gemstone.Timeseries.Adapters
 {
     /// <summary>
     /// Base class for the <see cref="IFilterAdapter"/> interface.
@@ -64,7 +64,7 @@ namespace Gemstone.TimeSeries.Adapters
         [ConnectionStringParameter]
         [DefaultValue(null)]
         [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-        [CustomConfigurationEditor("GSF.TimeSeries.UI.WPF.dll", "GSF.TimeSeries.UI.Editors.MeasurementEditor")]
+        [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
         public override MeasurementKey[] InputMeasurementKeys
         {
             get => base.InputMeasurementKeys;

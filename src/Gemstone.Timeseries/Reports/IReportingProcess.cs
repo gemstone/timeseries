@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Gemstone.TimeSeries.Reports;
+namespace Gemstone.Timeseries.Reports;
 
 /// <summary>
 /// Defines an interface for reporting processes.

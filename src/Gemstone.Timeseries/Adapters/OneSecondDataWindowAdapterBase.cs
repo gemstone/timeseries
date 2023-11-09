@@ -36,10 +36,10 @@ using Gemstone.Numeric.EE;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries;
-using GSF.TimeSeries.Adapters;
-using ConnectionStringParser = GSF.Configuration.ConnectionStringParser<GSF.TimeSeries.Adapters.ConnectionStringParameterAttribute>;
+using GSF.Timeseries.Adapters;
+using ConnectionStringParser = GSF.Configuration.ConnectionStringParser<GSF.Timeseries.Adapters.ConnectionStringParameterAttribute>;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents an adapter base class that provides functionality to operate on a 1-second window of data.
@@ -91,7 +91,7 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
     [ConnectionStringParameter]
     [Description("Defines primary keys of input measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [DefaultValue(null)]
-    [CustomConfigurationEditor("GSF.TimeSeries.UI.WPF.dll", "GSF.TimeSeries.UI.Editors.MeasurementEditor")]
+    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     public override MeasurementKey[] InputMeasurementKeys
     {
         get => base.InputMeasurementKeys;
@@ -111,7 +111,7 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
     [ConnectionStringParameter]
     [Description("Defines primary keys of output measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [DefaultValue(null)]
-    [CustomConfigurationEditor("GSF.TimeSeries.UI.WPF.dll", "GSF.TimeSeries.UI.Editors.MeasurementEditor")]
+    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     public override IMeasurement[] OutputMeasurements
     {
         get => base.OutputMeasurements;

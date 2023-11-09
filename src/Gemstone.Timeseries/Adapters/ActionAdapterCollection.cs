@@ -30,7 +30,7 @@ using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents a collection of <see cref="IActionAdapter"/> implementations.

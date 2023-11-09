@@ -31,7 +31,7 @@ using Gemstone.Data.DataExtensions;
 using Gemstone.Data.Model;
 using Gemstone.Numeric.EE;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents an adapter base class that provides functionality to manage and distribute measurements to a collection of action adapters.

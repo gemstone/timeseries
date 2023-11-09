@@ -25,9 +25,9 @@
 //******************************************************************************************************
 
 using System;
-using Gemstone.TimeSeries.Adapters;
+using Gemstone.Timeseries.Adapters;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Marks a parameter as being a connection string parameter used to configure an <see cref="IAdapter"/>.

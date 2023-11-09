@@ -43,7 +43,7 @@ using Gemstone.Threading;
 using Gemstone.Timeseries;
 using Gemstone.Units;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents a collection of <see cref="IAdapter"/> implementations.

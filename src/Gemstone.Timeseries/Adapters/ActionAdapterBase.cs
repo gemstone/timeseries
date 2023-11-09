@@ -39,7 +39,7 @@ using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents the base class for action adapters.
@@ -331,7 +331,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("Gemstone.TimeSeries.UI.WPF.dll", "Gemstone.TimeSeries.UI.Editors.MeasurementEditor")]
+    [CustomConfigurationEditor("Gemstone.Timeseries.UI.WPF.dll", "Gemstone.Timeseries.UI.Editors.MeasurementEditor")]
     public virtual MeasurementKey[] InputMeasurementKeys
     {
         get => m_inputMeasurementKeys;
@@ -362,7 +362,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(null)]
     [Description("Defines primary keys of output measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("Gemstone.TimeSeries.UI.WPF.dll", "Gemstone.TimeSeries.UI.Editors.MeasurementEditor")]
+    [CustomConfigurationEditor("Gemstone.Timeseries.UI.WPF.dll", "Gemstone.Timeseries.UI.Editors.MeasurementEditor")]
     public virtual IMeasurement[] OutputMeasurements
     {
         get => m_outputMeasurements;

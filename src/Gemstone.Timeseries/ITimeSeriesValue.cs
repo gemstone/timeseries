@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  ITimeSeriesValue.cs - Gbtc
+//  ITimeseriesValue.cs - Gbtc
 //
 //  Copyright © 2012, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -30,23 +30,23 @@ namespace Gemstone.Timeseries;
 /// <summary>
 /// Represents the fundamental binary value interface for a time-series value.
 /// </summary>
-public interface ITimeSeriesValue
+public interface ITimeseriesValue
 {
     /// <summary>
-    /// Gets or sets the <see cref="Guid"/> based signal ID of this <see cref="ITimeSeriesValue{T}"/>.
+    /// Gets or sets the <see cref="Guid"/> based signal ID of this <see cref="ITimeseriesValue{T}"/>.
     /// </summary>
     /// <remarks>
-    /// This is the fundamental identifier of the <see cref="ITimeSeriesValue{T}"/>.
+    /// This is the fundamental identifier of the <see cref="ITimeseriesValue{T}"/>.
     /// </remarks>
     Guid ID { get; }
 
     /// <summary>
-    /// Gets or sets the raw value of this <see cref="ITimeSeriesValue{T}"/>.
+    /// Gets or sets the raw value of this <see cref="ITimeseriesValue{T}"/>.
     /// </summary>
     object Value { get; set; }
 
     /// <summary>
-    /// Gets or sets exact timestamp, in ticks, of the data represented by this <see cref="ITimeSeriesValue{T}"/>.
+    /// Gets or sets exact timestamp, in ticks, of the data represented by this <see cref="ITimeseriesValue{T}"/>.
     /// </summary>
     /// <remarks>
     /// The value of this property represents the number of 100-nanosecond intervals that have elapsed since 12:00:00 midnight, January 1, 0001.
@@ -54,10 +54,10 @@ public interface ITimeSeriesValue
     Ticks Timestamp { get; set; }
 
     /// <summary>
-    /// Get the hash code for the <see cref="ITimeSeriesValue.ID"/>.
+    /// Get the hash code for the <see cref="ITimeseriesValue.ID"/>.
     /// </summary>
-    /// <returns>Hash code for the <see cref="ITimeSeriesValue.ID"/>.</returns>
-    /// <remarks>Implementers should always return the hash code based on <see cref="ITimeSeriesValue.ID"/> of measurement.</remarks>
+    /// <returns>Hash code for the <see cref="ITimeseriesValue.ID"/>.</returns>
+    /// <remarks>Implementers should always return the hash code based on <see cref="ITimeseriesValue.ID"/> of measurement.</remarks>
     int GetHashCode();
 }
 
@@ -65,10 +65,10 @@ public interface ITimeSeriesValue
 /// Represents the fundamental typed interface for a time-series value.
 /// </summary>
 /// <typeparam name="T"><see cref="Type"/> of the time-series value.</typeparam>
-public interface ITimeSeriesValue<T> : ITimeSeriesValue
+public interface ITimeseriesValue<T> : ITimeseriesValue
 {
     /// <summary>
-    /// Gets or sets the raw typed value of this <see cref="ITimeSeriesValue{T}"/>.
+    /// Gets or sets the raw typed value of this <see cref="ITimeseriesValue{T}"/>.
     /// </summary>
     new T Value { get; set; }
 }

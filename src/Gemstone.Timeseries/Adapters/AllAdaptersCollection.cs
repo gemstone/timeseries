@@ -32,7 +32,7 @@ using System.Data;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
 
-namespace Gemstone.TimeSeries.Adapters
+namespace Gemstone.Timeseries.Adapters
 {
     /// <summary>
     /// Represents a collection of all <see cref="IAdapterCollection"/> implementations (i.e., a collection of <see cref="IAdapterCollection"/>'s).

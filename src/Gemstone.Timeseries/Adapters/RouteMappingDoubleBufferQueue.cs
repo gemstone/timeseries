@@ -33,7 +33,7 @@ using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Threading.Collections;
 using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// The standard and default routing table that uses double buffer queues to route measurements.

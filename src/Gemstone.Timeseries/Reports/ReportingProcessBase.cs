@@ -38,7 +38,7 @@ using Gemstone.IO;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 
-namespace Gemstone.TimeSeries.Reports;
+namespace Gemstone.Timeseries.Reports;
 
 /// <summary>
 /// Represents the base functionality for reporting processes.

@@ -26,7 +26,7 @@
 
 using System;
 
-namespace Gemstone.TimeSeries.Adapters
+namespace Gemstone.Timeseries.Adapters
 {
     /// <summary>
     /// Represents an attribute that allows a method in an <see cref="IAdapter"/> class to be exposed as

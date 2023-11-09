@@ -26,7 +26,7 @@ using System;
 using System.Reflection;
 using Gemstone.IO;
 
-namespace Gemstone.TimeSeries.Adapters
+namespace Gemstone.Timeseries.Adapters
 {
     /// <summary>
     /// Marks a parameter or class as having a custom configuration editor page used to configure that parameter or class.

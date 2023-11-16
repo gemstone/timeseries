@@ -25,6 +25,8 @@
 //
 //******************************************************************************************************
 
+using Gemstone.Timeseries;
+
 namespace Gemstone.TimeSeries.Statistics
 {
     /// <summary>

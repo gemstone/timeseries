@@ -281,36 +281,36 @@ public abstract class ReportingProcessBase : IReportingProcess
             return;
 
         // Ensure that settings category is specified.
-        if (string.IsNullOrEmpty(SettingsCategory))
-            throw new ConfigurationErrorsException("SettingsCategory property has not been set");
+        //if (string.IsNullOrEmpty(SettingsCategory))
+            //throw new ConfigurationErrorsException("SettingsCategory property has not been set");
 
         // Load settings from the specified category.
-        ConfigurationFile config = ConfigurationFile.Current;
-        CategorizedSettingsElementCollection settings = config.Settings[SettingsCategory];
+        //ConfigurationFile config = ConfigurationFile.Current;
+        //CategorizedSettingsElementCollection settings = config.Settings[SettingsCategory];
 
-        settings.Add(nameof(ArchiveFilePath), ArchiveFilePath, "Path to the archive file to which the statistics required for reporting are archived.");
-        settings.Add(nameof(ReportLocation), ReportLocation, "Directory to which reports will be written.");
-        settings.Add(nameof(Title), Title, "Title to be displayed on reports.");
-        settings.Add(nameof(Company), Company, "Name of the company to be displayed on reports.");
-        settings.Add(nameof(IdleReportLifetime), IdleReportLifetime, "The minimum lifetime of a report since the last time it was accessed, in days.");
-        settings.Add(nameof(EnableReportEmail), EnableReportEmail, "Set to true to enable daily e-mailing of reports.");
-        settings.Add(nameof(SmtpServer), SmtpServer, "The SMTP relay server from which to send e-mails.");
-        settings.Add(nameof(FromAddress), FromAddress, "The from address for the report e-mails.");
-        settings.Add(nameof(ToAddresses), ToAddresses, "Comma separated list of destination addresses for the report e-mails.");
-        settings.Add(nameof(SmtpUsername), SmtpUsername, "Username to authenticate to the SMTP server.");
-        settings.Add(nameof(SmtpPassword), SmtpSecurePassword, "Password to authenticate to the SMTP server.");
+        //settings.Add(nameof(ArchiveFilePath), ArchiveFilePath, "Path to the archive file to which the statistics required for reporting are archived.");
+        //settings.Add(nameof(ReportLocation), ReportLocation, "Directory to which reports will be written.");
+        //settings.Add(nameof(Title), Title, "Title to be displayed on reports.");
+        //settings.Add(nameof(Company), Company, "Name of the company to be displayed on reports.");
+        //settings.Add(nameof(IdleReportLifetime), IdleReportLifetime, "The minimum lifetime of a report since the last time it was accessed, in days.");
+        //settings.Add(nameof(EnableReportEmail), EnableReportEmail, "Set to true to enable daily e-mailing of reports.");
+        //settings.Add(nameof(SmtpServer), SmtpServer, "The SMTP relay server from which to send e-mails.");
+        //settings.Add(nameof(FromAddress), FromAddress, "The from address for the report e-mails.");
+        //settings.Add(nameof(ToAddresses), ToAddresses, "Comma separated list of destination addresses for the report e-mails.");
+        //settings.Add(nameof(SmtpUsername), SmtpUsername, "Username to authenticate to the SMTP server.");
+        //settings.Add(nameof(SmtpPassword), SmtpSecurePassword, "Password to authenticate to the SMTP server.");
 
-        ArchiveFilePath = settings[nameof(ArchiveFilePath)].ValueAs(ArchiveFilePath);
-        ReportLocation = settings[nameof(ReportLocation)].ValueAs(ReportLocation);
-        Title = settings[nameof(Title)].ValueAs(Title);
-        Company = settings[nameof(Company)].ValueAs(Company);
-        IdleReportLifetime = settings[nameof(IdleReportLifetime)].ValueAs(IdleReportLifetime);
-        EnableReportEmail = settings[nameof(EnableReportEmail)].ValueAsBoolean();
-        SmtpServer = settings[nameof(SmtpServer)].ValueAs(SmtpServer);
-        FromAddress = settings[nameof(FromAddress)].ValueAs(FromAddress);
-        ToAddresses = settings[nameof(ToAddresses)].ValueAs(ToAddresses);
-        SmtpUsername = settings[nameof(SmtpUsername)].ValueAs(SmtpUsername);
-        SmtpPassword = settings[nameof(SmtpPassword)].ValueAs(string.Empty);
+        //ArchiveFilePath = settings[nameof(ArchiveFilePath)].ValueAs(ArchiveFilePath);
+        //ReportLocation = settings[nameof(ReportLocation)].ValueAs(ReportLocation);
+        //Title = settings[nameof(Title)].ValueAs(Title);
+        //Company = settings[nameof(Company)].ValueAs(Company);
+        //IdleReportLifetime = settings[nameof(IdleReportLifetime)].ValueAs(IdleReportLifetime);
+        //EnableReportEmail = settings[nameof(EnableReportEmail)].ValueAsBoolean();
+        //SmtpServer = settings[nameof(SmtpServer)].ValueAs(SmtpServer);
+        //FromAddress = settings[nameof(FromAddress)].ValueAs(FromAddress);
+        //ToAddresses = settings[nameof(ToAddresses)].ValueAs(ToAddresses);
+        //SmtpUsername = settings[nameof(SmtpUsername)].ValueAs(SmtpUsername);
+        //SmtpPassword = settings[nameof(SmtpPassword)].ValueAs(string.Empty);
     }
 
     /// <summary>
@@ -322,24 +322,24 @@ public abstract class ReportingProcessBase : IReportingProcess
             return;
 
         // Ensure that settings category is specified.
-        if (string.IsNullOrEmpty(SettingsCategory))
-            throw new ConfigurationErrorsException("SettingsCategory property has not been set");
+        //if (string.IsNullOrEmpty(SettingsCategory))
+        //    throw new ConfigurationErrorsException("SettingsCategory property has not been set");
 
         // Save settings under the specified category.
-        ConfigurationFile config = ConfigurationFile.Current;
-        CategorizedSettingsElementCollection settings = config.Settings[SettingsCategory];
-        settings[nameof(ArchiveFilePath), true].Update(ArchiveFilePath);
-        settings[nameof(ReportLocation), true].Update(ReportLocation);
-        settings[nameof(Title), true].Update(Title);
-        settings[nameof(Company), true].Update(Company);
-        settings[nameof(IdleReportLifetime), true].Update(IdleReportLifetime);
-        settings[nameof(EnableReportEmail), true].Update(EnableReportEmail);
-        settings[nameof(SmtpServer), true].Update(SmtpServer);
-        settings[nameof(FromAddress), true].Update(FromAddress);
-        settings[nameof(ToAddresses), true].Update(ToAddresses);
-        settings[nameof(SmtpUsername), true].Update(SmtpUsername);
-        settings[nameof(SmtpPassword), true].Update(SmtpPassword);
-        config.Save();
+        //ConfigurationFile config = ConfigurationFile.Current;
+        //CategorizedSettingsElementCollection settings = config.Settings[SettingsCategory];
+        //settings[nameof(ArchiveFilePath), true].Update(ArchiveFilePath);
+        //settings[nameof(ReportLocation), true].Update(ReportLocation);
+        //settings[nameof(Title), true].Update(Title);
+        //settings[nameof(Company), true].Update(Company);
+        //settings[nameof(IdleReportLifetime), true].Update(IdleReportLifetime);
+        //settings[nameof(EnableReportEmail), true].Update(EnableReportEmail);
+        //settings[nameof(SmtpServer), true].Update(SmtpServer);
+        //settings[nameof(FromAddress), true].Update(FromAddress);
+        //settings[nameof(ToAddresses), true].Update(ToAddresses);
+        //settings[nameof(SmtpUsername), true].Update(SmtpUsername);
+        //settings[nameof(SmtpPassword), true].Update(SmtpPassword);
+        //config.Save();
     }
 
     /// <summary>

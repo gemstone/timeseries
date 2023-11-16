@@ -1730,14 +1730,6 @@ public abstract class ConcentratorBase : IDisposable
     /// <summary>
     /// Raises the <see cref="ProcessException"/> event.
     /// </summary>
-    /// <param name="ex">Processing <see cref="Exception"/>.</param>
-    [Obsolete("Switch to using overload with MessageLevel parameter - this method may be removed from future builds.", false)]
-    protected void OnProcessException(Exception ex) => 
-        OnProcessException(MessageLevel.Info, ex, "Unclassified Exception");
-
-    /// <summary>
-    /// Raises the <see cref="ProcessException"/> event.
-    /// </summary>
     /// <param name="level">The <see cref="MessageLevel"/> to assign to this message</param>
     /// <param name="exception">Processing <see cref="Exception"/>.</param>
     /// <param name="eventName">A fixed string to classify this event; defaults to <c>null</c>.</param>

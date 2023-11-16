@@ -544,21 +544,21 @@ public class StatisticsEngine : FacileActionAdapterBase
     public void ReloadStatistics()
     {
         // Make sure setting exists to allow user to by-pass phasor data source validation at startup
-        ConfigurationFile configFile = ConfigurationFile.Current;
-        CategorizedSettingsElementCollection settings = configFile.Settings["systemSettings"];
-        settings.Add("ProcessStatistics", true, "Determines if the statistics should be processed during operation");
+        //ConfigurationFile configFile = ConfigurationFile.Current;
+        //CategorizedSettingsElementCollection settings = configFile.Settings["systemSettings"];
+        //settings.Add("ProcessStatistics", true, "Determines if the statistics should be processed during operation");
 
         // See if statistics should be processed
-        if (settings["ProcessStatistics"].ValueAsBoolean())
-        {
-            m_updateStatisticMeasurementsOperation.RunOnceAsync();
-            m_loadStatisticsOperation.RunOnce();
-        }
-        else
-        {
-            // Make sure statistic calculation timer is off since statistics aren't being processed
-            Stop();
-        }
+        //if (settings["ProcessStatistics"].ValueAsBoolean())
+        //{
+        //    m_updateStatisticMeasurementsOperation.RunOnceAsync();
+        //    m_loadStatisticsOperation.RunOnce();
+        //}
+        //else
+        //{
+        //    // Make sure statistic calculation timer is off since statistics aren't being processed
+        //    Stop();
+        //}
     }
 
     /// <summary>
@@ -1290,8 +1290,9 @@ public class StatisticsEngine : FacileActionAdapterBase
         }
     }
 
-    private static Guid GetNodeID() =>
-        Guid.Parse(ConfigurationFile.Current.Settings["systemSettings"]["NodeID"].Value);
+    // TODO: Config stuff
+    //private static Guid GetNodeID() =>
+    //    Guid.Parse(ConfigurationFile.Current.Settings["systemSettings"]["NodeID"].Value);
 
     #endregion
 }

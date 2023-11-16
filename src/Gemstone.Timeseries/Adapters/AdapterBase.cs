@@ -732,27 +732,6 @@ public abstract class AdapterBase : IAdapter
         m_hashCode;
 
     /// <summary>
-    /// Raises the <see cref="StatusMessage"/> event.
-    /// </summary>
-    /// <param name="status">New status message.</param>
-    [Obsolete("Switch to using overload with MessageLevel parameter - this method may be removed from future builds.", false)]
-    protected void OnStatusMessage(string status) =>
-        OnStatusMessage(MessageLevel.Info, status, "Unclassified Status");
-
-    /// <summary>
-    /// Raises the <see cref="StatusMessage"/> event with a formatted status message.
-    /// </summary>
-    /// <param name="formattedStatus">Formatted status message.</param>
-    /// <param name="args">Arguments for <paramref name="formattedStatus"/>.</param>
-    /// <remarks>
-    /// This overload combines string.Format and SendStatusMessage for convenience.
-    /// </remarks>
-    [StringFormatMethod("formattedStatus")]
-    [Obsolete("Switch to using overload with MessageLevel parameter - this method may be removed from future builds.", false)]
-    protected void OnStatusMessage(string formattedStatus, params object[] args) =>
-        OnStatusMessage(MessageLevel.Info, string.Format(formattedStatus, args), "Unclassified Status");
-
-    /// <summary>
     /// Raises the <see cref="StatusMessage"/> event and sends this data to the <see cref="Logger"/>.
     /// </summary>
     /// <param name="level">The <see cref="MessageLevel"/> to assign to this message</param>
@@ -779,14 +758,6 @@ public abstract class AdapterBase : IAdapter
             OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(StatusMessage)} event: {ex.Message}", ex), "ConsumerEventException");
         }
     }
-
-    /// <summary>
-    /// Raises the <see cref="ProcessException"/> event.
-    /// </summary>
-    /// <param name="ex">Processing <see cref="Exception"/>.</param>
-    [Obsolete("Switch to using overload with MessageLevel parameter - this method may be removed from future builds.", false)]
-    protected void OnProcessException(Exception ex) =>
-        OnProcessException(MessageLevel.Info, ex, "Unclassified Exception");
 
     /// <summary>
     /// Raises the <see cref="ProcessException"/> event.
@@ -1252,25 +1223,25 @@ public abstract class AdapterBase : IAdapter
             try
             {
                 // Load settings from the system settings category				
-                ConfigurationFile config = ConfigurationFile.Current;
-                CategorizedSettingsElementCollection settings = config.Settings["systemSettings"];
-                settings.Add("AllowSelectFilterExpresssions", false, "Determines if database backed SELECT statements should be allowed as filter expressions for defining input and output measurements for adapters.");
+                //ConfigurationFile config = ConfigurationFile.Current;
+                //CategorizedSettingsElementCollection settings = config.Settings["systemSettings"];
+                //settings.Add("AllowSelectFilterExpresssions", false, "Determines if database backed SELECT statements should be allowed as filter expressions for defining input and output measurements for adapters.");
 
                 // Global configuration setting can override ability to use SELECT statements
-                if (settings["AllowSelectFilterExpresssions"].ValueAsBoolean())
+                //if (settings["AllowSelectFilterExpresssions"].ValueAsBoolean())
                 {
-                    using AdoDataConnection database = new("systemSettings");
-                    DataTable results = database.Connection.RetrieveData(database.AdapterType, value);
+                    //using AdoDataConnection database = new("systemSettings");
+                    //DataTable results = database.Connection.RetrieveData(database.AdapterType, value);
 
-                    foreach (DataRow row in results.Rows)
+                    //foreach (DataRow row in results.Rows)
                     {
-                        key = MeasurementKey.LookUpOrCreate(row["SignalID"].ToNonNullString(Guid.Empty.ToString()).ConvertToType<Guid>(), row[nameof(ID)].ToString());
+                        //key = MeasurementKey.LookUpOrCreate(row["SignalID"].ToNonNullString(Guid.Empty.ToString()).ConvertToType<Guid>(), row[nameof(ID)].ToString());
 
-                        if (key != MeasurementKey.Undefined)
-                            keys.Add(key);
+                        //if (key != MeasurementKey.Undefined)
+                            //keys.Add(key);
                     }
                 }
-                else
+                //else
                 {
                     throw new InvalidOperationException("Database backed SELECT statements are disabled in the configuration.");
                 }
@@ -1394,32 +1365,32 @@ public abstract class AdapterBase : IAdapter
             try
             {
                 // Load settings from the system settings category				
-                ConfigurationFile config = ConfigurationFile.Current;
-                CategorizedSettingsElementCollection settings = config.Settings["systemSettings"];
-                settings.Add("AllowSelectFilterExpresssions", false, "Determines if database backed SELECT statements should be allowed as filter expressions for defining input and output measurements for adapters.");
+                //ConfigurationFile config = ConfigurationFile.Current;
+                //CategorizedSettingsElementCollection settings = config.Settings["systemSettings"];
+                //settings.Add("AllowSelectFilterExpresssions", false, "Determines if database backed SELECT statements should be allowed as filter expressions for defining input and output measurements for adapters.");
 
                 // Global configuration setting can override ability to use SELECT statements
-                if (settings["AllowSelectFilterExpresssions"].ValueAsBoolean())
+                //if (settings["AllowSelectFilterExpresssions"].ValueAsBoolean())
                 {
-                    using AdoDataConnection database = new("systemSettings");
+                    //using AdoDataConnection database = new("systemSettings");
 
-                    DataTable results = database.Connection.RetrieveData(database.AdapterType, value);
+                    //DataTable results = database.Connection.RetrieveData(database.AdapterType, value);
 
-                    foreach (DataRow row in results.Rows)
+                    //foreach (DataRow row in results.Rows)
                     {
-                        id = row["SignalID"].ToNonNullString(Guid.Empty.ToString()).ConvertToType<Guid>();
+                        //id = row["SignalID"].ToNonNullString(Guid.Empty.ToString()).ConvertToType<Guid>();
 
-                        key = MeasurementKey.LookUpOrCreate(id, row[nameof(ID)].ToString());
+                        //key = MeasurementKey.LookUpOrCreate(id, row[nameof(ID)].ToString());
 
                         measurement = new Measurement
                         {
-                            Metadata = key.Metadata,
+                            //Metadata = key.Metadata,
                         };
 
                         measurements.Add(measurement);
                     }
                 }
-                else
+                //else
                 {
                     throw new InvalidOperationException("Database backed SELECT statements are disabled in the configuration.");
                 }

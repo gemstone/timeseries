@@ -22,7 +22,7 @@
 //       Modified Header.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
-//
+//  
 //******************************************************************************************************
 
 using System;
@@ -35,6 +35,7 @@ using Gemstone.Configuration;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
+using static Gemstone.Common;
 
 // ReSharper disable InconsistentlySynchronizedField
 namespace Gemstone.Timeseries.Adapters;
@@ -53,7 +54,7 @@ public class IaonSession : IProvideStatus, IDisposable
     /// </summary>
     /// <remarks>
     /// <see cref="EventArgs{T1,T2}.Argument1"/> is the new status message.<br/>
-    /// <see cref="EventArgs{T1,T2}.Argument2"/> is the message <see cref="UpdateType"/>.
+    /// <see cref="EventArgs{T1,T2}.Argument2"/> is the message <see cref="Common.UpdateType"/>.
     /// </remarks>
     public event EventHandler<EventArgs<string, UpdateType>>? StatusMessage;
 
@@ -149,11 +150,11 @@ public class IaonSession : IProvideStatus, IDisposable
         using (Logger.AppendStackMessages("HostAdapter", nameof(IaonSession)))
         {
             // Create a new set of routing tables
-            m_routingTables = OptimizationOptions.DefaultRoutingMethod switch
-            {
-                OptimizationOptions.RoutingMethod.HighLatencyLowCpu => new RoutingTables(new RouteMappingHighLatencyLowCpu()),
-                _ => new RoutingTables()
-            };
+            //m_routingTables = OptimizationOptions.DefaultRoutingMethod switch
+            //{
+            //    OptimizationOptions.RoutingMethod.HighLatencyLowCpu => new RoutingTables(new RouteMappingHighLatencyLowCpu()),
+            //    _ => new RoutingTables()
+            //};
         }
 
         m_routingTables.StatusMessage += m_routingTables_StatusMessage;
@@ -474,7 +475,7 @@ public class IaonSession : IProvideStatus, IDisposable
 
         // When using default informational update type, see if an update type code was embedded in the status message - this allows for compatibility for event
         // handlers that are normally unaware of the update type
-        if (type == UpdateType.Information && status is not null && status.Length > 3 && status.StartsWith("0x") && Enum.TryParse(status[2].ToString(), out type))
+        if (type == Common.UpdateType.Information && status is not null && status.Length > 3 && status.StartsWith("0x") && Enum.TryParse(status[2].ToString(), out type))
             status = status.Substring(3);
 
         StatusMessage(sender, new EventArgs<string, UpdateType>(status, type));
@@ -576,9 +577,9 @@ public class IaonSession : IProvideStatus, IDisposable
     {
         OnStatusMessage(sender, "[{0}] {1}", UpdateType.Alarm, GetDerivedName(sender), e.Argument.Message);
 
-        // Bubble message up to any event subscribers
-        OnProcessException(sender, e.Argument);
-    }
+    //    // Bubble message up to any event subscribers
+    //    OnProcessException(sender, e.Argument);
+    //}
 
     /// <summary>
     /// Event handler for updates to adapter input measurement key definitions.
@@ -645,8 +646,8 @@ public class IaonSession : IProvideStatus, IDisposable
         if (processingInterval is > -1 and < 100)
             threshold *= 4;
 
-        if (secondsOfData > threshold)
-            OnStatusMessage(sender, "[{0}] There are {1} seconds of unpublished data in the action adapter concentration queue.", UpdateType.Warning, GetDerivedName(sender), secondsOfData);
+        //if (secondsOfData > threshold)
+            //OnStatusMessage(sender, "[{0}] There are {1} seconds of unpublished data in the action adapter concentration queue.", Common.UpdateType.Warning, GetDerivedName(sender), secondsOfData);
 
         // Bubble message up to any event subscribers
         OnUnpublishedSamples(sender, e.Argument);
@@ -707,22 +708,22 @@ public class IaonSession : IProvideStatus, IDisposable
                 // If an output adapter queue size exceeds the defined measurement dumping threshold,
                 // then the queue will be truncated before system runs out of memory
                 outputAdapter.RemoveMeasurements(m_measurementDumpingThreshold);
-                OnStatusMessage(sender, "[{0}] System exercised evasive action to conserve memory and dumped {1:N0} unprocessed measurements from the output queue :(", UpdateType.Alarm, outputAdapter.Name, m_measurementDumpingThreshold);
-                OnStatusMessage(sender, "[{0}] NOTICE: Adapter may be offline or processing data too slowly to keep up with incoming data volume. It may be necessary to adjust measurement threshold configuration settings and/or increase amount of available system memory.", UpdateType.Warning, outputAdapter.Name);
+                OnStatusMessage(sender, "[{0}] System exercised evasive action to conserve memory and dumped {1:N0} unprocessed measurements from the output queue :(", Common.UpdateType.Alarm, outputAdapter.Name, m_measurementDumpingThreshold);
+                OnStatusMessage(sender, "[{0}] NOTICE: Adapter may be offline or processing data too slowly to keep up with incoming data volume. It may be necessary to adjust measurement threshold configuration settings and/or increase amount of available system memory.", Common.UpdateType.Warning, outputAdapter.Name);
             }
             else
             {
                 // It is only expected that output adapters will be mapped to this handler, but in case
                 // another adapter type uses this handler we will still display a message
-                OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the adapter queue - but sender \"{2}\" is not an IOutputAdapter, so no evasive action can be exercised.", UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements, sender.GetType().Name);
+                OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the adapter queue - but sender \"{2}\" is not an IOutputAdapter, so no evasive action can be exercised.", Common.UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements, sender.GetType().Name);
             }
         }
         else if (unprocessedMeasurements > m_measurementWarningThreshold)
         {
             if (unprocessedMeasurements >= m_measurementDumpingThreshold - m_measurementWarningThreshold)
-                OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the output queue.", UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
+                OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the output queue.", Common.UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
             else
-                OnStatusMessage(sender, "[{0}] There are {1:N0} unprocessed measurements in the output queue.", UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
+                OnStatusMessage(sender, "[{0}] There are {1:N0} unprocessed measurements in the output queue.", Common.UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
         }
 
         // Bubble message up to any event subscribers
@@ -746,7 +747,7 @@ public class IaonSession : IProvideStatus, IDisposable
     /// <param name="e">Event arguments for event, if any; otherwise <see cref="EventArgs.Empty"/>.</param>
     public virtual void ProcessingCompleteHandler(object? sender, EventArgs e)
     {
-        OnStatusMessage(sender, "[{0}] Processing completed.", UpdateType.Information, GetDerivedName(sender));
+        OnStatusMessage(sender, "[{0}] Processing completed.", Common.UpdateType.Information, GetDerivedName(sender));
 
         // Bubble message up to any event subscribers
         OnProcessingComplete(sender, e);
@@ -759,7 +760,7 @@ public class IaonSession : IProvideStatus, IDisposable
     /// <param name="e">Event arguments, if any.</param>
     public virtual void DisposedHandler(object? sender, EventArgs e)
     {
-        OnStatusMessage(sender, "[{0}] Disposed.", UpdateType.Information, GetDerivedName(sender));
+        OnStatusMessage(sender, "[{0}] Disposed.", Common.UpdateType.Information, GetDerivedName(sender));
 
         // Bubble message up to any event subscribers
         OnDisposed(sender);

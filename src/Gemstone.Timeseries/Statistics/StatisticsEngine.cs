@@ -282,7 +282,7 @@ public class StatisticsEngine : FacileActionAdapterBase
                 companyAcronym = SystemSettings.CompanyAcronym.TruncateRight(3);
             }
 
-            return companyAcronym;
+            //return companyAcronym;
         }
 
         private Dictionary<string, DataRow> GetDeviceLookup()

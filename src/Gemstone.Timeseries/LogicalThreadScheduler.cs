@@ -269,18 +269,19 @@ internal class LogicalThreadScheduler
     /// <param name="thread">The thread to be queued for execution.</param>
     private void Enqueue(LogicalThread thread)
     {
-        //ICancellationToken executionToken;
+        ICancellationToken executionToken;
         int activePriority;
         int nextPriority;
-        //do {
+        do
+        {
             // Create the execution token to be used in the closure
-            //ICancellationToken nextExecutionToken = new CancellationToken();
+            ICancellationToken nextExecutionToken = new CancellationToken();
 
-            // Always update the thread's active priority before
-            // the execution token to mitigate race conditions
-            nextPriority = thread.NextPriority;
+        // Always update the thread's active priority before
+        // the execution token to mitigate race conditions
+        nextPriority = thread.NextPriority;
             thread.ActivePriority = nextPriority;
-            //thread.NextExecutionToken = nextExecutionToken;
+            thread.NextExecutionToken = nextExecutionToken;
 
             // Now that the action can be cancelled by another thread using the
             // new cancellation token, it should be safe to put it in the queue
@@ -302,7 +303,7 @@ internal class LogicalThreadScheduler
             // in other words, if another thread changed the priority in the
             // meantime, it can double-check its own work
             //executionToken = nextExecutionToken;
-        // }
+        }
         //while (activePriority != nextPriority && executionToken.Cancel());
     }
 

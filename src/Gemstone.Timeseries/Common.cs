@@ -29,7 +29,8 @@ namespace Gemstone.Timeseries;
 /// <summary>
 /// Defines common properties and functions for the time-series library.
 /// </summary>
-internal class Common
+// TODO: Change to internal once UpdateType is moved
+public class Common
 {
     /// <summary>
     /// Folder name for dynamically compiled assemblies.
@@ -44,5 +45,24 @@ internal class Common
     {
         //using Logger.AppendStackMessages("Owner", "Timeseries.Common");
         TimerScheduler = new SharedTimerScheduler();
+    }
+    /// <summary>
+    /// Indicates the type of update.
+    /// </summary>
+    // TODO: This needs to be moved into Gemstone Common.
+    public enum UpdateType
+    {
+        /// <summary>
+        /// Update is informational.
+        /// </summary>
+        Information,
+        /// <summary>
+        /// Update is a warning.
+        /// </summary>
+        Warning,
+        /// <summary>
+        /// Update is an alarm.
+        /// </summary>
+        Alarm
     }
 }

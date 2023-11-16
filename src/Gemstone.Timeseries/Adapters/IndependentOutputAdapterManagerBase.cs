@@ -33,8 +33,6 @@ using System.Threading;
 using Gemstone.Data;
 using Gemstone.Diagnostics;
 using Gemstone.Numeric.EE;
-using Gemstone.Timeseries;
-using Gemstone.Timeseries.Adapters;
 
 namespace Gemstone.Timeseries.Adapters;
 

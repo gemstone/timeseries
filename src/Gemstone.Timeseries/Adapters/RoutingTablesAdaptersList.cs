@@ -57,7 +57,7 @@ public class RoutingTablesAdaptersList
     /// Creates a <see cref="RoutingTablesAdaptersList"/>
     /// </summary>
     /// <param name="previousAdapterList">A complete list of all the adapters that existed before.</param>
-    /// <param name="currentAdapterList">A complete list of all the adapters that exist now</param>
+    /// <param name="currentAdapterList">A complete list of all the adapters that exist now.</param>
     public RoutingTablesAdaptersList(HashSet<IAdapter> previousAdapterList, HashSet<IAdapter> currentAdapterList)
     {
         NewAdapter = new List<IAdapter>();

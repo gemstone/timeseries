@@ -20,6 +20,7 @@
 //       Generated original version of source code.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
+//
 //******************************************************************************************************
 
 using System;
@@ -31,7 +32,6 @@ using System.Threading;
 using Gemstone.Data;
 using Gemstone.Diagnostics;
 using Gemstone.Numeric.EE;
-using Gemstone.Timeseries;
 
 namespace Gemstone.Timeseries.Adapters;
 

@@ -22,6 +22,7 @@
 //       Modified Header.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
+//
 //******************************************************************************************************
 
 using System;
@@ -32,7 +33,6 @@ using System.Text;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
-using Gemstone.Timeseries;
 
 // ReSharper disable InconsistentlySynchronizedField
 namespace Gemstone.Timeseries.Adapters;

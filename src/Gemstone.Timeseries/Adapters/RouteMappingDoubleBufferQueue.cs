@@ -31,7 +31,6 @@ using System.Linq;
 using System.Threading;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Threading.Collections;
-using Gemstone.Timeseries;
 
 namespace Gemstone.Timeseries.Adapters;
 

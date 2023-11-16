@@ -55,11 +55,11 @@ internal static class GlobalDeviceStatistics
 
     static GlobalDeviceStatistics()
     {
-        CategorizedSettingsElementCollection settings = ConfigurationFile.Current.Settings["systemSettings"];
+        //CategorizedSettingsElementCollection settings = ConfigurationFile.Current.Settings["systemSettings"];
 
-        settings.Add("MedianTimestampDeviation", DefaultMedianTimestampDeviation, "Maximum allowed deviation from median timestamp, in seconds, for consideration in average timestamp calculation.");
+        //settings.Add("MedianTimestampDeviation", DefaultMedianTimestampDeviation, "Maximum allowed deviation from median timestamp, in seconds, for consideration in average timestamp calculation.");
 
-        s_medianTimestampDeviation = new BigInteger(Ticks.FromSeconds(settings["MedianTimestampDeviation"].ValueAs(DefaultMedianTimestampDeviation)).Value);
+        //s_medianTimestampDeviation = new BigInteger(Ticks.FromSeconds(settings["MedianTimestampDeviation"].ValueAs(DefaultMedianTimestampDeviation)).Value);
         s_latestDeviceTimes = new ConcurrentDictionary<IDevice, LatestDeviceTime>();
         s_bigTwo = new BigInteger(2);
         s_bigMaxLong = new BigInteger(long.MaxValue);

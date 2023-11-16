@@ -22,10 +22,10 @@
 //       Modified Header.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
+//
 //******************************************************************************************************
 
 using System;
-using Gemstone.Timeseries.Adapters;
 
 namespace Gemstone.Timeseries.Adapters;
 

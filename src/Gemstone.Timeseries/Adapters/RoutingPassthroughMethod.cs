@@ -20,34 +20,33 @@
 //       Generated original version of source code.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
+//
 //******************************************************************************************************
 
 using System;
 using System.Collections.Generic;
-using Gemstone.Timeseries;
 
-namespace Gemstone.Timeseries.Adapters
+namespace Gemstone.Timeseries.Adapters;
+
+/// <summary>
+/// A set of methods that can be called to route measurements to an adapter that implements <see cref="IOptimizedRoutingConsumer"/>
+/// Note, this method will be called within a synchronized context.
+/// </summary>
+public class RoutingPassthroughMethod
 {
     /// <summary>
-    /// A set of methods that can be called to route measurements to an adapter that implements <see cref="IOptimizedRoutingConsumer"/>
-    /// Note, this method will be called within a synchronized context.
+    /// Measurements can be directly passed through to this method without the need for routing/filtering.
     /// </summary>
-    public class RoutingPassthroughMethod
+    public readonly Action<List<IMeasurement>> ProcessMeasurementList;
+
+    /// <summary>
+    /// Creates <see cref="RoutingPassthroughMethod"/>.
+    /// </summary>
+    /// <param name="processMeasurementList"></param>
+    public RoutingPassthroughMethod(Action<List<IMeasurement>> processMeasurementList) =>
+        ProcessMeasurementList = processMeasurementList ?? CallNothing;
+
+    private void CallNothing(List<IMeasurement> measurement)
     {
-        /// <summary>
-        /// Measurements can be directly passed through to this method without the need for routing/filtering.
-        /// </summary>
-        public readonly Action<List<IMeasurement>> ProcessMeasurementList;
-
-        /// <summary>
-        /// Creates <see cref="RoutingPassthroughMethod"/>.
-        /// </summary>
-        /// <param name="processMeasurementList"></param>
-        public RoutingPassthroughMethod(Action<List<IMeasurement>> processMeasurementList) =>
-            ProcessMeasurementList = processMeasurementList ?? CallNothing;
-
-        private void CallNothing(List<IMeasurement> measurement)
-        {
-        }
     }
 }

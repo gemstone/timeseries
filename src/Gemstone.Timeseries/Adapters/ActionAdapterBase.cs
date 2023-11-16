@@ -37,7 +37,6 @@ using System.Text;
 using System.Threading;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
-using Gemstone.Timeseries;
 
 namespace Gemstone.Timeseries.Adapters;
 

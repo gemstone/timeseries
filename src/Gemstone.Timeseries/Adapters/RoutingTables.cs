@@ -34,7 +34,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Gemstone.Diagnostics;
 using Gemstone.Threading.SynchronizedOperations;
-using Gemstone.Timeseries;
 using Gemstone.Units;
 
 namespace Gemstone.Timeseries.Adapters;

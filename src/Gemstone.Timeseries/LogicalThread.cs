@@ -160,7 +160,7 @@ public class LogicalThread
     private LogicalThreadScheduler m_scheduler;
     private ConcurrentQueue<Action>[] m_queues;
     private Dictionary<object, object> m_threadLocalStorage;
-    //private ICancellationToken m_nextExecutionToken;
+    private ICancellationToken m_nextExecutionToken;
     private int m_activePriority;
 
     private LogicalThreadStatistics m_statistics;
@@ -252,21 +252,21 @@ public class LogicalThread
         }
     }
 
-    ///// <summary>
-    ///// Gets or sets the cancellation token for the next time
-    ///// the thread's actions will be executed by the scheduler.
-    ///// </summary>
-    //internal ICancellationToken NextExecutionToken
-    //{
-    //    get
-    //    {
-    //        return Interlocked.CompareExchange(ref m_nextExecutionToken, null, null);
-    //    }
-    //    set
-    //    {
-    //        Interlocked.Exchange(ref m_nextExecutionToken, value);
-    //    }
-    //}
+    /// <summary>
+    /// Gets or sets the cancellation token for the next time
+    /// the thread's actions will be executed by the scheduler.
+    /// </summary>
+    internal ICancellationToken NextExecutionToken
+    {
+        get
+        {
+            return Interlocked.CompareExchange(ref m_nextExecutionToken, null, null);
+        }
+        set
+        {
+            Interlocked.Exchange(ref m_nextExecutionToken, value);
+        }
+    }
 
     #endregion
 
@@ -347,9 +347,9 @@ public class LogicalThread
     {
         // Always get the execution token before the
         // active priority to mitigate race conditions
-        //ICancellationToken nextExecutionToken = NextExecutionToken;
+        ICancellationToken nextExecutionToken = NextExecutionToken;
         int activePriority = ActivePriority;
-        //return (activePriority < priority) && nextExecutionToken.Cancel();
+        return (activePriority < priority) && nextExecutionToken.Cancel();
         return true;
     }
 

@@ -977,27 +977,6 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     }
 
     /// <summary>
-    /// Raises the <see cref="StatusMessage"/> event.
-    /// </summary>
-    /// <param name="status">New status message.</param>
-    [Obsolete("Switch to using overload with MessageLevel parameter - this method may be removed from future builds.", false)]
-    protected void OnStatusMessage(string status) =>
-        OnStatusMessage(MessageLevel.Info, status, "Unclassified Status");
-
-    /// <summary>
-    /// Raises the <see cref="StatusMessage"/> event with a formatted status message.
-    /// </summary>
-    /// <param name="formattedStatus">Formatted status message.</param>
-    /// <param name="args">Arguments for <paramref name="formattedStatus"/>.</param>
-    /// <remarks>
-    /// This overload combines string.Format and SendStatusMessage for convenience.
-    /// </remarks>
-    [StringFormatMethod("formattedStatus")]
-    [Obsolete("Switch to using overload with MessageLevel parameter - this method may be removed from future builds.", false)]
-    protected void OnStatusMessage(string formattedStatus, params object[] args) =>
-        OnStatusMessage(MessageLevel.Info, string.Format(formattedStatus, args), "Unclassified Status");
-
-    /// <summary>
     /// Raises the <see cref="StatusMessage"/> event and sends this data to the <see cref="Logger"/>.
     /// </summary>
     /// <param name="level">The <see cref="MessageLevel"/> to assign to this message</param>

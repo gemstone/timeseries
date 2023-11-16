@@ -277,9 +277,9 @@ internal class LogicalThreadScheduler
             // Create the execution token to be used in the closure
             ICancellationToken nextExecutionToken = new CancellationToken();
 
-        // Always update the thread's active priority before
-        // the execution token to mitigate race conditions
-        nextPriority = thread.NextPriority;
+            // Always update the thread's active priority before
+            // the execution token to mitigate race conditions
+            nextPriority = thread.NextPriority;
             thread.ActivePriority = nextPriority;
             thread.NextExecutionToken = nextExecutionToken;
 
@@ -287,7 +287,7 @@ internal class LogicalThreadScheduler
             // new cancellation token, it should be safe to put it in the queue
             m_logicalThreadQueues[PriorityLevels - nextPriority].Enqueue(() =>
             {
-                //if (nextExecutionToken.Cancel())
+                if (nextExecutionToken.Cancel())
                     return thread;
 
                 return null;
@@ -302,7 +302,7 @@ internal class LogicalThreadScheduler
             // really need to double-check the work that was done on this thread;
             // in other words, if another thread changed the priority in the
             // meantime, it can double-check its own work
-            //executionToken = nextExecutionToken;
+            executionToken = nextExecutionToken;
         }
         //while (activePriority != nextPriority && executionToken.Cancel());
     }

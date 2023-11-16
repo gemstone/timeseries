@@ -173,85 +173,97 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [DefaultValue(DefaultLeadTime)]
     public virtual double LeadTime { get; set; } = DefaultLeadTime;
 
-    /// <summary>
-    /// Gets or sets the wait timeout, in milliseconds, that system wait for system configuration reload to complete.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the wait timeout, in milliseconds, that system wait for system configuration reload to complete.")]
-    [DefaultValue(DefaultConfigurationReloadWaitTimeout)]
-    public int ConfigurationReloadWaitTimeout { get; set; } = DefaultConfigurationReloadWaitTimeout;
+    ///// <summary>
+    ///// Gets or sets the wait timeout, in milliseconds, that system wait for system configuration reload to complete.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the wait timeout, in milliseconds, that system wait for system configuration reload to complete.")]
+    //[DefaultValue(DefaultConfigurationReloadWaitTimeout)]
+    //public int ConfigurationReloadWaitTimeout { get; set; } = DefaultConfigurationReloadWaitTimeout;
 
-    /// <summary>
-    /// Gets or sets the total number of attempts to wait for system configuration reloads when waiting for configuration updates to be available.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the total number of attempts to wait for system configuration reloads when waiting for configuration updates to be available.")]
-    [DefaultValue(DefaultConfigurationReloadWaitAttempts)]
-    public virtual int ConfigurationReloadWaitAttempts { get; set; } = DefaultConfigurationReloadWaitAttempts;
+    ///// <summary>
+    ///// Gets or sets the total number of attempts to wait for system configuration reloads when waiting for configuration updates to be available.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the total number of attempts to wait for system configuration reloads when waiting for configuration updates to be available.")]
+    //[DefaultValue(DefaultConfigurationReloadWaitAttempts)]
+    //public virtual int ConfigurationReloadWaitAttempts { get; set; } = DefaultConfigurationReloadWaitAttempts;
 
-    /// <summary>
-    /// Gets or sets the connection string used for database operations. Leave blank to use local configuration database defined in "systemSettings".
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the connection string used for database operations. Leave blank to use local configuration database defined in \"systemSettings\".")]
-    [DefaultValue(DefaultDatabaseConnectionString)]
-    public virtual string DatabaseConnectionString { get; set; }
+    ///// <summary>
+    ///// Gets or sets the connection string used for database operations. Leave blank to use local configuration database defined in "systemSettings".
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the connection string used for database operations. Leave blank to use local configuration database defined in \"systemSettings\".")]
+    //[DefaultValue(DefaultDatabaseConnectionString)]
+    //public virtual string DatabaseConnectionString { get; set; }
 
-    /// <summary>
-    /// Gets or sets the provider string used for database operations. Defaults to a SQL Server provider string.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the provider string used for database operations. Defaults to a SQL Server provider string.")]
-    [DefaultValue(DefaultDatabaseProviderString)]
-    public virtual string DatabaseProviderString { get; set; }
+    ///// <summary>
+    ///// Gets or sets the provider string used for database operations. Defaults to a SQL Server provider string.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the provider string used for database operations. Defaults to a SQL Server provider string.")]
+    //[DefaultValue(DefaultDatabaseProviderString)]
+    //public virtual string DatabaseProviderString { get; set; }
 
-    /// <summary>
-    /// Gets or sets template for output measurement point tag names.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description($"Defines template for output measurement point tag names, typically an expression like \"{DefaultPointTagTemplate}\" where \"{{0}}\" is substituted with this adapter name, a dash and then the PerAdapterOutputNames value for the current measurement. Note that \"{{0}}\" token is not required, property can be overridden to provide desired value.")]
-    [DefaultValue(DefaultPointTagTemplate)]
-    public virtual string PointTagTemplate { get; set; } = DefaultPointTagTemplate;
+    ///// <summary>
+    ///// Gets or sets template for output measurement point tag names.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description($"Defines template for output measurement point tag names, typically an expression like \"{DefaultPointTagTemplate}\" where \"{{0}}\" is substituted with this adapter name, a dash and then the PerAdapterOutputNames value for the current measurement. Note that \"{{0}}\" token is not required, property can be overridden to provide desired value.")]
+    //[DefaultValue(DefaultPointTagTemplate)]
+    //public virtual string PointTagTemplate { get; set; } = DefaultPointTagTemplate;
 
-    /// <summary>
-    /// Gets or sets template for output measurement alternate tag names.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines template for output measurement alternate tag names, typically an expression where \"{0}\" is substituted with this adapter name, a dash and then the PerAdapterOutputNames value for the current measurement. Note that \"{0}\" token is not required, property can be overridden to provide desired value.")]
-    [DefaultValue(DefaultAlternateTagTemplate)]
-    public virtual string AlternateTagTemplate { get; set; } = DefaultAlternateTagTemplate;
+    ///// <summary>
+    ///// Gets or sets template for output measurement alternate tag names.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines template for output measurement alternate tag names, typically an expression where \"{0}\" is substituted with this adapter name, a dash and then the PerAdapterOutputNames value for the current measurement. Note that \"{0}\" token is not required, property can be overridden to provide desired value.")]
+    //[DefaultValue(DefaultAlternateTagTemplate)]
+    //public virtual string AlternateTagTemplate { get; set; } = DefaultAlternateTagTemplate;
 
-    /// <summary>
-    /// Gets or sets template for output measurement signal reference names.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description($"Defines template for output measurement signal reference names, typically an expression like \"{DefaultSignalReferenceTemplate}\" where \"{{0}}\" is substituted with this adapter name, a dash and then the PerAdapterOutputNames value for the current measurement. Note that \"{{0}}\" token is not required, property can be overridden to provide desired value.")]
-    [DefaultValue(DefaultSignalReferenceTemplate)]
-    public virtual string SignalReferenceTemplate { get; set; } = DefaultSignalReferenceTemplate;
+    ///// <summary>
+    ///// Gets or sets template for output measurement signal reference names.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description($"Defines template for output measurement signal reference names, typically an expression like \"{DefaultSignalReferenceTemplate}\" where \"{{0}}\" is substituted with this adapter name, a dash and then the PerAdapterOutputNames value for the current measurement. Note that \"{{0}}\" token is not required, property can be overridden to provide desired value.")]
+    //[DefaultValue(DefaultSignalReferenceTemplate)]
+    //public virtual string SignalReferenceTemplate { get; set; } = DefaultSignalReferenceTemplate;
 
-    /// <summary>
-    /// Gets or sets template for output measurement descriptions.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description($"Defines template for output measurement descriptions, typically an expression like \"{DefaultDescriptionTemplate}\".")]
-    [DefaultValue(DefaultDescriptionTemplate)]
-    public virtual string DescriptionTemplate { get; set; } = DefaultDescriptionTemplate;
+    ///// <summary>
+    ///// Gets or sets template for output measurement descriptions.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description($"Defines template for output measurement descriptions, typically an expression like \"{DefaultDescriptionTemplate}\".")]
+    //[DefaultValue(DefaultDescriptionTemplate)]
+    //public virtual string DescriptionTemplate { get; set; } = DefaultDescriptionTemplate;
 
-    /// <summary>
-    /// Gets or sets template for the parent device acronym used to group associated output measurements.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description($"Defines template for the parent device acronym used to group associated output measurements, typically an expression like \"{DefaultParentDeviceAcronymTemplate}\" where \"{{0}}\" is substituted with this adapter name. Set to blank value to create no parent device associated output measurements. Note that \"{{0}}\" token is not required, you can simply use a specific device acronym.")]
-    [DefaultValue(DefaultParentDeviceAcronymTemplate)]
-    public virtual string ParentDeviceAcronymTemplate { get; set; } = DefaultParentDeviceAcronymTemplate;
+    ///// <summary>
+    ///// Gets or sets template for the parent device acronym used to group associated output measurements.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description($"Defines template for the parent device acronym used to group associated output measurements, typically an expression like \"{DefaultParentDeviceAcronymTemplate}\" where \"{{0}}\" is substituted with this adapter name. Set to blank value to create no parent device associated output measurements. Note that \"{{0}}\" token is not required, you can simply use a specific device acronym.")]
+    //[DefaultValue(DefaultParentDeviceAcronymTemplate)]
+    //public virtual string ParentDeviceAcronymTemplate { get; set; } = DefaultParentDeviceAcronymTemplate;
 
-    /// <summary>
-    /// Gets or sets default signal type to use for all output measurements when <see cref="SignalTypes"/> array is not defined.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the default signal type to use for all output measurements. Used when per output measurement SignalTypes array is not defined.")]
-    [DefaultValue(typeof(SignalType), DefaultSignalType)]
-    public virtual SignalType SignalType { get; set; } = (SignalType)Enum.Parse(typeof(SignalType), DefaultSignalType);
+    ///// <summary>
+    ///// Gets or sets default signal type to use for all output measurements when <see cref="SignalTypes"/> array is not defined.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the default signal type to use for all output measurements. Used when per output measurement SignalTypes array is not defined.")]
+    //[DefaultValue(typeof(SignalType), DefaultSignalType)]
+    //public virtual SignalType SignalType { get; set; } = (SignalType)Enum.Parse(typeof(SignalType), DefaultSignalType);
+
+    // TODO: Remove lines 257-266. 
+    public int ConfigurationReloadWaitTimeout { get; set; }
+    public int ConfigurationReloadWaitAttempts { get; set; }
+    public string DatabaseConnectionString { get; set; }
+    public string DatabaseProviderString { get; set; }
+    public string PointTagTemplate { get; set; }
+    public string AlternateTagTemplate { get; set; }
+    public string SignalReferenceTemplate { get; set; }
+    public string DescriptionTemplate { get; set; }
+    public string ParentDeviceAcronymTemplate { get; set; }
+    public SignalType SignalType { get; set; }
 
     /// <summary>
     /// Gets per adapter signal type for output measurements, used when each output needs to be a different type.
@@ -264,21 +276,24 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// </summary>
     public virtual string CustomAdapterSettings { get; } = null;
 
-    /// <summary>
-    /// Gets or sets the target historian acronym for output measurements.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the target historian acronym for output measurements.")]
-    [DefaultValue(DefaultTargetHistorianAcronym)]
-    public virtual string TargetHistorianAcronym { get; set; } = DefaultTargetHistorianAcronym;
+    public string TargetHistorianAcronym { get; set; }
+    public string SourceMeasurementTable { get; set; }
 
-    /// <summary>
-    /// Gets or sets the source measurement table to use for configuration.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the source measurement table to use for configuration.")]
-    [DefaultValue(DefaultSourceMeasurementTable)]
-    public virtual string SourceMeasurementTable { get; set; } = DefaultSourceMeasurementTable;
+    ///// <summary>
+    ///// Gets or sets the target historian acronym for output measurements.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the target historian acronym for output measurements.")]
+    //[DefaultValue(DefaultTargetHistorianAcronym)]
+    //public virtual string TargetHistorianAcronym { get; set; } = DefaultTargetHistorianAcronym;
+
+    ///// <summary>
+    ///// Gets or sets the source measurement table to use for configuration.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the source measurement table to use for configuration.")]
+    //[DefaultValue(DefaultSourceMeasurementTable)]
+    //public virtual string SourceMeasurementTable { get; set; } = DefaultSourceMeasurementTable;
 
     /// <summary>
     /// Gets or sets <see cref="DataSet"/> based data source used to load each <see cref="IAdapter"/>. Updates

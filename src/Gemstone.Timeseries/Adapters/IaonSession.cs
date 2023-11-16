@@ -168,14 +168,14 @@ public class IaonSession : IProvideStatus, IDisposable
             //};
         }
         m_routingTables.StatusMessage += m_routingTables_StatusMessage;
-        m_routingTables.ProcessException += m_routingTables_ProcessException;
+        //m_routingTables.ProcessException += m_routingTables_ProcessException;
 
         // Create a collection to manage all input, action and output adapter collections as a unit
         m_allAdapters = new AllAdaptersCollection();
 
         // Attach to common adapter events
-        m_allAdapters.StatusMessage += StatusMessageHandler;
-        m_allAdapters.ProcessException += ProcessExceptionHandler;
+        //m_allAdapters.StatusMessage += StatusMessageHandler;
+        //m_allAdapters.ProcessException += ProcessExceptionHandler;
         m_allAdapters.InputMeasurementKeysUpdated += InputMeasurementKeysUpdatedHandler;
         m_allAdapters.OutputMeasurementsUpdated += OutputMeasurementsUpdatedHandler;
         m_allAdapters.ConfigurationChanged += ConfigurationChangedHandler;
@@ -401,8 +401,8 @@ public class IaonSession : IProvideStatus, IDisposable
             // Dispose all adapters collection
             if (m_allAdapters is not null)
             {
-                m_allAdapters.StatusMessage -= StatusMessageHandler;
-                m_allAdapters.ProcessException -= ProcessExceptionHandler;
+                //m_allAdapters.StatusMessage -= StatusMessageHandler;
+                //m_allAdapters.ProcessException -= ProcessExceptionHandler;
                 m_allAdapters.InputMeasurementKeysUpdated -= InputMeasurementKeysUpdatedHandler;
                 m_allAdapters.OutputMeasurementsUpdated -= OutputMeasurementsUpdatedHandler;
                 m_allAdapters.ConfigurationChanged -= ConfigurationChangedHandler;
@@ -415,7 +415,7 @@ public class IaonSession : IProvideStatus, IDisposable
             if (m_routingTables is not null)
             {
                 m_routingTables.StatusMessage -= m_routingTables_StatusMessage;
-                m_routingTables.ProcessException -= m_routingTables_ProcessException;
+                //m_routingTables.ProcessException -= m_routingTables_ProcessException;
                 m_routingTables.Dispose();
             }
             m_routingTables = null;
@@ -732,22 +732,22 @@ public class IaonSession : IProvideStatus, IDisposable
                 // If an output adapter queue size exceeds the defined measurement dumping threshold,
                 // then the queue will be truncated before system runs out of memory
                 outputAdapter.RemoveMeasurements(m_measurementDumpingThreshold);
-                OnStatusMessage(sender, "[{0}] System exercised evasive action to conserve memory and dumped {1:N0} unprocessed measurements from the output queue :(", Common.UpdateType.Alarm, outputAdapter.Name, m_measurementDumpingThreshold);
-                OnStatusMessage(sender, "[{0}] NOTICE: Adapter may be offline or processing data too slowly to keep up with incoming data volume. It may be necessary to adjust measurement threshold configuration settings and/or increase amount of available system memory.", Common.UpdateType.Warning, outputAdapter.Name);
+                //OnStatusMessage(sender, "[{0}] System exercised evasive action to conserve memory and dumped {1:N0} unprocessed measurements from the output queue :(", Common.UpdateType.Alarm, outputAdapter.Name, m_measurementDumpingThreshold);
+                //OnStatusMessage(sender, "[{0}] NOTICE: Adapter may be offline or processing data too slowly to keep up with incoming data volume. It may be necessary to adjust measurement threshold configuration settings and/or increase amount of available system memory.", Common.UpdateType.Warning, outputAdapter.Name);
             }
             else
             {
                 // It is only expected that output adapters will be mapped to this handler, but in case
                 // another adapter type uses this handler we will still display a message
-                OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the adapter queue - but sender \"{2}\" is not an IOutputAdapter, so no evasive action can be exercised.", Common.UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements, sender.GetType().Name);
+                //OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the adapter queue - but sender \"{2}\" is not an IOutputAdapter, so no evasive action can be exercised.", Common.UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements, sender.GetType().Name);
             }
         }
         else if (unprocessedMeasurements > m_measurementWarningThreshold)
         {
-            if (unprocessedMeasurements >= m_measurementDumpingThreshold - m_measurementWarningThreshold)
-                OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the output queue.", Common.UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
-            else
-                OnStatusMessage(sender, "[{0}] There are {1:N0} unprocessed measurements in the output queue.", Common.UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
+            //if (unprocessedMeasurements >= m_measurementDumpingThreshold - m_measurementWarningThreshold)
+            //    OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the output queue.", Common.UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
+            //else
+            //    OnStatusMessage(sender, "[{0}] There are {1:N0} unprocessed measurements in the output queue.", Common.UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
         }
 
         // Bubble message up to any event subscribers
@@ -769,7 +769,7 @@ public class IaonSession : IProvideStatus, IDisposable
     /// <param name="e">Event arguments for event, if any; otherwise <see cref="EventArgs.Empty"/>.</param>
     public virtual void ProcessingCompleteHandler(object sender, EventArgs e)
     {
-        OnStatusMessage(sender, "[{0}] Processing completed.", Common.UpdateType.Information, GetDerivedName(sender));
+        //OnStatusMessage(sender, "[{0}] Processing completed.", Common.UpdateType.Information, GetDerivedName(sender));
 
         // Bubble message up to any event subscribers
         OnProcessingComplete(sender, e);
@@ -782,7 +782,7 @@ public class IaonSession : IProvideStatus, IDisposable
     /// <param name="e">Event arguments, if any.</param>
     public virtual void DisposedHandler(object sender, EventArgs e)
     {
-        OnStatusMessage(sender, "[{0}] Disposed.", Common.UpdateType.Information, GetDerivedName(sender));
+        //OnStatusMessage(sender, "[{0}] Disposed.", Common.UpdateType.Information, GetDerivedName(sender));
 
         // Bubble message up to any event subscribers
         OnDisposed(sender);
@@ -804,8 +804,8 @@ public class IaonSession : IProvideStatus, IDisposable
         OnStatusMessage(this, e.Argument);
 
     // Bubble routing table exceptions out through Iaon session
-    private void m_routingTables_ProcessException(object sender, EventArgs<Exception> e) =>
-        ProcessExceptionHandler(sender, e);
+    //private void m_routingTables_ProcessException(object sender, EventArgs<Exception> e) =>
+    //    ProcessExceptionHandler(sender, e);
 
     #endregion
 

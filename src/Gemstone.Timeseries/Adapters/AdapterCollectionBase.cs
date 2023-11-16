@@ -1358,10 +1358,10 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
                         OnStatusMessage(MessageLevel.Warning, string.Format(MessageFormat, item.Name, item.InitializationTimeout / 1000.0), "Initialization");
 
                         // ReSharper disable once AccessToModifiedClosure
-                        initializationTimeoutToken = initializationTimeoutAction?.DelayAndExecute(item.InitializationTimeout);
+                        //initializationTimeoutToken = initializationTimeoutAction?.DelayAndExecute(item.InitializationTimeout);
                     };
 
-                    initializationTimeoutToken = initializationTimeoutAction.DelayAndExecute(item.InitializationTimeout);
+                    //initializationTimeoutToken = initializationTimeoutAction.DelayAndExecute(item.InitializationTimeout);
                 }
 
                 // Initialize the item

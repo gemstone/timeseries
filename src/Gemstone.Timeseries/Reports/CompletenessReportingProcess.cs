@@ -114,20 +114,20 @@ public class CompletenessReportingProcess : ReportingProcessBase
         base.LoadSettings();
 
         // Load settings from the specified category.
-        ConfigurationFile config = ConfigurationFile.Current;
-        CategorizedSettingsElementCollection settings = config.Settings[SettingsCategory];
+        //ConfigurationFile config = ConfigurationFile.Current;
+        //CategorizedSettingsElementCollection settings = config.Settings[SettingsCategory];
 
-        settings.Add(nameof(Level4Threshold), Level4Threshold, "Minimum percentage of measurements received from devices in level 4.");
-        settings.Add(nameof(Level3Threshold), Level3Threshold, "Minimum percentage of measurements received from devices in level 3.");
-        settings.Add(nameof(Level4Alias), Level4Alias, "Alias for the level 4 category.");
-        settings.Add(nameof(Level3Alias), Level3Alias, "Alias for the level 3 category.");
-        settings.Add(nameof(GenerateCsvReport), GenerateCsvReport, "Generate a csv version of the pdf report");
+        //settings.Add(nameof(Level4Threshold), Level4Threshold, "Minimum percentage of measurements received from devices in level 4.");
+        //settings.Add(nameof(Level3Threshold), Level3Threshold, "Minimum percentage of measurements received from devices in level 3.");
+        //settings.Add(nameof(Level4Alias), Level4Alias, "Alias for the level 4 category.");
+        //settings.Add(nameof(Level3Alias), Level3Alias, "Alias for the level 3 category.");
+        //settings.Add(nameof(GenerateCsvReport), GenerateCsvReport, "Generate a csv version of the pdf report");
 
-        Level4Threshold = settings[nameof(Level4Threshold)].ValueAs(Level4Threshold);
-        Level3Threshold = settings[nameof(Level3Threshold)].ValueAs(Level3Threshold);
-        Level4Alias = settings[nameof(Level4Alias)].ValueAs(Level4Alias);
-        Level3Alias = settings[nameof(Level3Alias)].ValueAs(Level3Alias);
-        GenerateCsvReport = settings[nameof(GenerateCsvReport)].ValueAs(GenerateCsvReport);
+        //Level4Threshold = settings[nameof(Level4Threshold)].ValueAs(Level4Threshold);
+        //Level3Threshold = settings[nameof(Level3Threshold)].ValueAs(Level3Threshold);
+        //Level4Alias = settings[nameof(Level4Alias)].ValueAs(Level4Alias);
+        //Level3Alias = settings[nameof(Level3Alias)].ValueAs(Level3Alias);
+        //GenerateCsvReport = settings[nameof(GenerateCsvReport)].ValueAs(GenerateCsvReport);
     }
 
     /// <summary>
@@ -138,15 +138,15 @@ public class CompletenessReportingProcess : ReportingProcessBase
         base.SaveSettings();
 
         // Save settings under the specified category.
-        ConfigurationFile config = ConfigurationFile.Current;
-        CategorizedSettingsElementCollection settings = config.Settings[SettingsCategory];
+        //ConfigurationFile config = ConfigurationFile.Current;
+        //CategorizedSettingsElementCollection settings = config.Settings[SettingsCategory];
 
-        settings[nameof(Level4Threshold), true].Update(Level4Threshold);
-        settings[nameof(Level3Threshold), true].Update(Level3Threshold);
-        settings[nameof(Level4Alias), true].Update(Level4Alias);
-        settings[nameof(Level3Alias), true].Update(Level3Alias);
-        settings[nameof(GenerateCsvReport)].Update(GenerateCsvReport);
-        config.Save();
+        //settings[nameof(Level4Threshold), true].Update(Level4Threshold);
+        //settings[nameof(Level3Threshold), true].Update(Level3Threshold);
+        //settings[nameof(Level4Alias), true].Update(Level4Alias);
+        //settings[nameof(Level3Alias), true].Update(Level3Alias);
+        //settings[nameof(GenerateCsvReport)].Update(GenerateCsvReport);
+        //config.Save();
     }
 
     /// <summary>

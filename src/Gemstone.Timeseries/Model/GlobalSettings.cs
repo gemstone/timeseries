@@ -25,6 +25,7 @@
 
 using System;
 using Gemstone.Diagnostics;
+using Gemstone.Security;
 
 namespace Gemstone.Timeseries.Model;
 
@@ -40,8 +41,8 @@ internal class GlobalSettings
     {
         try
         {
-            CategorizedSettingsElementCollection systemSettings = ConfigurationFile.Current.Settings[nameof(systemSettings)];
-            s_companyAcronym = systemSettings[nameof(CompanyAcronym)]?.Value;
+            //CategorizedSettingsElementCollection systemSettings = ConfigurationFile.Current.Settings[nameof(systemSettings)];
+            //s_companyAcronym = systemSettings[nameof(CompanyAcronym)]?.Value;
         }
         catch (Exception ex)
         {

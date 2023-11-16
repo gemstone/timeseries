@@ -22,6 +22,7 @@
 //       Modified Header.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
+//
 //******************************************************************************************************
 
 using System;
@@ -29,7 +30,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
-using Gemstone.Timeseries;
 
 namespace Gemstone.Timeseries.Adapters;
 

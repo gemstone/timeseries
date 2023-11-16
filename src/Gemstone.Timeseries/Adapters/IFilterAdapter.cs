@@ -20,28 +20,27 @@
 //       Generated original version of source code.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
+//
 //******************************************************************************************************
 
 using System.Collections.Generic;
-using Gemstone.Timeseries;
 
-namespace Gemstone.Timeseries.Adapters
+namespace Gemstone.Timeseries.Adapters;
+
+/// <summary>
+/// Represents a module that processes input measurements on
+/// the way by before routing the measurements to other adapters.
+/// </summary>
+public interface IFilterAdapter : IAdapter
 {
     /// <summary>
-    /// Represents a module that processes input measurements on
-    /// the way by before routing the measurements to other adapters.
+    /// Gets or sets the values that determines the order in which filter adapters are executed.
     /// </summary>
-    public interface IFilterAdapter : IAdapter
-    {
-        /// <summary>
-        /// Gets or sets the values that determines the order in which filter adapters are executed.
-        /// </summary>
-        int ExecutionOrder { get; set; }
+    int ExecutionOrder { get; set; }
 
-        /// <summary>
-        /// Handler for new measurements that have not yet been routed.
-        /// </summary>
-        /// <param name="measurements">Measurements that have not yet been routed.</param>
-        void HandleNewMeasurements(ICollection<IMeasurement> measurements);
-    }
+    /// <summary>
+    /// Handler for new measurements that have not yet been routed.
+    /// </summary>
+    /// <param name="measurements">Measurements that have not yet been routed.</param>
+    void HandleNewMeasurements(ICollection<IMeasurement> measurements);
 }

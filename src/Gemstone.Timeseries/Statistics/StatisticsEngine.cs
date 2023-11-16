@@ -277,10 +277,10 @@ public class StatisticsEngine : FacileActionAdapterBase
             }
             catch
             {
-                companyAcronym = ConfigurationFile.Current.Settings["systemSettings"]["CompanyAcronym"].Value.TruncateRight(3);
+                //companyAcronym = ConfigurationFile.Current.Settings["systemSettings"]["CompanyAcronym"].Value.TruncateRight(3);
             }
 
-            return companyAcronym;
+            //return companyAcronym;
         }
 
         private Dictionary<string, DataRow> GetDeviceLookup()

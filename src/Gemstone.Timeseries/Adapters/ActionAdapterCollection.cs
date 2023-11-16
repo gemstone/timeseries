@@ -20,6 +20,8 @@
 //       Generated original version of source code.
 //  12/20/2012 - Starlynn Danyelle Gilliam
 //       Modified Header.
+//  11/08/2023 - Lillian Gensolin
+//       Converted code to .NET core.
 //
 //******************************************************************************************************
 
@@ -28,7 +30,6 @@ using System.Collections.Generic;
 using System.Text;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
-using Gemstone.Timeseries;
 
 namespace Gemstone.Timeseries.Adapters;
 

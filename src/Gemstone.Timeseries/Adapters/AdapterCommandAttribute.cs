@@ -22,61 +22,61 @@
 //       Modified Header.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
+//
 //******************************************************************************************************
 
 using System;
 
-namespace Gemstone.Timeseries.Adapters
+namespace Gemstone.Timeseries.Adapters;
+
+/// <summary>
+/// Represents an attribute that allows a method in an <see cref="IAdapter"/> class to be exposed as
+/// an invokable command.
+/// </summary>
+/// <remarks>
+/// Only public methods will be exposed as invokable.
+/// </remarks>
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class AdapterCommandAttribute : Attribute
 {
+    #region [ Members ]
+
+    // Fields
+    private readonly string[] m_allowedRoles;
+
+    #endregion
+
+    #region [ Constructors ]
+
     /// <summary>
-    /// Represents an attribute that allows a method in an <see cref="IAdapter"/> class to be exposed as
-    /// an invokable command.
+    /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
     /// </summary>
-    /// <remarks>
-    /// Only public methods will be exposed as invokable.
-    /// </remarks>
-    [AttributeUsage(AttributeTargets.Method)]
-    public sealed class AdapterCommandAttribute : Attribute
-    {
-        #region [ Members ]
+    /// <param name="description">Assigns the description for this adapter command.</param>
+    public AdapterCommandAttribute(string description) =>
+        Description = description;
 
-        // Fields
-        private readonly string[] m_allowedRoles;
+    /// <summary>
+    /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
+    /// </summary>
+    /// <param name="description">Assigns the description for this adapter command.</param>
+    /// <param name="allowedRoles">Assigns the roles which are allowed to invoke this adapter command.</param>
+    public AdapterCommandAttribute(string description, params string[] allowedRoles) : this(description) =>
+        m_allowedRoles = allowedRoles;
 
-        #endregion
+    #endregion
 
-        #region [ Constructors ]
+    #region [ Properties ]
 
-        /// <summary>
-        /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
-        /// </summary>
-        /// <param name="description">Assigns the description for this adapter command.</param>
-        public AdapterCommandAttribute(string description) =>
-            Description = description;
+    /// <summary>
+    /// Gets the description of this adapter command.
+    /// </summary>
+    public string Description { get; }
 
-        /// <summary>
-        /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
-        /// </summary>
-        /// <param name="description">Assigns the description for this adapter command.</param>
-        /// <param name="allowedRoles">Assigns the roles which are allowed to invoke this adapter command.</param>
-        public AdapterCommandAttribute(string description, params string[] allowedRoles) : this(description) =>
-            m_allowedRoles = allowedRoles;
+    /// <summary>
+    /// Gets the roles which are allowed to invoke this adapter command.
+    /// </summary>
+    public string[] AllowedRoles =>
+        m_allowedRoles ?? new[] { "Administrator" };
 
-        #endregion
-
-        #region [ Properties ]
-
-        /// <summary>
-        /// Gets the description of this adapter command.
-        /// </summary>
-        public string Description { get; }
-
-        /// <summary>
-        /// Gets the roles which are allowed to invoke this adapter command.
-        /// </summary>
-        public string[] AllowedRoles =>
-            m_allowedRoles ?? new[] { "Administrator" };
-
-        #endregion
-    }
+    #endregion
 }

@@ -22,6 +22,7 @@
 //       Modified Header.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
+//
 //******************************************************************************************************
 
 using System;
@@ -40,7 +41,6 @@ using Gemstone.Diagnostics;
 using Gemstone.IO;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
-using Gemstone.Timeseries;
 using Gemstone.Units;
 
 namespace Gemstone.Timeseries.Adapters;

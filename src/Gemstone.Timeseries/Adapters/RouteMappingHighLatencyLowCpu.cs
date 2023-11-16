@@ -28,7 +28,6 @@ using System.Linq;
 using System.Threading;
 using Gemstone.Diagnostics;
 using Gemstone.Threading;
-using Gemstone.Timeseries;
 
 namespace Gemstone.Timeseries.Adapters;
 

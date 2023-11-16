@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using Gemstone.Timeseries;
 
 namespace Gemstone.Timeseries.Adapters;
 

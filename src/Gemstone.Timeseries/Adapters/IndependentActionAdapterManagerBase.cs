@@ -253,7 +253,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     //[DefaultValue(typeof(SignalType), DefaultSignalType)]
     //public virtual SignalType SignalType { get; set; } = (SignalType)Enum.Parse(typeof(SignalType), DefaultSignalType);
 
-    // TODO: Remove lines 257-266. 
+    // TODO: Remove lines 257-266 - they are commented above with more detailed specifications
     public int ConfigurationReloadWaitTimeout { get; set; }
     public int ConfigurationReloadWaitAttempts { get; set; }
     public string DatabaseConnectionString { get; set; }

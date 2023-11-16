@@ -35,7 +35,7 @@ using Gemstone.Diagnostics;
 using Gemstone.Numeric.EE;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
-using ConnectionStringParser = Gemstone.Configuration.ConnectionStringParser<Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute>;
+//using ConnectionStringParser = Gemstone.Configuration.ConnectionStringParser<Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute>;
 
 namespace Gemstone.Timeseries.Adapters;
 

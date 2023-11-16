@@ -1064,11 +1064,11 @@ public class StatisticsEngine : FacileActionAdapterBase
     {
         StatisticSources = new List<StatisticSource>();
 
-        CategorizedSettingsElementCollection settings = ConfigurationFile.Current.Settings["systemSettings"];
+        //CategorizedSettingsElementCollection settings = ConfigurationFile.Current.Settings["systemSettings"];
 
-        settings.Add("ForwardStatisticsToSnmp", "false", "Defines flag that determines if statistics should be published as SNMP trap messages.");
+        //settings.Add("ForwardStatisticsToSnmp", "false", "Defines flag that determines if statistics should be published as SNMP trap messages.");
 
-        s_forwardToSnmp = settings["ForwardStatisticsToSnmp"].ValueAs(false);
+        //s_forwardToSnmp = settings["ForwardStatisticsToSnmp"].ValueAs(false);
     }
 
     // Static Methods

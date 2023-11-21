@@ -18,6 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  10/31/2016 - Steven E. Chisholm
 //       Generated original version of source code.
+//  11/16/2023 - Lillian Gensolin
+//       Converted code to .NET core.
 //
 //******************************************************************************************************
 
@@ -104,6 +106,7 @@ public static class DataSourceLookups
         return records.Length > 0 ? records[0] : null;
     }
 
+    // TODO: Remove Timeseries specifier from SignalType
     /// <summary>
     /// Gets signal type for given measurement key
     /// </summary>
@@ -111,17 +114,17 @@ public static class DataSourceLookups
     /// <param name="key">Source <see cref="MeasurementKey"/>.</param>
     /// <param name="measurementTable">Measurement table name used for meta-data lookup.</param>
     /// <returns><see cref="SignalType"/> as defined for measurement key in data source.</returns>
-    public static SignalType GetSignalType(this DataSet dataSource, MeasurementKey key, string measurementTable = nameof(ActiveMeasurements))
+    public static Timeseries.SignalType GetSignalType(this DataSet dataSource, MeasurementKey key, string measurementTable = nameof(ActiveMeasurements))
     {
         if (dataSource is null)
             throw new ArgumentNullException(nameof(dataSource));
 
         DataRow record = dataSource.LookupMetadata(key.SignalID, measurementTable);
 
-        if (record is not null && Enum.TryParse(record[nameof(SignalType)].ToString(), out SignalType signalType))
+        if (record is not null && Enum.TryParse(record[nameof(Timeseries.SignalType)].ToString(), out Timeseries.SignalType signalType))
             return signalType;
 
-        return SignalType.NONE;
+        return Timeseries.SignalType.NONE;
     }
 
     /// <summary>
@@ -131,15 +134,15 @@ public static class DataSourceLookups
     /// <param name="keys">Source set of <see cref="MeasurementKey"/> values.</param>
     /// <param name="measurementTable">Measurement table name used for meta-data lookup.</param>
     /// <returns><see cref="SignalType"/> values for each defined measurement key as configured in data source.</returns>
-    public static SignalType[] GetSignalTypes(this DataSet dataSource, MeasurementKey[] keys, string measurementTable = nameof(ActiveMeasurements))
+    public static Timeseries.SignalType[] GetSignalTypes(this DataSet dataSource, MeasurementKey[] keys, string measurementTable = nameof(ActiveMeasurements))
     {
         if (dataSource is null)
             throw new ArgumentNullException(nameof(dataSource));
 
         if (keys is null || keys.Length == 0)
-            return Array.Empty<SignalType>();
+            return Array.Empty<Timeseries.SignalType>();
 
-        SignalType[] signalTypes = new SignalType[keys.Length];
+        Timeseries.SignalType[] signalTypes = new Timeseries.SignalType[keys.Length];
 
         for (int i = 0; i < signalTypes.Length; i++)
             signalTypes[i] = dataSource.GetSignalType(keys[i], measurementTable);
@@ -154,15 +157,15 @@ public static class DataSourceLookups
     /// <param name="measurements">Source set of <see cref="IMeasurement"/> values.</param>
     /// <param name="measurementTable">Measurement table name used for meta-data lookup.</param>
     /// <returns><see cref="SignalType"/> values for each defined measurement key as configured in data source.</returns>
-    public static SignalType[] GetSignalTypes(this DataSet dataSource, IMeasurement[] measurements, string measurementTable = nameof(ActiveMeasurements))
+    public static Timeseries.SignalType[] GetSignalTypes(this DataSet dataSource, IMeasurement[] measurements, string measurementTable = nameof(ActiveMeasurements))
     {
         if (dataSource is null)
             throw new ArgumentNullException(nameof(dataSource));
 
         if (measurements is null || measurements.Length == 0)
-            return Array.Empty<SignalType>();
+            return Array.Empty<Timeseries.SignalType>();
 
-        SignalType[] signalTypes = new SignalType[measurements.Length];
+        Timeseries.SignalType[] signalTypes = new Timeseries.SignalType[measurements.Length];
 
         for (int i = 0; i < signalTypes.Length; i++)
             signalTypes[i] = dataSource.GetSignalType(measurements[i].Key, measurementTable);

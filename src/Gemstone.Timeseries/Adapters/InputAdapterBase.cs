@@ -32,6 +32,7 @@ using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
 using Gemstone.Threading.SynchronizedOperations;
+using Gemstone.TimeSeries;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -66,7 +67,7 @@ public abstract class InputAdapterBase : AdapterBase, IInputAdapter
 
     // Fields
     private List<string> m_outputSourceIDs;
-    private readonly LongSynchronizedOperation m_connectionOperation;
+    private readonly SynchronizedOperationBase m_connectionOperation;
     private SharedTimer m_connectionTimer;
     private string m_connectionInfo;
     private bool m_disposed;

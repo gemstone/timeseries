@@ -31,7 +31,7 @@ namespace Gemstone.Timeseries.Model;
 
 internal class GlobalSettings
 {
-    public Guid NodeID => AdoSecurityProvider.DefaultNodeID;
+    //public Guid NodeID => AdoSecurityProvider.DefaultNodeID;
 
     public string CompanyAcronym => s_companyAcronym;
 

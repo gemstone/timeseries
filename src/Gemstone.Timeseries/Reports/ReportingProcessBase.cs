@@ -254,7 +254,7 @@ public abstract class ReportingProcessBase : IReportingProcess
             return;
 
         m_reportGenerationQueue.Enqueue(new Tuple<DateTime, bool>(reportDate, emailReport));
-        m_executeOperation.RunOnceAsync();
+        //m_executeOperation.RunOnceAsync();
     }
 
     /// <summary>
@@ -429,8 +429,8 @@ public abstract class ReportingProcessBase : IReportingProcess
                 SmtpServer,
                 FromAddress,
                 ToAddresses,
-                SmtpUsername,
-                SmtpPassword.Encrypt(CryptoKey, CipherStrength.Aes256));
+                SmtpUsername);
+                //,SmtpPassword.Encrypt(CryptoKey, CipherStrength.Aes256));
 
         return arguments;
     }

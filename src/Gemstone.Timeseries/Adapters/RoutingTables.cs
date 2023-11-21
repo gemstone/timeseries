@@ -176,7 +176,7 @@ public class RoutingTables : IDisposable
         try
         {
             m_inputMeasurementKeysRestriction = inputMeasurementKeysRestriction;
-            m_calculateRoutingTablesOperation.RunOnceAsync(); // comes from GSF.Core.Shared\Threading\SynchronizedOperationBase.cs
+/*            m_calculateRoutingTablesOperation.RunOnceAsync();*/ // comes from GSF.Core.Shared\Threading\SynchronizedOperationBase.cs
         }
         catch (Exception ex)
         {

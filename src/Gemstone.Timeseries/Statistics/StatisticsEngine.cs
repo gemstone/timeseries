@@ -36,16 +36,17 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Timers;
+using Gemstone.Diagnostics;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
-using Gemstone.Diagnostics;
 using Gemstone.IO;
 using Gemstone.IO.Parsing;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries;
 using Gemstone.Timeseries.Adapters;
+using ShortSynchronizedOperation = Gemstone.Timeseries.ShortSynchronizedOperation;
 using Timer = System.Timers.Timer;
 
 #pragma warning disable 414
@@ -169,11 +170,11 @@ public class StatisticsEngine : FacileActionAdapterBase
 
         public string Name => m_name ??= GetName();
 
-        public int HistorianID => m_historianID ?? (int)(m_historianID = GetHistorianID());
+        //public int HistorianID => m_historianID ?? (int)(m_historianID = GetHistorianID());
 
-        public object DeviceID => m_deviceID ??= GetDeviceID();
+        //public object DeviceID => m_deviceID ??= GetDeviceID();
 
-        public string PointTag => m_pointTag ??= GetPointTag();
+        //public string PointTag => m_pointTag ??= GetPointTag();
 
         public int SignalTypeID => m_signalTypeID ?? (int)(m_signalTypeID = GetSignalTypeID());
 
@@ -183,19 +184,19 @@ public class StatisticsEngine : FacileActionAdapterBase
 
         public int Index => Convert.ToInt32(m_statistic["SignalIndex"]);
 
-        private Guid NodeID => m_nodeID ?? (Guid)(m_nodeID = GetNodeID());
+        //private Guid NodeID => m_nodeID ?? (Guid)(m_nodeID = GetNodeID());
 
-        private string Company => m_company ??= GetCompany();
+        //private string Company => m_company ??= GetCompany();
 
-        private string NodeOwner => m_nodeOwner ??= GetNodeOwner();
+        //private string NodeOwner => m_nodeOwner ??= GetNodeOwner();
 
         private string Category => m_source.SourceCategory;
 
         private string Acronym => m_source.SourceAcronym;
 
-        private Dictionary<string, DataRow> DeviceLookup => m_deviceLookup ??= GetDeviceLookup();
+        //private Dictionary<string, DataRow> DeviceLookup => m_deviceLookup ??= GetDeviceLookup();
 
-        private Dictionary<int, string> CompanyLookup => m_companyLookup ??= GetCompanyLookup();
+        //private Dictionary<int, string> CompanyLookup => m_companyLookup ??= GetCompanyLookup();
 
         #endregion
 
@@ -228,17 +229,17 @@ public class StatisticsEngine : FacileActionAdapterBase
             return parser.Execute(substitutions);
         }
 
-        private int GetHistorianID()
-        {
-            const string StatHistorianIDFormat = "SELECT ID FROM Historian WHERE Acronym = 'STAT' AND NodeID = {0}";
-            return ExecuteScalar<int>(StatHistorianIDFormat, m_database.Guid(NodeID));
-        }
+        //private int GetHistorianID()
+        //{
+        //    const string StatHistorianIDFormat = "SELECT ID FROM Historian WHERE Acronym = 'STAT' AND NodeID = {0}";
+        //    return ExecuteScalar<int>(StatHistorianIDFormat, m_database.Guid(NodeID));
+        //}
 
-        private object GetDeviceID() =>
-            !DeviceLookup.TryGetValue(Name, out DataRow device) ? DBNull.Value : device[nameof(ID)];
+        //private object GetDeviceID() =>
+        //    !DeviceLookup.TryGetValue(Name, out DataRow device) ? DBNull.Value : device[nameof(ID)];
 
-        private string GetPointTag() =>
-            $"{Company}_{Name}!{Acronym}:ST{Index}";
+        //private string GetPointTag() =>
+        //    $"{Company}_{Name}!{Acronym}:ST{Index}";
 
         private int GetSignalTypeID()
         {
@@ -252,54 +253,54 @@ public class StatisticsEngine : FacileActionAdapterBase
         private string GetDescription() =>
             $"{Category} statistic for {m_statistic[nameof(Description)].ToNonNullString()}";
 
-        private string GetCompany()
-        {
-            string company = null;
+        //private string GetCompany()
+        //{
+        //    string company = null;
 
-            bool isNodeOwner = !DeviceLookup.TryGetValue(Name, out DataRow device) ||
-                               !int.TryParse(device["CompanyID"].ToNonNullString(), out int companyID) ||
-                               !CompanyLookup.TryGetValue(companyID, out company);
+            //bool isNodeOwner = !DeviceLookup.TryGetValue(Name, out DataRow device) ||
+            //                   !int.TryParse(device["CompanyID"].ToNonNullString(), out int companyID) ||
+            //                   !CompanyLookup.TryGetValue(companyID, out company);
 
-            return isNodeOwner ? NodeOwner : company;
-        }
+            //return isNodeOwner ? NodeOwner : company;
+        //}
 
-        private string GetNodeOwner()
-        {
-            const string NodeCompanyIDFormat = "SELECT CompanyID FROM Node WHERE ID = {0}";
-            const string CompanyAcronymFormat = "SELECT MapAcronym FROM Company WHERE ID = {0}";
+        //private string GetNodeOwner()
+        //{
+        //    const string NodeCompanyIDFormat = "SELECT CompanyID FROM Node WHERE ID = {0}";
+        //    const string CompanyAcronymFormat = "SELECT MapAcronym FROM Company WHERE ID = {0}";
 
-            string companyAcronym;
+        //    string companyAcronym;
 
-            try
-            {
-                int nodeCompanyID = ExecuteScalar<int>(NodeCompanyIDFormat, m_database.Guid(NodeID));
-                companyAcronym = ExecuteScalar<string>(CompanyAcronymFormat, nodeCompanyID);
-            }
-            catch
-            {
+            //try
+            //{
+            //    int nodeCompanyID = ExecuteScalar<int>(NodeCompanyIDFormat, m_database.Guid(NodeID));
+            //    companyAcronym = ExecuteScalar<string>(CompanyAcronymFormat, nodeCompanyID);
+            //}
+            //catch
+            //{
                 //companyAcronym = ConfigurationFile.Current.Settings["systemSettings"]["CompanyAcronym"].Value.TruncateRight(3);
-            }
+            //}
 
             //return companyAcronym;
-        }
+        //}
 
-        private Dictionary<string, DataRow> GetDeviceLookup()
-        {
-            const string DeviceLookupFormat = "SELECT ID, Acronym, CompanyID FROM Device WHERE NodeID = {0}";
+        //private Dictionary<string, DataRow> GetDeviceLookup()
+        //{
+        //    const string DeviceLookupFormat = "SELECT ID, Acronym, CompanyID FROM Device WHERE NodeID = {0}";
 
-            return RetrieveData(DeviceLookupFormat, m_database.Guid(NodeID)).Select()
-                .ToDictionary(row => row[nameof(Acronym)].ToNonNullString());
-        }
+        //    return RetrieveData(DeviceLookupFormat, m_database.Guid(NodeID)).Select()
+        //        .ToDictionary(row => row[nameof(Acronym)].ToNonNullString());
+        //}
 
-        private Dictionary<int, string> GetCompanyLookup()
-        {
-            const string CompanyLookupFormat = "SELECT ID, Acronym FROM Company";
-            int id = 0;
+        //private Dictionary<int, string> GetCompanyLookup()
+        //{
+        //    const string CompanyLookupFormat = "SELECT ID, Acronym FROM Company";
+        //    int id = 0;
 
-            return RetrieveData(CompanyLookupFormat).Select()
-                .Where(row => int.TryParse(row[nameof(ID)].ToNonNullString(), out id))
-                .ToDictionary(_ => id, row => row[nameof(Acronym)].ToNonNullString());
-        }
+        //    return RetrieveData(CompanyLookupFormat).Select()
+        //        .Where(row => int.TryParse(row[nameof(ID)].ToNonNullString(), out id))
+        //        .ToDictionary(_ => id, row => row[nameof(Acronym)].ToNonNullString());
+        //}
 
         public T ExecuteScalar<T>(string queryFormat, params object[] parameters)
         {
@@ -313,11 +314,11 @@ public class StatisticsEngine : FacileActionAdapterBase
             m_database.Connection.ExecuteNonQuery(query, DataExtensions.DefaultTimeoutDuration, parameters);
         }
 
-        public DataTable RetrieveData(string queryFormat, params object[] parameters)
-        {
-            string query = m_database.ParameterizedQueryString(queryFormat, parameters.Select((_, index) => $"p{index}").ToArray());
-            return m_database.Connection.RetrieveData(m_database.AdapterType, query, DataExtensions.DefaultTimeoutDuration, parameters);
-        }
+        //public DataTable RetrieveData(string queryFormat, params object[] parameters)
+        //{
+        //    string query = m_database.ParameterizedQueryString(queryFormat, parameters.Select((_, index) => $"p{index}").ToArray());
+        //    return m_database.Connection.RetrieveData(m_database.AdapterType, query, DataExtensions.DefaultTimeoutDuration, parameters);
+        //}
 
         #endregion
     }
@@ -356,7 +357,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     private readonly LongSynchronizedOperation m_calculateStatisticsOperation;
     private readonly ShortSynchronizedOperation m_validateSourceReferencesOperation;
 
-    private readonly PerformanceMonitor m_performanceMonitor;
+    //private readonly PerformanceMonitor m_performanceMonitor;
 
     private double m_reportingInterval;
 
@@ -413,7 +414,7 @@ public class StatisticsEngine : FacileActionAdapterBase
         m_loadStatisticsOperation.IsBackground = true;
         m_calculateStatisticsOperation.IsBackground = true;
 
-        m_performanceMonitor = new PerformanceMonitor();
+        //m_performanceMonitor = new PerformanceMonitor();
 
         SourceRegistered += HandleSourceRegistered;
     }
@@ -481,14 +482,14 @@ public class StatisticsEngine : FacileActionAdapterBase
         if (UseLocalClockAsRealTime || !TrackLatestMeasurements)
         {
             // Set up the statistic calculation timer
-            m_statisticCalculationTimer.Elapsed += StatisticCalculationTimer_Elapsed;
+            //m_statisticCalculationTimer.Elapsed += StatisticCalculationTimer_Elapsed;
             m_statisticCalculationTimer.Interval = m_reportingInterval;
             m_statisticCalculationTimer.AutoReset = true;
             m_statisticCalculationTimer.Enabled = false;
         }
 
         // Register system as a statistics source
-        Register(m_performanceMonitor, GetSystemName(), nameof(System), "SYSTEM");
+        //Register(m_performanceMonitor, GetSystemName(), nameof(System), "SYSTEM");
     }
 
     /// <summary>
@@ -591,12 +592,12 @@ public class StatisticsEngine : FacileActionAdapterBase
 
             if (m_statisticCalculationTimer is not null)
             {
-                m_statisticCalculationTimer.Elapsed -= StatisticCalculationTimer_Elapsed;
+                //m_statisticCalculationTimer.Elapsed -= StatisticCalculationTimer_Elapsed;
                 m_statisticCalculationTimer.Dispose();
                 m_statisticCalculationTimer = null;
             }
 
-            Unregister(m_performanceMonitor);
+            //Unregister(m_performanceMonitor);
         }
         finally
         {
@@ -622,86 +623,86 @@ public class StatisticsEngine : FacileActionAdapterBase
             sources = StatisticSources.ToArray();
         }
 
-        using (AdoDataConnection database = new("systemSettings"))
-        {
-            // Handles database queries, caching, and lazy loading for
-            // determining the parameters to send in to each INSERT query
-            DBUpdateHelper helper = new(database);
+        //using (AdoDataConnection database = new("systemSettings"))
+        //{
+        //    // Handles database queries, caching, and lazy loading for
+        //    // determining the parameters to send in to each INSERT query
+        //    DBUpdateHelper helper = new(database);
 
-            // Load statistics from the statistics table to determine
-            // what statistics should be defined for each source
-            Dictionary<string, List<DataRow>> statisticsLookup = helper.RetrieveData(StatisticSelectFormat).Select()
-                .GroupBy(row => row["Source"].ToNonNullString())
-                .ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
+        //    // Load statistics from the statistics table to determine
+        //    // what statistics should be defined for each source
+        //    Dictionary<string, List<DataRow>> statisticsLookup = helper.RetrieveData(StatisticSelectFormat).Select()
+        //        .GroupBy(row => row["Source"].ToNonNullString())
+        //        .ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
 
-            // Make sure the full set of statistic measurements are defined for each source
-            foreach (StatisticSource source in sources)
-            {
-                // If statistic measurements have already been updated for this source,
-                // do not attempt to update them again. This helps to prevent race conditions
-                // between configuration changes and statistics engine registration
-                if (source.HasUpdatedStatisticMeasurements)
-                    continue;
+        //    // Make sure the full set of statistic measurements are defined for each source
+        //    foreach (StatisticSource source in sources)
+        //    {
+        //        // If statistic measurements have already been updated for this source,
+        //        // do not attempt to update them again. This helps to prevent race conditions
+        //        // between configuration changes and statistics engine registration
+        //        if (source.HasUpdatedStatisticMeasurements)
+        //            continue;
 
-                // If no statistics exist for this category,
-                // there are no statistics that can be created for this source
-                if (!statisticsLookup.TryGetValue(source.SourceCategory, out List<DataRow> statistics))
-                    continue;
+        //        // If no statistics exist for this category,
+        //        // there are no statistics that can be created for this source
+        //        if (!statisticsLookup.TryGetValue(source.SourceCategory, out List<DataRow> statistics))
+        //            continue;
 
-                // Build a list of signal references for this source
-                // based on the statistics in this category
-                List<string> signalReferences = new();
+        //        // Build a list of signal references for this source
+        //        // based on the statistics in this category
+        //        List<string> signalReferences = new();
 
-                helper.Source = source;
+        //        helper.Source = source;
 
-                foreach (DataRow statistic in statistics)
-                {
-                    helper.Statistic = statistic;
-                    signalReferences.Add(helper.SignalReference);
-                }
+        //        foreach (DataRow statistic in statistics)
+        //        {
+        //            helper.Statistic = statistic;
+        //            signalReferences.Add(helper.SignalReference);
+        //        }
 
-                // Get the statistic measurements from the database which have already been defined for this source
-                string args = string.Join(",", signalReferences.Select((_, index) => $"{{{index}}}"));
-                List<DataRow> statisticMeasurements = helper.RetrieveData(string.Format(StatisticMeasurementSelectFormat, args), signalReferences.ToArray<object>()).Select().ToList();
+        //        // Get the statistic measurements from the database which have already been defined for this source
+        //        string args = string.Join(",", signalReferences.Select((_, index) => $"{{{index}}}"));
+        //        List<DataRow> statisticMeasurements = helper.RetrieveData(string.Format(StatisticMeasurementSelectFormat, args), signalReferences.ToArray<object>()).Select().ToList();
 
-                // If the number of statistics for the source category matches
-                // the number of statistic measurements for the source, assume
-                // all is well and move to the next source
-                if (statistics.Count == statisticMeasurements.Count)
-                    continue;
+        //        // If the number of statistics for the source category matches
+        //        // the number of statistic measurements for the source, assume
+        //        // all is well and move to the next source
+        //        if (statistics.Count == statisticMeasurements.Count)
+        //            continue;
 
-                // Get a collection of signal indexes already have statistic measurements
-                HashSet<int> existingIndexes = new(statisticMeasurements
-                    .Select(measurement => measurement[nameof(SignalReference)].ToNonNullString())
-                    .Select(str => new SignalReference(str))
-                    .Select(signalReference => signalReference.Index));
+        //        // Get a collection of signal indexes already have statistic measurements
+        //        HashSet<int> existingIndexes = new(statisticMeasurements
+        //            .Select(measurement => measurement[nameof(SignalReference)].ToNonNullString())
+        //            .Select(str => new SignalReference(str))
+        //            .Select(signalReference => signalReference.Index));
 
-                // Create statistic measurements for statistics that do not have any
-                foreach (DataRow statistic in statistics)
-                {
-                    helper.Statistic = statistic;
+        //        // Create statistic measurements for statistics that do not have any
+        //        foreach (DataRow statistic in statistics)
+        //        {
+        //            helper.Statistic = statistic;
 
-                    // If a measurement already exists for this statistic, skip it
-                    if (existingIndexes.Contains(helper.Index))
-                        continue;
+        //            // If a measurement already exists for this statistic, skip it
+        //            if (existingIndexes.Contains(helper.Index))
+        //                continue;
 
-                    // It has been observed in field deployments that the statistic measurement may already exist, but
-                    // sometimes the above check will fail which creates duplicate measurements. To prevent duplicate
-                    // statistic measurements from being created, the following code is a secondary check to make sure
-                    // the statistic measurement does not already exist before attempting to insert it. Performance
-                    // impact will be limited to the first time the statistic is created for a given source or in the
-                    // rare cases when the above statistic measurement existing index check fails.
-                    if (helper.ExecuteScalar<int>(StatisticMeasurementCountFormat, helper.SignalReference) > 0)
-                        continue;
+        //            // It has been observed in field deployments that the statistic measurement may already exist, but
+        //            // sometimes the above check will fail which creates duplicate measurements. To prevent duplicate
+        //            // statistic measurements from being created, the following code is a secondary check to make sure
+        //            // the statistic measurement does not already exist before attempting to insert it. Performance
+        //            // impact will be limited to the first time the statistic is created for a given source or in the
+        //            // rare cases when the above statistic measurement existing index check fails.
+        //            if (helper.ExecuteScalar<int>(StatisticMeasurementCountFormat, helper.SignalReference) > 0)
+        //                continue;
 
-                    // Insert the statistic measurement and mark configuration as changed
-                    helper.ExecuteNonQuery(StatisticMeasurementInsertFormat, helper.HistorianID, helper.DeviceID, helper.PointTag, helper.SignalTypeID, helper.SignalReference, helper.Description);
-                    configurationChanged = true;
-                }
+        //            // Insert the statistic measurement and mark configuration as changed
+        //            helper.ExecuteNonQuery(StatisticMeasurementInsertFormat, helper.HistorianID, helper.DeviceID, helper.PointTag, helper.SignalTypeID, helper.SignalReference, helper.Description);
+        //            configurationChanged = true;
+        //        }
 
-                source.HasUpdatedStatisticMeasurements = true;
-            }
-        }
+        //        source.HasUpdatedStatisticMeasurements = true;
+        //    }
+        //}
 
         // If configuration was changed by this operation, notify the host
         if (configurationChanged)
@@ -727,14 +728,14 @@ public class StatisticsEngine : FacileActionAdapterBase
                     Arguments = row["Arguments"].ToNonNullString()
                 };
 
-                try
-                {
-                    statistic.DataType = Type.GetType(row[nameof(DataType)].ToNonNullString());
-                }
-                catch
-                {
-                    statistic.DataType = typeof(double);
-                }
+                //try
+                //{
+                //    statistic.DataType = Type.GetType(row[nameof(DataType)].ToNonNullString());
+                //}
+                //catch
+                //{
+                //    statistic.DataType = typeof(double);
+                //}
 
                 // Load statistic's code location information
                 string assemblyName = row[nameof(AssemblyName)].ToNonNullString();
@@ -927,29 +928,30 @@ public class StatisticsEngine : FacileActionAdapterBase
 
                     double value = statistic.Method(target, statistic.Arguments);
 
-                    if (s_forwardToSnmp && OID.SnmpStats.TryGetValue(source.SourceCategory, out uint[] categoryOID))
-                    {
-                        try
-                        {
-                            uint[] statisticOID = categoryOID.Append((uint)signalIndex);
-                            uint[] statisticValueOID = statisticOID.Append(1U);
-                            uint[] statisticReferenceOID = statisticOID.Append(2U);
-                            BooleanExpression.Variable statisticReference = new(statisticReferenceOID, new OctetString(signalReference));
+                    // TODO: 
+                    //if (s_forwardToSnmp && OID.SnmpStats.TryGetValue(source.SourceCategory, out uint[] categoryOID))
+                    //{
+                    //    try
+                    //    {
+                    //        uint[] statisticOID = categoryOID.Append((uint)signalIndex);
+                    //        uint[] statisticValueOID = statisticOID.Append(1U);
+                    //        uint[] statisticReferenceOID = statisticOID.Append(2U);
+                    //        BooleanExpression.Variable statisticReference = new(statisticReferenceOID, new OctetString(signalReference));
 
-                            if (statistic.DataType == typeof(int) || statistic.DataType == typeof(bool))
-                                Snmp.SendTrap(new BooleanExpression.Variable(statisticValueOID, new Integer32((int)value)), statisticReference);
-                            else if (statistic.DataType == typeof(double))
-                                Snmp.SendTrap(new BooleanExpression.Variable(statisticValueOID, new OctetString(value.ToString(CultureInfo.InvariantCulture))), statisticReference);
-                            else if (statistic.DataType == typeof(DateTime))
-                                Snmp.SendTrap(new BooleanExpression.Variable(statisticValueOID, new OctetString(new DateTime((long)value).ToString("mm':'ss'.'fff"))), statisticReference);
-                            else
-                                Snmp.SendTrap(new BooleanExpression.Variable(statisticValueOID, new OctetString(Convert.ChangeType(value, statistic.DataType).ToString())), statisticReference);
-                        }
-                        catch (Exception ex)
-                        {
-                            OnProcessException(MessageLevel.Warning, new InvalidOperationException($"Failed to publish statistic \"{signalReference}\" via SNMP: {ex.Message}", ex));
-                        }
-                    }
+                    //        if (statistic.DataType == typeof(int) || statistic.DataType == typeof(bool))
+                    //            Snmp.SendTrap(new BooleanExpression.Variable(statisticValueOID, new Integer32((int)value)), statisticReference);
+                    //        else if (statistic.DataType == typeof(double))
+                    //            Snmp.SendTrap(new BooleanExpression.Variable(statisticValueOID, new OctetString(value.ToString(CultureInfo.InvariantCulture))), statisticReference);
+                    //        else if (statistic.DataType == typeof(DateTime))
+                    //            Snmp.SendTrap(new BooleanExpression.Variable(statisticValueOID, new OctetString(new DateTime((long)value).ToString("mm':'ss'.'fff"))), statisticReference);
+                    //        else
+                    //            Snmp.SendTrap(new BooleanExpression.Variable(statisticValueOID, new OctetString(Convert.ChangeType(value, statistic.DataType).ToString())), statisticReference);
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        OnProcessException(MessageLevel.Warning, new InvalidOperationException($"Failed to publish statistic \"{signalReference}\" via SNMP: {ex.Message}", ex));
+                    //    }
+                    //}
 
                     // Calculate the current value of the statistic measurement
                     return new Measurement()
@@ -974,21 +976,21 @@ public class StatisticsEngine : FacileActionAdapterBase
         return null;
     }
 
-    private string GetSystemName()
-    {
-        if (DataSource.Tables.Contains("NodeInfo"))
-        {
-            return DataSource.Tables["NodeInfo"].Rows[0][nameof(Name)]
-                .ToNonNullString()
-                .RemoveCharacters(c => !char.IsLetterOrDigit(c))
-                .Replace(' ', '_')
-                .ToUpper();
-        }
+    //private string GetSystemName()
+    //{
+    //    if (DataSource.Tables.Contains("NodeInfo"))
+    //    {
+    //        return DataSource.Tables["NodeInfo"].Rows[0][nameof(Name)]
+    //            .ToNonNullString()
+    //            .RemoveCharacters(c => !char.IsLetterOrDigit(c))
+    //            .Replace(' ', '_')
+    //            .ToUpper();
+    //    }
 
-        using AdoDataConnection database = new("systemSettings");
+    //    using AdoDataConnection database = new("systemSettings");
 
-        return database.Connection.ExecuteScalar($"SELECT Name FROM Node WHERE ID = '{database.Guid(GetNodeID())}'").ToNonNullString().ToUpper();
-    }
+    //    return database.Connection.ExecuteScalar($"SELECT Name FROM Node WHERE ID = '{database.Guid(GetNodeID())}'").ToNonNullString().ToUpper();
+    //}
 
     private void RestartReloadStatisticsTimer()
     {
@@ -1020,8 +1022,8 @@ public class StatisticsEngine : FacileActionAdapterBase
         ReloadStatistics();
 
     // If multiple timer events overlap, try-run will make sure only one is running at once
-    private void StatisticCalculationTimer_Elapsed(object sender, ElapsedEventArgs e) =>
-        m_calculateStatisticsOperation.TryRunOnce();
+    //private void StatisticCalculationTimer_Elapsed(object sender, ElapsedEventArgs e) =>
+    //    m_calculateStatisticsOperation.TryRunOnce();
 
     private void OnBeforeCalculate()
     {
@@ -1293,6 +1295,5 @@ public class StatisticsEngine : FacileActionAdapterBase
     // TODO: Config stuff
     //private static Guid GetNodeID() =>
     //    Guid.Parse(ConfigurationFile.Current.Settings["systemSettings"]["NodeID"].Value);
-
     #endregion
 }

@@ -161,35 +161,35 @@ public class ReportingProcessCollection : Collection<IReportingProcess>, IProvid
     public IReportingProcess FindReportType(string reportType) =>
         this.FirstOrDefault(reportingProcess => reportType.Equals(reportingProcess.ReportType, StringComparison.OrdinalIgnoreCase));
 
-    /// <summary>
-    /// Inserts an element into the <see cref="Collection{T}"/> at the specified index.
-    /// </summary>
-    /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
-    /// <param name="item">The object to insert. The value can be null for reference types.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="index"/> is less than zero. -or-
-    /// <paramref name="index"/> is greater than <see cref="Collection{T}.Count"/>.
-    /// </exception>
-    protected override void InsertItem(int index, IReportingProcess item)
-    {
-        base.InsertItem(index, item);
-        item?.LoadSettings();
-    }
+    ///// <summary>
+    ///// Inserts an element into the <see cref="Collection{T}"/> at the specified index.
+    ///// </summary>
+    ///// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+    ///// <param name="item">The object to insert. The value can be null for reference types.</param>
+    ///// <exception cref="ArgumentOutOfRangeException">
+    ///// <paramref name="index"/> is less than zero. -or-
+    ///// <paramref name="index"/> is greater than <see cref="Collection{T}.Count"/>.
+    ///// </exception>
+    //protected override void InsertItem(int index, IReportingProcess item)
+    //{
+    //    base.InsertItem(index, item);
+    //    item?.LoadSettings();
+    //}
 
-    /// <summary>
-    /// Replaces the element at the specified index.
-    /// </summary>
-    /// <param name="index">The zero-based index of the element to replace.</param>
-    /// <param name="item">The new value for the element at the specified index. The value can be null for reference types.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="index"/> is less than zero. -or-
-    /// <paramref name="index"/> is greater than <see cref="Collection{T}.Count"/>.
-    /// </exception>
-    protected override void SetItem(int index, IReportingProcess item)
-    {
-        base.SetItem(index, item);
-        item?.LoadSettings();
-    }
+    ///// <summary>
+    ///// Replaces the element at the specified index.
+    ///// </summary>
+    ///// <param name="index">The zero-based index of the element to replace.</param>
+    ///// <param name="item">The new value for the element at the specified index. The value can be null for reference types.</param>
+    ///// <exception cref="ArgumentOutOfRangeException">
+    ///// <paramref name="index"/> is less than zero. -or-
+    ///// <paramref name="index"/> is greater than <see cref="Collection{T}.Count"/>.
+    ///// </exception>
+    //protected override void SetItem(int index, IReportingProcess item)
+    //{
+    //    base.SetItem(index, item);
+    //    item?.LoadSettings();
+    //}
 
     #endregion
 }

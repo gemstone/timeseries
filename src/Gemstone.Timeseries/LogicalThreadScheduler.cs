@@ -18,8 +18,11 @@
 //  ----------------------------------------------------------------------------------------------------
 //  09/23/2015 - Stephen C. Wills
 //       Generated original version of source code.
+//  11/16/2023 - Lillian Gensolin
+//       Converted code to .NET core.
 //
 //******************************************************************************************************
+
 
 using System;
 using System.Collections.Concurrent;
@@ -27,7 +30,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Gemstone;
 
 namespace Gemstone.Timeseries;
 
@@ -176,7 +178,7 @@ internal class LogicalThreadScheduler
                 return;
             }
 
-            Enqueue(thread);
+            //Enqueue(thread);
             ActivatePhysicalThread();
         }
     }
@@ -251,8 +253,8 @@ internal class LogicalThreadScheduler
                 thread.UpdateStatistics(stopwatch.Elapsed);
             }
 
-            if (thread.HasAction)
-                Enqueue(thread);
+            //if (thread.HasAction)
+            //    Enqueue(thread);
             else
                 thread.Deactivate();
         }
@@ -263,49 +265,49 @@ internal class LogicalThreadScheduler
             ActivatePhysicalThread();
     }
 
-    /// <summary>
-    /// Queues the given thread for execution.
-    /// </summary>
-    /// <param name="thread">The thread to be queued for execution.</param>
-    private void Enqueue(LogicalThread thread)
-    {
-        ICancellationToken executionToken;
-        int activePriority;
-        int nextPriority;
-        do
-        {
-            // Create the execution token to be used in the closure
-            ICancellationToken nextExecutionToken = new CancellationToken();
+    ///// <summary>
+    ///// Queues the given thread for execution.
+    ///// </summary>
+    ///// <param name="thread">The thread to be queued for execution.</param>
+    //private void Enqueue(LogicalThread thread)
+    //{
+    //    ICancellationToken executionToken;
+    //    int activePriority;
+    //    int nextPriority;
+    //    do
+    //    {
+    //        // Create the execution token to be used in the closure
+    //        //ICancellationToken nextExecutionToken = new CancellationToken();
 
-            // Always update the thread's active priority before
-            // the execution token to mitigate race conditions
-            nextPriority = thread.NextPriority;
-            thread.ActivePriority = nextPriority;
-            thread.NextExecutionToken = nextExecutionToken;
+    //        // Always update the thread's active priority before
+    //        // the execution token to mitigate race conditions
+    //        nextPriority = thread.NextPriority;
+    //        thread.ActivePriority = nextPriority;
+    //        //thread.NextExecutionToken = nextExecutionToken;
 
-            // Now that the action can be cancelled by another thread using the
-            // new cancellation token, it should be safe to put it in the queue
-            m_logicalThreadQueues[PriorityLevels - nextPriority].Enqueue(() =>
-            {
-                if (nextExecutionToken.Cancel())
-                    return thread;
+    //        // Now that the action can be cancelled by another thread using the
+    //        // new cancellation token, it should be safe to put it in the queue
+    //        m_logicalThreadQueues[PriorityLevels - nextPriority].Enqueue(() =>
+    //        {
+    //            //if (nextExecutionToken.Cancel())
+    //            //    return thread;
 
-                return null;
-            });
+    //            return null;
+    //        });
 
-            // Because enqueuing the thread is a multi-step process, we need to
-            // double-check in case the thread's priority changed in the meantime
-            activePriority = thread.ActivePriority;
-            nextPriority = thread.NextPriority;
+    //        // Because enqueuing the thread is a multi-step process, we need to
+    //        // double-check in case the thread's priority changed in the meantime
+    //        activePriority = thread.ActivePriority;
+    //        nextPriority = thread.NextPriority;
 
-            // We can use the cancellation token we just created because we only
-            // really need to double-check the work that was done on this thread;
-            // in other words, if another thread changed the priority in the
-            // meantime, it can double-check its own work
-            executionToken = nextExecutionToken;
-        }
-        //while (activePriority != nextPriority && executionToken.Cancel());
-    }
+    //        // We can use the cancellation token we just created because we only
+    //        // really need to double-check the work that was done on this thread;
+    //        // in other words, if another thread changed the priority in the
+    //        // meantime, it can double-check its own work
+    //        //executionToken = nextExecutionToken;
+    //    }
+    //    //while (activePriority != nextPriority && executionToken.Cancel());
+    //}
 
     /// <summary>
     /// Attempts to execute the given action.

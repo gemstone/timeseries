@@ -20,7 +20,8 @@
 //       Generated original version of source code.
 //  09/13/2016 - J. Ritchie Carroll
 //       Added Cancelled property as an interface requirement.
-//
+//  11/13/2023 - Lillian Gensolin
+//       Moved to Timeseries (temporary).
 //******************************************************************************************************
 
 namespace Gemstone.Timeseries;

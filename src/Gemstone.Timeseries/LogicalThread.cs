@@ -20,6 +20,8 @@
 //       Generated original version of source code.
 //  02/16/2016 - J. Ritchie Carroll
 //       Changed default priority level to 1 - normal / lowest.
+//  11/16/2023 - Lillian Gensolin
+//       Converted code to .NET core.
 //
 //******************************************************************************************************
 

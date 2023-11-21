@@ -20,6 +20,8 @@
 //       Generated original version of source code.
 //  02/16/2016 - J. Ritchie Carroll
 //       Corrected priority behavior and added override feature, made explicit RunIfPending optional 
+//  11/16/2023 - Lillian Gensolin
+//       Converted code to .NET core.
 //
 //******************************************************************************************************
 

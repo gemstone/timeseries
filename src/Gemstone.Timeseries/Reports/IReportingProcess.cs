@@ -31,7 +31,8 @@ namespace Gemstone.Timeseries.Reports;
 /// <summary>
 /// Defines an interface for reporting processes.
 /// </summary>
-public interface IReportingProcess : IProvideStatus, IPersistSettings
+public interface IReportingProcess : IProvideStatus
+// extends IPersistSettings
 {
     /// <summary>
     /// Gets report type (i.e., name) for this reporting process.

@@ -18,7 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  11/15/2016 - Ritchie Carroll
 //       Generated original version of source code.
-//
+//  11/09/2023 - Lillian Gensolin
+//       Added UpdateType enum / changed Common class from internal to public (temporary).
 //******************************************************************************************************
 
 //using Gemstone.Diagnostics;

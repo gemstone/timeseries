@@ -18,6 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  06/29/2016 - Steven E. Chisholm
 //       Generated original version of source code.
+//  11/21/2023 - Lillian Gensolin
+//       Converted code to .NET core.
 //
 //******************************************************************************************************
 
@@ -182,13 +184,13 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
     {
         m_lastStatusUpdate = ShortTime.Now;
         m_maxPendingMeasurements = 1000;
-        m_routeLatency = OptimizationOptions.RoutingLatency;
-        m_batchSize = OptimizationOptions.RoutingBatchSize;
+        //m_routeLatency = OptimizationOptions.RoutingLatency;
+        //m_batchSize = OptimizationOptions.RoutingBatchSize;
         m_inboundQueue = new ConcurrentQueue<List<IMeasurement>>();
 
         m_task = new ScheduledTask(ThreadingMode.DedicatedBackground, ThreadPriority.AboveNormal);
         m_task.Running += m_task_Running;
-        m_task.UnhandledException += m_task_UnhandledException;
+        //m_task.UnhandledException += m_task_UnhandledException;
         m_task.Disposing += m_task_Disposing;
         m_task.Start(m_routeLatency);
 

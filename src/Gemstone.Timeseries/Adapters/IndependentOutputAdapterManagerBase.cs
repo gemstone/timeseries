@@ -18,9 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  02/13/2020 - J. Ritchie Carroll
 //       Generated original version of source code.
-//  11/09/2023 - Lillian Gensolin
+//  11/13/2023 - Lillian Gensolin
 //       Converted code to .NET core.
-//
 //******************************************************************************************************
 
 using System;
@@ -32,9 +31,10 @@ using System.Text;
 using System.Threading;
 using Gemstone.Data;
 using Gemstone.Diagnostics;
-using Gemstone.Numeric.EE;
+using Gemstone.Timeseries;
+using Gemstone.Timeseries.Adapters;
 
-namespace Gemstone.Timeseries.Adapters;
+namespace Gemstone.TimeSeries.Adapters;
 
 /// <summary>
 /// Represents an adapter base class that provides functionality to manage and distribute measurements to a collection of output adapters.
@@ -58,69 +58,70 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     #endregion
 
     #region [ Properties ]
+    
+    ///// <summary>
+    ///// Gets or sets primary keys of input measurements for the <see cref="IndependentOutputAdapterManagerBase"/>.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
+    //[CustomConfigurationEditor("GSF.TimeSeries.UI.WPF.dll", "GSF.TimeSeries.UI.Editors.MeasurementEditor")]
+    //[DefaultValue(null)]
+    //public override MeasurementKey[] InputMeasurementKeys
+    //{
+    //    get => base.InputMeasurementKeys;
+    //    set
+    //    {
+    //        base.InputMeasurementKeys = value;
+    //        InputMeasurementKeyTypes = DataSource.GetSignalTypes(value, SourceMeasurementTable);
+    //    }
+    //}
 
-    /// <summary>
-    /// Gets or sets primary keys of input measurements for the <see cref="IndependentOutputAdapterManagerBase"/>.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
-    [DefaultValue(null)]
-    public override MeasurementKey[] InputMeasurementKeys
-    {
-        get => base.InputMeasurementKeys;
-        set
-        {
-            base.InputMeasurementKeys = value;
-            InputMeasurementKeyTypes = DataSource.GetSignalTypes(value, SourceMeasurementTable);
-        }
-    }
+    // TODO: Need to figure out why default values won't connect with IndependentAdapterManagerExtensions
+    ///// <summary>
+    ///// Gets or sets the wait timeout, in milliseconds, that system wait for system configuration reload to complete.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the wait timeout, in milliseconds, that system wait for system configuration reload to complete.")]
+    //[DefaultValue(DefaultConfigurationReloadWaitTimeout)]
+    //public virtual int ConfigurationReloadWaitTimeout { get; set; } = DefaultConfigurationReloadWaitTimeout;
 
-    /// <summary>
-    /// Gets or sets the wait timeout, in milliseconds, that system wait for system configuration reload to complete.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the wait timeout, in milliseconds, that system wait for system configuration reload to complete.")]
-    [DefaultValue(DefaultConfigurationReloadWaitTimeout)]
-    public virtual int ConfigurationReloadWaitTimeout { get; set; } = DefaultConfigurationReloadWaitTimeout;
+    ///// <summary>
+    ///// Gets or sets the total number of attempts to wait for system configuration reloads when waiting for configuration updates to be available.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the total number of attempts to wait for system configuration reloads when waiting for configuration updates to be available.")]
+    //[DefaultValue(DefaultConfigurationReloadWaitAttempts)]
+    //public virtual int ConfigurationReloadWaitAttempts { get; set; } = DefaultConfigurationReloadWaitAttempts;
 
-    /// <summary>
-    /// Gets or sets the total number of attempts to wait for system configuration reloads when waiting for configuration updates to be available.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the total number of attempts to wait for system configuration reloads when waiting for configuration updates to be available.")]
-    [DefaultValue(DefaultConfigurationReloadWaitAttempts)]
-    public virtual int ConfigurationReloadWaitAttempts { get; set; } = DefaultConfigurationReloadWaitAttempts;
+    ///// <summary>
+    ///// Gets or sets the connection string used for database operations. Leave blank to use local configuration database defined in "systemSettings".
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the connection string used for database operations. Leave blank to use local configuration database defined in \"systemSettings\".")]
+    //[DefaultValue(DefaultDatabaseConnectionString)]
+    //public virtual string DatabaseConnectionString { get; set; }
 
-    /// <summary>
-    /// Gets or sets the connection string used for database operations. Leave blank to use local configuration database defined in "systemSettings".
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the connection string used for database operations. Leave blank to use local configuration database defined in \"systemSettings\".")]
-    [DefaultValue(DefaultDatabaseConnectionString)]
-    public virtual string DatabaseConnectionString { get; set; }
+    ///// <summary>
+    ///// Gets or sets the provider string used for database operations. Defaults to a SQL Server provider string.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the provider string used for database operations. Defaults to a SQL Server provider string.")]
+    //[DefaultValue(DefaultDatabaseProviderString)]
+    //public virtual string DatabaseProviderString { get; set; }
 
-    /// <summary>
-    /// Gets or sets the provider string used for database operations. Defaults to a SQL Server provider string.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the provider string used for database operations. Defaults to a SQL Server provider string.")]
-    [DefaultValue(DefaultDatabaseProviderString)]
-    public virtual string DatabaseProviderString { get; set; }
+    ///// <summary>
+    ///// Gets any custom adapter settings to be added to each adapter connection string. Can be used to add
+    ///// settings that are custom per adapter.
+    ///// </summary>
+    //public virtual string CustomAdapterSettings { get; } = null;
 
-    /// <summary>
-    /// Gets any custom adapter settings to be added to each adapter connection string. Can be used to add
-    /// settings that are custom per adapter.
-    /// </summary>
-    public virtual string CustomAdapterSettings { get; } = null;
-
-    /// <summary>
-    /// Gets or sets the source measurement table to use for configuration.
-    /// </summary>
-    [ConnectionStringParameter]
-    [Description("Defines the source measurement table to use for configuration.")]
-    [DefaultValue(DefaultSourceMeasurementTable)]
-    public virtual string SourceMeasurementTable { get; set; } = DefaultSourceMeasurementTable;
+    ///// <summary>
+    ///// Gets or sets the source measurement table to use for configuration.
+    ///// </summary>
+    //[ConnectionStringParameter]
+    //[Description("Defines the source measurement table to use for configuration.")]
+    //[DefaultValue(DefaultSourceMeasurementTable)]
+    //public virtual string SourceMeasurementTable { get; set; } = DefaultSourceMeasurementTable;
 
     /// <summary>
     /// Gets or sets <see cref="DataSet"/> based data source used to load each <see cref="IAdapter"/>. Updates
@@ -247,6 +248,11 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     /// </summary>
     public virtual void RecalculateRoutingTables() => this.HandleRecalculateRoutingTables();
 
+    //AdoDataConnection IIndependentAdapterManager.GetConfiguredConnection()
+    //{
+    //    return GetConfiguredConnection();
+    //}
+
     /// <summary>
     /// Queues a collection of measurements for processing to each <see cref="IOutputAdapter"/> connected to this <see cref="IndependentOutputAdapterManagerBase"/>.
     /// </summary>
@@ -278,7 +284,7 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     /// Gets configured database connection.
     /// </summary>
     /// <returns>New ADO data connection based on configured settings.</returns>
-    public AdoDataConnection GetConfiguredConnection() => this.HandleGetConfiguredConnection();
+    //public AdoDataConnection GetConfiguredConnection() => this.HandleGetConfiguredConnection();
 
     #endregion
 
@@ -287,25 +293,27 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     // The following properties are not used by output adapters. An IOutputAdapter implementation does not define
     // output measurements nor is any output automatically reentrant into time-series framework.
 
-    string IIndependentAdapterManager.PointTagTemplate { get; set; } = DefaultPointTagTemplate;
+    //string IIndependentAdapterManager.PointTagTemplate { get; set; } = DefaultPointTagTemplate;
 
-    string IIndependentAdapterManager.AlternateTagTemplate { get; set; } = DefaultAlternateTagTemplate;
+    //string IIndependentAdapterManager.AlternateTagTemplate { get; set; } = DefaultAlternateTagTemplate;
 
-    string IIndependentAdapterManager.SignalReferenceTemplate { get; set; } = DefaultSignalReferenceTemplate;
+    //string IIndependentAdapterManager.SignalReferenceTemplate { get; set; } = DefaultSignalReferenceTemplate;
 
-    string IIndependentAdapterManager.DescriptionTemplate { get; set; } = DefaultDescriptionTemplate;
+    //string IIndependentAdapterManager.DescriptionTemplate { get; set; } = DefaultDescriptionTemplate;
 
-    string IIndependentAdapterManager.ParentDeviceAcronymTemplate { get; set; } = DefaultParentDeviceAcronymTemplate;
+    //string IIndependentAdapterManager.ParentDeviceAcronymTemplate { get; set; } = DefaultParentDeviceAcronymTemplate;
 
-    SignalType IIndependentAdapterManager.SignalType { get; set; } = (SignalType)Enum.Parse(typeof(SignalType), DefaultSignalType);
+    //SignalType IIndependentAdapterManager.SignalType { get; set; } = (SignalType)Enum.Parse(typeof(SignalType), DefaultSignalType);
 
-    SignalType[] IIndependentAdapterManager.SignalTypes { get; } = null;
+    //SignalType[] IIndependentAdapterManager.SignalTypes { get; } = null;
+    //public string CustomAdapterSettings { get; }
 
-    ReadOnlyCollection<string> IIndependentAdapterManager.PerAdapterOutputNames { get; } = null;
+    //ReadOnlyCollection<string> IIndependentAdapterManager.PerAdapterOutputNames { get; } = null;
 
-    SignalType[] IIndependentAdapterManager.OutputMeasurementTypes { get; } = null;
+    //SignalType[] IIndependentAdapterManager.OutputMeasurementTypes { get; } = null;
 
-    string IIndependentAdapterManager.TargetHistorianAcronym { get; set; } = DefaultTargetHistorianAcronym;
+    //string IIndependentAdapterManager.TargetHistorianAcronym { get; set; } = DefaultTargetHistorianAcronym;
+    public string SourceMeasurementTable { get; set; }
 
     RoutingTables IIndependentAdapterManager.RoutingTables { get; set; }
 
@@ -316,6 +324,22 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     ManualResetEventSlim IIndependentAdapterManager.ConfigurationReloadedWaitHandle { get; set; }
 
     bool IIndependentAdapterManager.AutoReparseConnectionString { get => AutoReparseConnectionString; set => AutoReparseConnectionString = value; }
+    string IIndependentAdapterManager.PointTagTemplate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    string IIndependentAdapterManager.AlternateTagTemplate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    string IIndependentAdapterManager.SignalReferenceTemplate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    string IIndependentAdapterManager.DescriptionTemplate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    string IIndependentAdapterManager.ParentDeviceAcronymTemplate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    SignalType IIndependentAdapterManager.SignalType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+    SignalType[] IIndependentAdapterManager.SignalTypes => throw new NotImplementedException();
+
+    string IIndependentAdapterManager.CustomAdapterSettings => throw new NotImplementedException();
+
+    string IIndependentAdapterManager.TargetHistorianAcronym { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+    SignalType[] IIndependentAdapterManager.OutputMeasurementTypes => throw new NotImplementedException();
+
+    ReadOnlyCollection<string> IIndependentAdapterManager.PerAdapterOutputNames => throw new NotImplementedException();
 
     void IIndependentAdapterManager.OnConfigurationChanged() => OnConfigurationChanged();
 
@@ -324,6 +348,17 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     void IIndependentAdapterManager.OnStatusMessage(MessageLevel level, string status, string eventName, MessageFlags flags) => OnStatusMessage(level, status, eventName, flags);
 
     void IIndependentAdapterManager.OnProcessException(MessageLevel level, Exception exception, string eventName, MessageFlags flags) => OnProcessException(level, exception, eventName, flags);
+
+    AdoDataConnection IIndependentAdapterManager.GetConfiguredConnection()
+    {
+        throw new NotImplementedException();
+    }
+
+    // TODO: Remove lines 297 - 300 once above tasks are completed - introduced so that missing components would not prevent compiling.
+    public int ConfigurationReloadWaitTimeout { get; set; }
+    public int ConfigurationReloadWaitAttempts { get; set; }
+    public string DatabaseConnectionString { get; set; }
+    public string DatabaseProviderString { get; set; }
 
     #endregion
 }

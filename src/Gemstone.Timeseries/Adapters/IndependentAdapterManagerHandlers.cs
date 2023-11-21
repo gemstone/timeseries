@@ -20,6 +20,7 @@
 //       Generated original version of source code.
 //  11/09/2023 - Lillian Gensolin
 //       Converted code to .NET core.
+//
 //******************************************************************************************************
 
 using System;
@@ -31,7 +32,7 @@ using System.Threading;
 using Gemstone.Data;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
-using ConnectionStringParser = Gemstone.Configuration.ConnectionStringParser<Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute>;
+using Gemstone.TimeSeries.Adapters;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -239,8 +240,8 @@ internal static class IndependentAdapterManagerHandlers
     public static void HandleParseConnectionString(this IIndependentAdapterManager instance)
     {
         // Parse all properties marked with ConnectionStringParameterAttribute from provided ConnectionString value
-        ConnectionStringParser parser = new();
-        parser.ParseConnectionString(instance.ConnectionString, instance);
+        //ConnectionStringParser parser = new();
+        //parser.ParseConnectionString(instance.ConnectionString, instance);
 
         // Parse input measurement keys like class was a typical adapter
         if (instance.Settings.TryGetValue(nameof(instance.InputMeasurementKeys), out string setting))
@@ -323,14 +324,14 @@ internal static class IndependentAdapterManagerHandlers
     /// <param name="adapterIndex">Enumerated index for child adapter.</param>
     public static string HandleGetAdapterStatus(this IIndependentAdapterManager instance, int adapterIndex) => instance[adapterIndex].Status;
 
-    /// <summary>
-    /// Gets configured database connection.
-    /// </summary>
-    /// <param name="instance">Target <see cref="IIndependentAdapterManager"/> instance.</param>
-    /// <returns>New ADO data connection based on configured settings.</returns>
-    public static AdoDataConnection HandleGetConfiguredConnection(this IIndependentAdapterManager instance) => string.IsNullOrWhiteSpace(instance.DatabaseConnectionString) ?
-        new AdoDataConnection("systemSettings") :
-        new AdoDataConnection(instance.DatabaseConnectionString, instance.DatabaseProviderString);
+    ///// <summary>
+    ///// Gets configured database connection.
+    ///// </summary>
+    ///// <param name="instance">Target <see cref="IIndependentAdapterManager"/> instance.</param>
+    ///// <returns>New ADO data connection based on configured settings.</returns>
+    //public static AdoDataConnection HandleGetConfiguredConnection(this IIndependentAdapterManager instance) => string.IsNullOrWhiteSpace(instance.DatabaseConnectionString) ?
+    //    new AdoDataConnection("systemSettings") :
+    //    new AdoDataConnection(instance.DatabaseConnectionString, instance.DatabaseProviderString);
 
     /// <summary>
     /// Determines whether the data in the data source has actually changed when receiving a new data source.

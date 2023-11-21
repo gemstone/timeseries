@@ -46,7 +46,8 @@ internal static class GatewayStatistics
         MethodInfo method = source.GetType().GetMethod(name);
         return method is not null ? (T)method.Invoke(source, parameters) : default;
     }
-
+    // TODO: implement Transport
+    /*
     #region [ Subscriber Statistics ]
 
     private static double GetSubscriberStatistic_Connected(object source, string arguments) =>
@@ -172,4 +173,5 @@ internal static class GatewayStatistics
     #endregion
 
     private static readonly StatisticValueStateCache s_statisticValueCache = new();
+    */
 }

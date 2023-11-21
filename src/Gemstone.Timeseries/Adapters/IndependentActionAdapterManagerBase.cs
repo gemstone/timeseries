@@ -40,6 +40,7 @@ using Gemstone.Numeric.EE;
 using Gemstone.Reflection.MemberInfoExtensions;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
+using Gemstone.TimeSeries.Adapters;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -115,7 +116,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
         set
         {
             base.InputMeasurementKeys = value;
-            InputMeasurementKeyTypes = DataSource?.GetSignalTypes(value, SourceMeasurementTable);
+            //InputMeasurementKeyTypes = DataSource?.GetSignalTypes(value, SourceMeasurementTable);
         }
     }
 
@@ -132,7 +133,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
         set
         {
             base.OutputMeasurements = value;
-            OutputMeasurementTypes = DataSource?.GetSignalTypes(value, SourceMeasurementTable);
+            //OutputMeasurementTypes = DataSource?.GetSignalTypes(value, SourceMeasurementTable);
         }
     }
 
@@ -442,7 +443,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
             else
                 m_inputMeasurementKeysQueue[1] = inputMeasurementKeys;
 
-            m_initializeChildAdapters.RunOnceAsync();
+            //m_initializeChildAdapters.RunOnceAsync();
         }
     }
 
@@ -490,21 +491,21 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
                 if (CurrentDeviceID > 0)
                     OnStatusMessage(MessageLevel.Warning, $"WARNING: Creating a parent device for \"{Name}\" [{GetType().Name}] based on specified template \"{ParentDeviceAcronymTemplate}\", but overridden CurrentDeviceID property reports non-zero value: {CurrentDeviceID:N0}");
 
-                using AdoDataConnection connection = GetConfiguredConnection();
+                //using AdoDataConnection connection = GetConfiguredConnection();
 
-                TableOperations<DeviceRecord> deviceTable = new(connection);
+                //TableOperations<DeviceRecord> deviceTable = new(connection);
                 string deviceAcronym = string.Format(ParentDeviceAcronymTemplate, Name);
 
-                DeviceRecord device = deviceTable.QueryRecordWhere("Acronym = {0}", deviceAcronym) ?? deviceTable.NewRecord();
-                int protocolID = connection.ExecuteScalar<int?>("SELECT ID FROM Protocol WHERE Acronym = 'VirtualInput'") ?? 15;
+                //DeviceRecord device = deviceTable.QueryRecordWhere("Acronym = {0}", deviceAcronym) ?? deviceTable.NewRecord();
+                //int protocolID = connection.ExecuteScalar<int?>("SELECT ID FROM Protocol WHERE Acronym = 'VirtualInput'") ?? 15;
 
-                device.Acronym = deviceAcronym;
-                device.Name = deviceAcronym;
-                device.ProtocolID = protocolID;
-                device.Enabled = true;
+                //device.Acronym = deviceAcronym;
+                //device.Name = deviceAcronym;
+                //device.ProtocolID = protocolID;
+                //device.Enabled = true;
 
-                deviceTable.AddNewOrUpdateRecord(device);
-                currentDeviceID = deviceTable.QueryRecordWhere("Acronym = {0}", deviceAcronym)?.ID;
+                //deviceTable.AddNewOrUpdateRecord(device);
+                //currentDeviceID = deviceTable.QueryRecordWhere("Acronym = {0}", deviceAcronym)?.ID;
             }
 
             HashSet<string> activeAdapterNames = new(StringComparer.Ordinal);
@@ -540,8 +541,8 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
                 if (!string.IsNullOrWhiteSpace(AlternateTagTemplate))
                 {
                     string deviceName = this.LookupDevice(inputs[nameIndex], SourceMeasurementTable);
-                    string phasorLabel = this.LookupPhasorLabel(inputs[nameIndex], SourceMeasurementTable);
-                    alternateTagPrefix = $"{deviceName}-{phasorLabel}";
+                    //string phasorLabel = this.LookupPhasorLabel(inputs[nameIndex], SourceMeasurementTable);
+                    //alternateTagPrefix = $"{deviceName}-{phasorLabel}";
                 }
 
                 // Track active adapter names so that adapters that no longer have sources can be removed
@@ -565,11 +566,11 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
                     string description = string.Format(DescriptionTemplate, outputPrefix, signalType, Name, GetType().Name);
 
                     // Get output measurement record, creating a new one if needed
-                    MeasurementRecord measurement = this.GetMeasurementRecord(currentDeviceID ?? CurrentDeviceID, outputPointTag, outputAlternateTag, signalReference, description, signalType, TargetHistorianAcronym);
+                    //MeasurementRecord measurement = this.GetMeasurementRecord(currentDeviceID ?? CurrentDeviceID, outputPointTag, outputAlternateTag, signalReference, description, signalType, TargetHistorianAcronym);
 
                     // Track output signal IDs
-                    signalIDs.Add(measurement.SignalID);
-                    outputs[j] = measurement.SignalID;
+                    //signalIDs.Add(measurement.SignalID);
+                    //outputs[j] = measurement.SignalID;
                 }
 
                 // Add inputs and outputs to connection string settings for child adapter
@@ -657,6 +658,12 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     public virtual void RecalculateRoutingTables() =>
         this.HandleRecalculateRoutingTables();
 
+    // TODO: Remove once config stuff is fixed
+    public AdoDataConnection GetConfiguredConnection()
+    {
+        throw new NotImplementedException();
+    }
+
     /// <summary>
     /// Queues a collection of measurements for processing to each <see cref="IActionAdapter"/> connected to this <see cref="IndependentActionAdapterManagerBase{TAdapter}"/>.
     /// </summary>
@@ -688,12 +695,12 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     public virtual string GetAdapterStatus(int adapterIndex) =>
         this.HandleGetAdapterStatus(adapterIndex);
 
-    /// <summary>
-    /// Gets configured database connection.
-    /// </summary>
-    /// <returns>New ADO data connection based on configured settings.</returns>
-    public AdoDataConnection GetConfiguredConnection() =>
-        this.HandleGetConfiguredConnection();
+    ///// <summary>
+    ///// Gets configured database connection.
+    ///// </summary>
+    ///// <returns>New ADO data connection based on configured settings.</returns>
+    //public AdoDataConnection GetConfiguredConnection() =>
+    //    this.HandleGetConfiguredConnection();
 
     #endregion
 
@@ -715,7 +722,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
 
     void IIndependentAdapterManager.OnProcessException(MessageLevel level, Exception exception, string eventName, MessageFlags flags) => OnProcessException(level, exception, eventName, flags);
 
-    void IIndependentAdapterManager.ParseConnectionString() => m_parseConnectionString.RunOnceAsync();
+    //void IIndependentAdapterManager.ParseConnectionString() => m_parseConnectionString.RunOnceAsync();
 
     #endregion
 }

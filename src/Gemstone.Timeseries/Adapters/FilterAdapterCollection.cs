@@ -46,7 +46,7 @@ public class FilterAdapterCollection : AdapterCollectionBase<IFilterAdapter>, IF
     /// <summary>
     /// Provides notification of change in collection count.
     /// </summary>
-    public event EventHandler CollectionCountChanged;
+    public event EventHandler? CollectionCountChanged;
 
     // Fields
     private List<IFilterAdapter> m_sortedFilterAdapters;

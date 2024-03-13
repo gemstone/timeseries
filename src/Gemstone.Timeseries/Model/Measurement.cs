@@ -38,11 +38,11 @@ public class Measurement
 {
     [Label("Point ID")]
     [PrimaryKey(true)]
-    [Searchable]
+    //[Searchable]
     public int PointID { get; set; }
 
     [Label("Unique Signal ID")]
-    [Searchable]
+    //[Searchable]
     [DefaultValueExpression("Guid.NewGuid()")]
     public Guid SignalID { get; set; }
 
@@ -54,11 +54,11 @@ public class Measurement
     [Required]
     [StringLength(200)]
     [AcronymValidation]
-    [Searchable]
+    //[Searchable]
     public string PointTag { get; set; }
 
     [Label("Alternate Tag Name")]
-    [Searchable]
+    //[Searchable]
     public string AlternateTag { get; set; }
 
     [Label("Signal Type")]

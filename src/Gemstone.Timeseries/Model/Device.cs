@@ -54,7 +54,7 @@ public class Device
     [Required]
     [StringLength(200)]
     [AcronymValidation]
-    [Searchable]
+    //[Searchable]
     public string Acronym { get; set; }
 
     [StringLength(200)]

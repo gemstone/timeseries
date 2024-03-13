@@ -36,12 +36,12 @@ public class SignalType
 
     [Required]
     [StringLength(200)]
-    [Searchable]
+    //[Searchable]
     public string Name { get; set; }
 
     [Required]
     [StringLength(4)]
-    [Searchable]
+    //[Searchable]
     public string Acronym { get; set; }
 
     [Required]
@@ -54,7 +54,7 @@ public class SignalType
 
     [Required]
     [StringLength(200)]
-    [Searchable]
+    //[Searchable]
     public string LongAcronym { get; set; }
 
     [Required]

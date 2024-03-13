@@ -35,7 +35,6 @@ using Gemstone.Configuration;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
-using static Gemstone.Common;
 
 // ReSharper disable InconsistentlySynchronizedField
 namespace Gemstone.Timeseries.Adapters;
@@ -54,7 +53,7 @@ public class IaonSession : IProvideStatus, IDisposable
     /// </summary>
     /// <remarks>
     /// <see cref="EventArgs{T1,T2}.Argument1"/> is the new status message.<br/>
-    /// <see cref="EventArgs{T1,T2}.Argument2"/> is the message <see cref="Common.UpdateType"/>.
+    /// <see cref="EventArgs{T1,T2}.Argument2"/> is the message <see cref="UpdateType"/>.
     /// </remarks>
     public event EventHandler<EventArgs<string, UpdateType>>? StatusMessage;
 
@@ -150,11 +149,11 @@ public class IaonSession : IProvideStatus, IDisposable
         using (Logger.AppendStackMessages("HostAdapter", nameof(IaonSession)))
         {
             // Create a new set of routing tables
-            //m_routingTables = OptimizationOptions.DefaultRoutingMethod switch
-            //{
-            //    OptimizationOptions.RoutingMethod.HighLatencyLowCpu => new RoutingTables(new RouteMappingHighLatencyLowCpu()),
-            //    _ => new RoutingTables()
-            //};
+            m_routingTables = OptimizationOptions.DefaultRoutingMethod switch
+            {
+                OptimizationOptions.RoutingMethod.HighLatencyLowCpu => new RoutingTables(new RouteMappingHighLatencyLowCpu()),
+                _ => new RoutingTables()
+            };
         }
 
         m_routingTables.StatusMessage += m_routingTables_StatusMessage;
@@ -475,7 +474,7 @@ public class IaonSession : IProvideStatus, IDisposable
 
         // When using default informational update type, see if an update type code was embedded in the status message - this allows for compatibility for event
         // handlers that are normally unaware of the update type
-        if (type == Common.UpdateType.Information && status is not null && status.Length > 3 && status.StartsWith("0x") && Enum.TryParse(status[2].ToString(), out type))
+        if (type == UpdateType.Information && status is not null && status.Length > 3 && status.StartsWith("0x") && Enum.TryParse(status[2].ToString(), out type))
             status = status.Substring(3);
 
         StatusMessage(sender, new EventArgs<string, UpdateType>(status, type));
@@ -577,9 +576,9 @@ public class IaonSession : IProvideStatus, IDisposable
     {
         OnStatusMessage(sender, "[{0}] {1}", UpdateType.Alarm, GetDerivedName(sender), e.Argument.Message);
 
-    //    // Bubble message up to any event subscribers
-    //    OnProcessException(sender, e.Argument);
-    //}
+        // Bubble message up to any event subscribers
+        OnProcessException(sender, e.Argument);
+    }
 
     /// <summary>
     /// Event handler for updates to adapter input measurement key definitions.
@@ -646,8 +645,8 @@ public class IaonSession : IProvideStatus, IDisposable
         if (processingInterval is > -1 and < 100)
             threshold *= 4;
 
-        //if (secondsOfData > threshold)
-            //OnStatusMessage(sender, "[{0}] There are {1} seconds of unpublished data in the action adapter concentration queue.", Common.UpdateType.Warning, GetDerivedName(sender), secondsOfData);
+        if (secondsOfData > threshold)
+            OnStatusMessage(sender, "[{0}] There are {1} seconds of unpublished data in the action adapter concentration queue.", UpdateType.Warning, GetDerivedName(sender), secondsOfData);
 
         // Bubble message up to any event subscribers
         OnUnpublishedSamples(sender, e.Argument);

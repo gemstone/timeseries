@@ -24,41 +24,31 @@
 //******************************************************************************************************
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Gemstone.EventHandlerExtensions;
 
-namespace Gemstone.Timeseries;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents a slot in the thread local memory space of each logical thread.
 /// </summary>
-public sealed class LogicalThreadLocal<T> : IDisposable
+internal sealed class LogicalThreadLocal<T> : IDisposable
 {
     #region [ Members ]
 
     // Nested Types
     private class Slot
     {
-        private T m_value;
-
-        public T Value
-        {
-            get
-            {
-                return m_value;
-            }
-            set
-            {
-                m_value = value;
-            }
-        }
+        public T? Value { get; set; }
     }
 
     // Events
-    private event EventHandler Disposed;
+    private event EventHandler? Disposed;
 
     // Fields
-    private Func<T> m_newObjectFactory;
-    private ThreadLocal<T> m_threadLocal;
+    private readonly Func<T>? m_newObjectFactory;
+    private readonly ThreadLocal<T> m_threadLocal;
 
     private int m_accessCount;
     private int m_disposed;
@@ -71,7 +61,7 @@ public sealed class LogicalThreadLocal<T> : IDisposable
     /// Creates a new instance of the <see cref="LogicalThreadLocal{T}"/> class.
     /// </summary>
     public LogicalThreadLocal()
-        : this(() => default(T))
+        : this(() => default!)
     {
     }
 
@@ -79,10 +69,10 @@ public sealed class LogicalThreadLocal<T> : IDisposable
     /// Creates a new instance of the <see cref="LogicalThreadLocal{T}"/> class.
     /// </summary>
     /// <param name="newObjectFactory">Factory to produce the initial value when accessing uninitialized values.</param>
-    public LogicalThreadLocal(Func<T> newObjectFactory)
+    public LogicalThreadLocal(Func<T>? newObjectFactory)
     {
         m_newObjectFactory = newObjectFactory;
-        m_threadLocal = new ThreadLocal<T>(newObjectFactory);
+        m_threadLocal = new ThreadLocal<T>(newObjectFactory!);
     }
 
     /// <summary>
@@ -101,30 +91,23 @@ public sealed class LogicalThreadLocal<T> : IDisposable
     /// Gets or sets the thread local object
     /// associated with the current logical thread.
     /// </summary>
-    public T Value
+    public T? Value
     {
         get
         {
-            Slot slot;
-
             return Access(() =>
             {
-                if (TryGetSlot(out slot))
+                if (TryGetSlot(out Slot? slot))
                     return slot.Value;
 
-                if (!IsDisposed)
-                    return m_threadLocal.Value;
-
-                return default(T);
+                return IsDisposed ? default : m_threadLocal.Value;
             });
         }
         set
         {
-            Slot slot;
-
             Access(() =>
             {
-                if (TryGetSlot(out slot))
+                if (TryGetSlot(out Slot? slot))
                     slot.Value = value;
                 else if (!IsDisposed)
                     m_threadLocal.Value = value;
@@ -186,12 +169,12 @@ public sealed class LogicalThreadLocal<T> : IDisposable
     /// unmanaged resources get cleaned up after a call to <see cref="Dispose()"/>.
     /// </summary>
     /// <param name="func">The function to be executed.</param>
-    private TResult Access<TResult>(Func<TResult> func)
+    private TResult? Access<TResult>(Func<TResult> func)
     {
         try
         {
             Interlocked.Increment(ref m_accessCount);
-            return !IsDisposed ? func() : default(TResult);
+            return !IsDisposed ? func() : default;
         }
         finally
         {
@@ -207,19 +190,17 @@ public sealed class LogicalThreadLocal<T> : IDisposable
     /// </summary>
     /// <param name="slot">An instance of this slot.</param>
     /// <returns>True if an instance of this slot is successfully retrieved from the current logical thread.</returns>
-    private bool TryGetSlot(out Slot slot)
+    private bool TryGetSlot([NotNullWhen(true)] out Slot? slot)
     {
-        LogicalThread currentThread;
-
         if (IsDisposed)
         {
             slot = null;
             return false;
         }
 
-        currentThread = LogicalThread.CurrentThread;
+        LogicalThread? currentThread = LogicalThread.CurrentThread;
 
-        if ((object)currentThread == null)
+        if (currentThread is null)
         {
             slot = null;
             return false;
@@ -227,10 +208,9 @@ public sealed class LogicalThreadLocal<T> : IDisposable
 
         slot = currentThread.GetThreadLocal(this) as Slot;
 
-        if ((object)slot == null)
+        if (slot is null)
         {
-            slot = new Slot();
-            slot.Value = m_newObjectFactory();
+            slot = new Slot { Value = m_newObjectFactory!() };
             currentThread.SetThreadLocal(this, slot);
             AttachToDisposed();
         }
@@ -256,13 +236,11 @@ public sealed class LogicalThreadLocal<T> : IDisposable
     /// </summary>
     private void AttachToDisposed()
     {
-        WeakReference<LogicalThread> threadRef = new WeakReference<LogicalThread>(LogicalThread.CurrentThread);
+        WeakReference<LogicalThread> threadRef = new(LogicalThread.CurrentThread!);
 
-        Disposed += (sender, args) =>
+        Disposed += (_, _) =>
         {
-            LogicalThread thread;
-
-            if (threadRef.TryGetTarget(out thread))
+            if (threadRef.TryGetTarget(out LogicalThread? thread))
                 thread.SetThreadLocal(this, null);
         };
     }
@@ -273,16 +251,13 @@ public sealed class LogicalThreadLocal<T> : IDisposable
     /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
     private void OnDisposed(bool disposing)
     {
-        if (Interlocked.CompareExchange(ref m_disposed, 1, -1) == -1)
-        {
-            EventHandler disposed = Disposed;
+        if (Interlocked.CompareExchange(ref m_disposed, 1, -1) != -1)
+            return;
 
-            if ((object)disposed != null)
-                disposed(this, EventArgs.Empty);
+        Disposed?.SafeInvoke(this, EventArgs.Empty);
 
-            if (disposing)
-                m_threadLocal.Dispose();
-        }
+        if (disposing)
+            m_threadLocal.Dispose();
     }
 
     #endregion

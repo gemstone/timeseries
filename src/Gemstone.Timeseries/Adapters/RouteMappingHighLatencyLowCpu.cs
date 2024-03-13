@@ -36,10 +36,8 @@ namespace Gemstone.Timeseries.Adapters;
 /// <summary>
 /// Represents an alternative routing table that has intentional delays to lower overall CPU utilization.
 /// </summary>
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
 public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
     private class Consumer
     {
         private readonly ScheduledTask m_task;
@@ -75,12 +73,12 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
             m_task.Start();
         }
 
-        private void m_task_Running(object sender, EventArgs<ScheduledTaskRunningReason> e)
+        private void m_task_Running(object? sender, EventArgs<ScheduledTaskRunningReason> e)
         {
             if (e.Argument == ScheduledTaskRunningReason.Disposing)
                 return;
 
-            while (m_pendingMeasurements.TryDequeue(out List<IMeasurement> measurements))
+            while (m_pendingMeasurements.TryDequeue(out List<IMeasurement>? measurements))
                 m_callback(measurements);
         }
     }
@@ -169,6 +167,7 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
     private ShortTime m_lastStatusUpdate;
 
     private int m_pendingMeasurements;
+
     /// <summary>
     /// Once this many measurements have been queued, a route operation will not wait the mandatory wait time
     /// and will immediately start the routing process.
@@ -184,13 +183,12 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
     {
         m_lastStatusUpdate = ShortTime.Now;
         m_maxPendingMeasurements = 1000;
-        //m_routeLatency = OptimizationOptions.RoutingLatency;
-        //m_batchSize = OptimizationOptions.RoutingBatchSize;
+        m_routeLatency = OptimizationOptions.RoutingLatency;
+        m_batchSize = OptimizationOptions.RoutingBatchSize;
         m_inboundQueue = new ConcurrentQueue<List<IMeasurement>>();
 
         m_task = new ScheduledTask(ThreadingMode.DedicatedBackground, ThreadPriority.AboveNormal);
         m_task.Running += m_task_Running;
-        //m_task.UnhandledException += m_task_UnhandledException;
         m_task.Disposing += m_task_Disposing;
         m_task.Start(m_routeLatency);
 
@@ -257,13 +255,10 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
         RouteCount = m_globalCache.GlobalSignalLookup.Count(x => x is not null);
     }
 
-    private void m_task_Disposing(object sender, EventArgs e) =>
+    private void m_task_Disposing(object? sender, EventArgs e) =>
         m_onProcessException(new Exception("Routing table disposing."));
 
-    private void m_task_UnhandledException(object sender, EventArgs<Exception> e) =>
-        m_onProcessException(e.Argument);
-
-    private void m_task_Running(object sender, EventArgs<ScheduledTaskRunningReason> e)
+    private void m_task_Running(object? sender, EventArgs<ScheduledTaskRunningReason> e)
     {
         if (e.Argument == ScheduledTaskRunningReason.Disposing)
             return;
@@ -361,7 +356,7 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
             m_task.Start();
     }
 
-    private void Route(object sender, EventArgs<ICollection<IMeasurement>> measurements)
+    private void Route(object? sender, EventArgs<ICollection<IMeasurement>>? measurements)
     {
         if (measurements?.Argument is null)
             return;
@@ -375,6 +370,6 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
     /// </summary>
     /// <param name="sender">the sender object</param>
     /// <param name="measurements">the event arguments</param>
-    public void InjectMeasurements(object sender, EventArgs<ICollection<IMeasurement>> measurements) =>
+    public void InjectMeasurements(object? sender, EventArgs<ICollection<IMeasurement>>? measurements) =>
         Route(sender, measurements);
 }

@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -52,7 +53,7 @@ public class OutputAdapterCollection : AdapterCollectionBase<IOutputAdapter>, IO
     /// <see cref="EventArgs{T}.Argument"/> is total number of unprocessed measurements.
     /// </para>
     /// </remarks>
-    public event EventHandler<EventArgs<int>> UnprocessedMeasurements;
+    public event EventHandler<EventArgs<int>>? UnprocessedMeasurements;
 
     #endregion
 
@@ -171,15 +172,7 @@ public class OutputAdapterCollection : AdapterCollectionBase<IOutputAdapter>, IO
     /// <param name="unprocessedMeasurements">Total measurements in the queue that have not been processed.</param>
     protected virtual void OnUnprocessedMeasurements(int unprocessedMeasurements)
     {
-        try
-        {
-            UnprocessedMeasurements?.Invoke(this, new EventArgs<int>(unprocessedMeasurements));
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(UnprocessedMeasurements)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        UnprocessedMeasurements?.SafeInvoke(this, new EventArgs<int>(unprocessedMeasurements));
     }
 
     /// <summary>
@@ -211,8 +204,8 @@ public class OutputAdapterCollection : AdapterCollectionBase<IOutputAdapter>, IO
     }
 
     // Raise unprocessed measurements event on behalf of each item in collection
-    private void item_UnprocessedMeasurements(object sender, EventArgs<int> e) =>
-        UnprocessedMeasurements?.Invoke(sender, e);
+    private void item_UnprocessedMeasurements(object? sender, EventArgs<int> e) =>
+        UnprocessedMeasurements?.SafeInvoke(sender, e);
 
     #endregion
 }

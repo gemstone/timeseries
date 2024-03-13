@@ -31,15 +31,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Gemstone.Threading.Cancellation;
+using CancellationToken = Gemstone.Threading.Cancellation.CancellationToken;
 
-namespace Gemstone.Timeseries;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents a set of statistics gathered about
 /// the execution time of actions on a logical thread.
 /// </summary>
-// TODO: Change LogicalThread to Gemstone.Threading.Strand
-public class LogicalThreadStatistics
+// TODO: Consider changing LogicalThread to Gemstone.Threading.Strand
+internal class LogicalThreadStatistics
 {
     #region [ Members ]
 
@@ -56,46 +58,22 @@ public class LogicalThreadStatistics
     /// <summary>
     /// Gets the execution time of the longest running action.
     /// </summary>
-    public TimeSpan MaxExecutionTime
-    {
-        get
-        {
-            return m_maxExecutionTime;
-        }
-    }
+    public TimeSpan MaxExecutionTime => m_maxExecutionTime;
 
     /// <summary>
     /// Gets the execution time of the shortest running action.
     /// </summary>
-    public TimeSpan MinExecutionTime
-    {
-        get
-        {
-            return m_minExecutionTime;
-        }
-    }
+    public TimeSpan MinExecutionTime => m_minExecutionTime;
 
     /// <summary>
     /// Gets the total execution time of all actions executed on the logical thread.
     /// </summary>
-    public TimeSpan TotalExecutionTime
-    {
-        get
-        {
-            return m_totalExecutionTime;
-        }
-    }
+    public TimeSpan TotalExecutionTime => m_totalExecutionTime;
 
     /// <summary>
     /// Gets the total number of actions executed on the logical thread.
     /// </summary>
-    public long ExecutionCount
-    {
-        get
-        {
-            return m_executionCount;
-        }
-    }
+    public long ExecutionCount => m_executionCount;
 
     #endregion
 
@@ -138,7 +116,7 @@ public class LogicalThreadStatistics
 /// Note that the <see cref="LogicalThreadScheduler"/> implements its own
 /// thread pool to execute tasks pushed to logical threads. Executing
 /// long-running processes or using synchronization primitives with high
-/// contention or long timeouts can hinder the logical thread scheduler's
+/// contention or long timeouts can hinder the logical thread schedulers
 /// ability to schedule the actions of other logical threads. Like other
 /// thread pool implementations, you can mitigate this by increasing the
 /// maximum thread count of the logical thread scheduler, however it is
@@ -147,7 +125,7 @@ public class LogicalThreadStatistics
 /// the same logical thread.
 /// </para>
 /// </remarks>
-public class LogicalThread
+internal class LogicalThread
 {
     #region [ Members ]
 
@@ -156,13 +134,13 @@ public class LogicalThread
     /// <summary>
     /// Handler for unhandled exceptions on the thread.
     /// </summary>
-    public event EventHandler<EventArgs<Exception>> UnhandledException;
+    public event EventHandler<EventArgs<Exception>>? UnhandledException;
 
     // Fields
-    private LogicalThreadScheduler m_scheduler;
-    private ConcurrentQueue<Action>[] m_queues;
-    private Dictionary<object, object> m_threadLocalStorage;
-    private ICancellationToken m_nextExecutionToken;
+    private readonly LogicalThreadScheduler m_scheduler;
+    private readonly ConcurrentQueue<Action>[] m_queues;
+    private readonly Dictionary<object, object> m_threadLocalStorage;
+    private ICancellationToken? m_nextExecutionToken;
     private int m_activePriority;
 
     private LogicalThreadStatistics m_statistics;
@@ -175,7 +153,7 @@ public class LogicalThread
     /// Creates a new instance of the <see cref="LogicalThread"/> class.
     /// </summary>
     public LogicalThread()
-        : this(DefaultScheduler)
+        : this(s_defaultScheduler)
     {
     }
 
@@ -184,15 +162,13 @@ public class LogicalThread
     /// </summary>
     /// <param name="scheduler">The <see cref="LogicalThreadScheduler"/> that created this thread.</param>
     /// <exception cref="ArgumentNullException"><paramref name="scheduler"/> is null.</exception>
-    internal LogicalThread(LogicalThreadScheduler scheduler)
+    internal LogicalThread(LogicalThreadScheduler? scheduler)
     {
-        if ((object)scheduler == null)
-            throw new ArgumentNullException(nameof(scheduler));
-
-        m_scheduler = scheduler;
+        m_scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
         m_queues = new ConcurrentQueue<Action>[PriorityLevels];
         m_threadLocalStorage = new Dictionary<object, object>();
-        //m_nextExecutionToken = new CancellationToken();
+        m_nextExecutionToken = new CancellationToken();
+
         m_statistics = new LogicalThreadStatistics();
 
         for (int i = 0; i < m_queues.Length; i++)
@@ -207,25 +183,13 @@ public class LogicalThread
     /// Gets the number of levels of priority
     /// supported by this logical thread.
     /// </summary>
-    public int PriorityLevels
-    {
-        get
-        {
-            return m_scheduler.PriorityLevels;
-        }
-    }
+    public int PriorityLevels => m_scheduler.PriorityLevels;
 
     /// <summary>
     /// Gets a flag that indicates whether the logical
     /// thread has any unprocessed actions left in its queue.
     /// </summary>
-    public bool HasAction
-    {
-        get
-        {
-            return m_queues.Any(queue => !queue.IsEmpty);
-        }
-    }
+    public bool HasAction => m_queues.Any(queue => !queue.IsEmpty);
 
     /// <summary>
     /// Gets or sets the priority at which the
@@ -233,41 +197,23 @@ public class LogicalThread
     /// </summary>
     internal int ActivePriority
     {
-        get
-        {
-            return Interlocked.CompareExchange(ref m_activePriority, 0, 0);
-        }
-        set
-        {
-            Interlocked.Exchange(ref m_activePriority, value);
-        }
+        get => Interlocked.CompareExchange(ref m_activePriority, 0, 0);
+        set => Interlocked.Exchange(ref m_activePriority, value);
     }
 
     /// <summary>
     /// Gets the priority of the next action to be processed on this logical thread.
     /// </summary>
-    internal int NextPriority
-    {
-        get
-        {
-            return PriorityLevels - m_queues.TakeWhile(queue => queue.IsEmpty).Count();
-        }
-    }
+    internal int NextPriority => PriorityLevels - m_queues.TakeWhile(queue => queue.IsEmpty).Count();
 
     /// <summary>
     /// Gets or sets the cancellation token for the next time
     /// the thread's actions will be executed by the scheduler.
     /// </summary>
-    internal ICancellationToken NextExecutionToken
+    internal ICancellationToken? NextExecutionToken
     {
-        get
-        {
-            return Interlocked.CompareExchange(ref m_nextExecutionToken, null, null);
-        }
-        set
-        {
-            Interlocked.Exchange(ref m_nextExecutionToken, value);
-        }
+        get => Interlocked.CompareExchange(ref m_nextExecutionToken, null, null);
+        set => Interlocked.Exchange(ref m_nextExecutionToken, value);
     }
 
     #endregion
@@ -303,12 +249,10 @@ public class LogicalThread
     /// </summary>
     public void Clear()
     {
-        Action action;
-
         foreach (ConcurrentQueue<Action> queue in m_queues)
         {
             while (!queue.IsEmpty)
-                queue.TryDequeue(out action);
+                queue.TryDequeue(out _);
         }
     }
 
@@ -326,13 +270,11 @@ public class LogicalThread
     /// Pulls an action from the logical thread's internal queue to be executed on a physical thread.
     /// </summary>
     /// <returns>An action from the logical thread's internal queue.</returns>
-    internal Action Pull()
+    internal Action? Pull()
     {
-        Action action;
-
         foreach (ConcurrentQueue<Action> queue in m_queues)
         {
-            if (queue.TryDequeue(out action))
+            if (queue.TryDequeue(out Action? action))
                 return action;
         }
 
@@ -344,15 +286,13 @@ public class LogicalThread
     /// </summary>
     /// <param name="priority">The priority at which to activate the thread.</param>
     /// <returns>True if the thread's priority needs to be changed to the given priority; false otherwise.</returns>
-    // TODO: ICancellationToken
     internal bool TryActivate(int priority)
     {
         // Always get the execution token before the
         // active priority to mitigate race conditions
-        ICancellationToken nextExecutionToken = NextExecutionToken;
+        ICancellationToken? nextExecutionToken = NextExecutionToken;
         int activePriority = ActivePriority;
-        return (activePriority < priority) && nextExecutionToken.Cancel();
-        return true;
+        return activePriority < priority && (nextExecutionToken?.Cancel() ?? false);
     }
 
     /// <summary>
@@ -363,7 +303,7 @@ public class LogicalThread
         // Always update the active priority before the
         // execution token to mitigate race conditions
         ActivePriority = 0;
-        //NextExecutionToken = new CancellationToken();
+        NextExecutionToken = new CancellationToken();
     }
 
     /// <summary>
@@ -371,10 +311,9 @@ public class LogicalThread
     /// </summary>
     /// <param name="key">The key used to look up the thread local object.</param>
     /// <returns>The value of the thread local object with the given ID.</returns>
-    internal object GetThreadLocal(object key)
+    internal object? GetThreadLocal(object key)
     {
-        object value;
-        m_threadLocalStorage.TryGetValue(key, out value);
+        m_threadLocalStorage.TryGetValue(key, out object? value);
         return value;
     }
 
@@ -383,9 +322,9 @@ public class LogicalThread
     /// </summary>
     /// <param name="key">The key used to look up the thread local object.</param>
     /// <param name="value">The new value for the thread local object.</param>
-    internal void SetThreadLocal(object key, object value)
+    internal void SetThreadLocal(object key, object? value)
     {
-        if (value != null)
+        if (value is not null)
             m_threadLocalStorage[key] = value;
         else
             m_threadLocalStorage.Remove(key);
@@ -407,9 +346,9 @@ public class LogicalThread
     /// <returns>True if there are any handlers attached to this event; false otherwise.</returns>
     internal bool OnUnhandledException(Exception ex)
     {
-        EventHandler<EventArgs<Exception>> unhandledException = UnhandledException;
+        EventHandler<EventArgs<Exception>>? unhandledException = UnhandledException;
 
-        if ((object)unhandledException == null)
+        if (unhandledException is null)
             return false;
 
         unhandledException(this, new EventArgs<Exception>(ex));
@@ -422,24 +361,18 @@ public class LogicalThread
     #region [ Static ]
 
     // Static Fields
-    private static readonly LogicalThreadScheduler DefaultScheduler = new LogicalThreadScheduler();
-    private static readonly ThreadLocal<LogicalThread> LocalThread = new ThreadLocal<LogicalThread>();
+    private static readonly LogicalThreadScheduler s_defaultScheduler = new();
+    private static readonly ThreadLocal<LogicalThread?> s_localThread = new();
 
     // Static Properties
 
     /// <summary>
     /// Gets the logical thread that is currently executing.
     /// </summary>
-    public static LogicalThread CurrentThread
+    public static LogicalThread? CurrentThread
     {
-        get
-        {
-            return LocalThread.Value;
-        }
-        internal set
-        {
-            LocalThread.Value = value;
-        }
+        get => s_localThread.Value;
+        internal set => s_localThread.Value = value;
     }
 
     #endregion
@@ -448,15 +381,17 @@ public class LogicalThread
 /// <summary>
 /// Defines extensions for the <see cref="LogicalThread"/> class.
 /// </summary>
-public static class LogicalThreadExtensions
+internal static class LogicalThreadExtensions
 {
     /// <summary>
     /// Creates an awaitable that ensures the continuation is running on the logical thread.
     /// </summary>
     /// <param name="thread">The thread to join.</param>
     /// <returns>A context that, when awaited, runs on the logical thread.</returns>
-    public static LogicalThreadAwaitable Join(this LogicalThread thread) =>
-        new LogicalThreadAwaitable(thread);
+    public static LogicalThreadAwaitable Join(this LogicalThread thread)
+    {
+        return new LogicalThreadAwaitable(thread);
+    }
 
     /// <summary>
     /// Creates an awaitable that ensures the continuation is running on the logical thread.
@@ -464,8 +399,10 @@ public static class LogicalThreadExtensions
     /// <param name="thread">The thread to join.</param>
     /// <param name="priority">The priority of the continuation when completing asynchronously.</param>
     /// <returns>A context that, when awaited, runs on the logical thread.</returns>
-    public static LogicalThreadAwaitable Join(this LogicalThread thread, int priority) =>
-        new LogicalThreadAwaitable(thread, priority);
+    public static LogicalThreadAwaitable Join(this LogicalThread thread, int priority)
+    {
+        return new LogicalThreadAwaitable(thread, priority);
+    }
 
     /// <summary>
     /// Creates an awaitable that asynchronously yields
@@ -473,8 +410,10 @@ public static class LogicalThreadExtensions
     /// </summary>
     /// <param name="thread">The thread to yield to.</param>
     /// <returns>A context that, when awaited, will transition to a new action on the logical thread.</returns>
-    public static LogicalThreadAwaitable Yield(this LogicalThread thread) =>
-        new LogicalThreadAwaitable(thread, forceYield: true);
+    public static LogicalThreadAwaitable Yield(this LogicalThread thread)
+    {
+        return new LogicalThreadAwaitable(thread, forceYield: true);
+    }
 
     /// <summary>
     /// Creates an awaitable that asynchronously yields
@@ -483,8 +422,10 @@ public static class LogicalThreadExtensions
     /// <param name="thread">The thread to yield to.</param>
     /// <param name="priority">The priority of the continuation.</param>
     /// <returns>A context that, when awaited, will transition to a new action on the logical thread.</returns>
-    public static LogicalThreadAwaitable Yield(this LogicalThread thread, int priority) =>
-        new LogicalThreadAwaitable(thread, priority, true);
+    public static LogicalThreadAwaitable Yield(this LogicalThread thread, int priority)
+    {
+        return new LogicalThreadAwaitable(thread, priority, true);
+    }
 
     /// <summary>
     /// Provides an awaitable context for switching into a target environment.
@@ -512,8 +453,10 @@ public static class LogicalThreadExtensions
             /// Creates a new instance of the <see cref="LogicalThreadAwaiter"/> class.
             /// </summary>
             /// <param name="awaitable">The awaitable that spawned this awaiter.</param>
-            public LogicalThreadAwaiter(LogicalThreadAwaitable awaitable) =>
+            public LogicalThreadAwaiter(LogicalThreadAwaitable awaitable)
+            {
                 Awaitable = awaitable;
+            }
 
             /// <summary>
             /// Gets whether a yield is not required.
@@ -521,22 +464,25 @@ public static class LogicalThreadExtensions
             /// <remarks>
             /// This property is intended for compiler user rather than use directly in code.
             /// </remarks>
-            public bool IsCompleted =>
-                !Awaitable.ForceYield &&
-                Awaitable.Thread == LogicalThread.CurrentThread;
+            public bool IsCompleted
+            {
+                get
+                {
+                    return !Awaitable.ForceYield && Awaitable.Thread == LogicalThread.CurrentThread;
+                }
+            }
 
             /// <summary>
             /// Posts the <paramref name="continuation"/> back to the current context.
             /// </summary>
             /// <param name="continuation">The action to invoke asynchronously.</param>
-            /// <exception cref="System.ArgumentNullException">The <paramref name="continuation"/> argument is null.</exception>
+            /// <exception cref="ArgumentNullException">The <paramref name="continuation"/> argument is null.</exception>
             public void OnCompleted(Action continuation)
             {
                 if (continuation is null)
                     throw new ArgumentNullException(nameof(continuation));
 
-                LogicalThread thread = Awaitable.Thread
-                                       ?? new LogicalThread();
+                LogicalThread thread = Awaitable.Thread ?? new LogicalThread();
 
                 int priority = Awaitable.Priority;
 
@@ -564,7 +510,7 @@ public static class LogicalThreadExtensions
         /// <param name="thread">The thread on which to push continuations.</param>
         /// <param name="priority">The priority of continuations pushed to the thread.</param>
         /// <param name="forceYield">Force continuations to complete asynchronously.</param>
-        public LogicalThreadAwaitable(LogicalThread thread, int priority = 0, bool forceYield = false)
+        public LogicalThreadAwaitable(LogicalThread? thread, int priority = 0, bool forceYield = false)
         {
             Thread = thread;
             Priority = priority;
@@ -575,8 +521,10 @@ public static class LogicalThreadExtensions
 
         #region [ Properties ]
 
-        private LogicalThread Thread { get; }
+        private LogicalThread? Thread { get; }
+        
         private int Priority { get; }
+
         private bool ForceYield { get; }
 
         #endregion
@@ -588,8 +536,10 @@ public static class LogicalThreadExtensions
         /// </summary>
         /// <returns>An awaiter for this awaitable.</returns>
         /// <remarks>This method is intended for compiler user rather than use directly in code.</remarks>
-        public LogicalThreadAwaiter GetAwaiter() =>
-            new LogicalThreadAwaiter(this);
+        public LogicalThreadAwaiter GetAwaiter()
+        {
+            return new LogicalThreadAwaiter(this);
+        }
 
         #endregion
     }

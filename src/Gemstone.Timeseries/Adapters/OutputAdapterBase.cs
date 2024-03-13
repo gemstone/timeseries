@@ -29,13 +29,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
+using Gemstone.Threading.Collections;
 using Gemstone.Threading.SynchronizedOperations;
 
 namespace Gemstone.Timeseries.Adapters;
@@ -66,14 +67,14 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// <see cref="EventArgs{T}.Argument"/> is total number of unprocessed measurements.
     /// </para>
     /// </remarks>
-    public event EventHandler<EventArgs<int>> UnprocessedMeasurements;
+    public event EventHandler<EventArgs<int>>? UnprocessedMeasurements;
 
     // Fields
-    private List<string> m_inputSourceIDs;
+    private List<string>? m_inputSourceIDs;
     private readonly LongSynchronizedOperation m_connectionOperation;
-    private SharedTimer m_connectionTimer;
-    private SharedTimer m_monitorTimer;
-    private string m_connectionInfo;
+    private readonly SharedTimer m_connectionTimer;
+    private readonly SharedTimer m_monitorTimer;
+    private string? m_connectionInfo;
     private bool m_disposed;
 
     #endregion
@@ -83,35 +84,35 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// <summary>
     /// Constructs a new instance of the <see cref="OutputAdapterBase"/>.
     /// </summary>
-    //protected OutputAdapterBase()
-    //{
-    //    MetadataRefreshOperation = new LongSynchronizedOperation(ExecuteMetadataRefresh)
-    //    {
-    //        IsBackground = true
-    //    };
+    protected OutputAdapterBase()
+    {
+        MetadataRefreshOperation = new LongSynchronizedOperation(ExecuteMetadataRefresh)
+        {
+            IsBackground = true
+        };
 
-    //    InternalProcessQueue = ProcessQueue<IMeasurement>.CreateRealTimeQueue(ProcessMeasurements);
-    //    InternalProcessQueue.ProcessException += m_measurementQueue_ProcessException;
+        InternalProcessQueue = ProcessQueue<IMeasurement>.CreateRealTimeQueue(ProcessMeasurements);
+        InternalProcessQueue.ProcessException += m_measurementQueue_ProcessException;
 
-    //    m_connectionOperation = new LongSynchronizedOperation(AttemptConnectionOperation)
-    //    {
-    //        IsBackground = true
-    //    };
+        m_connectionOperation = new LongSynchronizedOperation(AttemptConnectionOperation)
+        {
+            IsBackground = true
+        };
 
-    //    m_connectionTimer = Common.TimerScheduler.CreateTimer(2000);
-    //    m_connectionTimer.Elapsed += m_connectionTimer_Elapsed;
+        m_connectionTimer = Common.TimerScheduler.CreateTimer(2000);
+        m_connectionTimer.Elapsed += m_connectionTimer_Elapsed;
 
-    //    m_connectionTimer.AutoReset = false;
-    //    m_connectionTimer.Enabled = false;
+        m_connectionTimer.AutoReset = false;
+        m_connectionTimer.Enabled = false;
 
-    //    // We monitor total number of unarchived measurements every 5 seconds - this is a useful statistic to monitor, if
-    //    // total number of unarchived measurements gets very large, measurement archival could be falling behind
-    //    m_monitorTimer = Common.TimerScheduler.CreateTimer(5000);
-    //    m_monitorTimer.Elapsed += m_monitorTimer_Elapsed;
+        // We monitor total number of unarchived measurements every 5 seconds - this is a useful statistic to monitor, if
+        // total number of unarchived measurements gets very large, measurement archival could be falling behind
+        m_monitorTimer = Common.TimerScheduler.CreateTimer(5000);
+        m_monitorTimer.Elapsed += m_monitorTimer_Elapsed;
 
-    //    m_monitorTimer.AutoReset = true;
-    //    m_monitorTimer.Enabled = false;
-    //}
+        m_monitorTimer.AutoReset = true;
+        m_monitorTimer.Enabled = false;
+    }
 
     #endregion
 
@@ -120,7 +121,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// <summary>
     /// Gets or sets <see cref="DataSet"/> based data source available to this <see cref="OutputAdapterBase"/>.
     /// </summary>
-    public override DataSet DataSource
+    public override DataSet? DataSource
     {
         get => base.DataSource;
         set
@@ -130,18 +131,18 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
         }
     }
 
-    ///// <summary>
-    ///// Gets or sets whether or not to automatically place measurements back into the processing
-    ///// queue if an exception occurs while processing.  Defaults to false.
-    ///// </summary>
-    //[ConnectionStringParameter]
-    //[Description("Defines whether or not to automatically place measurements back into the processing queue if an exception occurs while processing.  Defaults to false.")]
-    //[DefaultValue(false)]
-    //public virtual bool RequeueOnException
-    //{
-    //    get => InternalProcessQueue.RequeueOnException;
-    //    set => InternalProcessQueue.RequeueOnException = value;
-    //}
+    /// <summary>
+    /// Gets or sets whether or not to automatically place measurements back into the processing
+    /// queue if an exception occurs while processing.  Defaults to false.
+    /// </summary>
+    [ConnectionStringParameter]
+    [Description("Defines whether or not to automatically place measurements back into the processing queue if an exception occurs while processing.  Defaults to false.")]
+    [DefaultValue(false)]
+    public virtual bool RequeueOnException
+    {
+        get => InternalProcessQueue.RequeueOnException;
+        set => InternalProcessQueue.RequeueOnException = value;
+    }
 
     /// <summary>
     /// Gets or sets <see cref="MeasurementKey.Source"/> values used to filter input measurements.
@@ -150,7 +151,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> apply no filter.
     /// </remarks>
-    public virtual string[] InputSourceIDs
+    public virtual string[]? InputSourceIDs
     {
         get => m_inputSourceIDs?.ToArray();
         set
@@ -173,7 +174,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// <summary>
     /// Gets or sets input measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    public virtual MeasurementKey[] RequestedInputMeasurementKeys { get; set; }
+    public virtual MeasurementKey[]? RequestedInputMeasurementKeys { get; set; }
 
     /// <summary>
     /// Gets the flag that determines if measurements sent to this <see cref="OutputAdapterBase"/> are destined for archival.
@@ -190,7 +191,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// </summary>
     /// <remarks>
     /// For output adapters that archive data it is assumed that the desired behavior will be to not support temporal processing
-    /// since the data being processed has already been archived (i.e., no need to attempt to rearchive old data). As a result
+    /// since the data being processed has already been archived (i.e., no need to attempt to re-archive old data). As a result
     /// the default behavior for an output adapter is to not support temporal processing when <see cref="OutputIsForArchive"/>
     /// is <c>true</c>. If you have an output adapter that you want to support temporal data processing independent of the
     /// <see cref="OutputIsForArchive"/> value, then override this property and force the base value to the desired state.
@@ -215,44 +216,44 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
 
             base.ProcessingInterval = value;
             bool enabled = false;
-            //bool requeueOnException = ProcessQueue<IMeasurement>.DefaultRequeueOnException;
+            bool requeueOnException = ProcessQueue<IMeasurement>.DefaultRequeueOnException;
             IMeasurement[] unprocessedMeasurements = null;
 
-            //if (InternalProcessQueue is not null)
-            //{
-            //    enabled = InternalProcessQueue.Enabled;
-            //    //requeueOnException = InternalProcessQueue.RequeueOnException;
+            if (InternalProcessQueue is not null)
+            {
+                enabled = InternalProcessQueue.Enabled;
+                requeueOnException = InternalProcessQueue.RequeueOnException;
 
-            //    if (InternalProcessQueue.Count > 0)
-            //    {
-            //        InternalProcessQueue.Stop();
-            //        unprocessedMeasurements = InternalProcessQueue.ToArray();
-            //    }
+                if (InternalProcessQueue.Count > 0)
+                {
+                    InternalProcessQueue.Stop();
+                    unprocessedMeasurements = InternalProcessQueue.ToArray();
+                }
 
-            //    InternalProcessQueue.ProcessException -= m_measurementQueue_ProcessException;
-            //    InternalProcessQueue.Dispose();
-            //}
+                InternalProcessQueue.ProcessException -= m_measurementQueue_ProcessException;
+                InternalProcessQueue.Dispose();
+            }
 
-            //if (value <= 0)
-            //{
-            //    // The default processing interval is "as fast as possible"
-            //    //InternalProcessQueue = ProcessQueue<IMeasurement>.CreateRealTimeQueue(ProcessMeasurements);
-            //}
-            //else
-            //{
-            //    // Set the desired processing interval
-            //    //InternalProcessQueue = ProcessQueue<IMeasurement>.CreateSynchronousQueue(ProcessMeasurements);
-            //    InternalProcessQueue.ProcessInterval = value;
-            //}
+            if (value <= 0)
+            {
+                // The default processing interval is "as fast as possible"
+                InternalProcessQueue = ProcessQueue<IMeasurement>.CreateRealTimeQueue(ProcessMeasurements);
+            }
+            else
+            {
+                // Set the desired processing interval
+                InternalProcessQueue = ProcessQueue<IMeasurement>.CreateSynchronousQueue(ProcessMeasurements);
+                InternalProcessQueue.ProcessInterval = value;
+            }
 
-            //InternalProcessQueue.ProcessException += m_measurementQueue_ProcessException;
-            ////InternalProcessQueue.RequeueOnException = requeueOnException;
+            InternalProcessQueue.ProcessException += m_measurementQueue_ProcessException;
+            InternalProcessQueue.RequeueOnException = requeueOnException;
 
-            //// Requeue any existing measurements
-            //if (unprocessedMeasurements is not null && unprocessedMeasurements.Length > 0)
-            //    InternalProcessQueue.AddRange(unprocessedMeasurements);
+            // Requeue any existing measurements
+            if (unprocessedMeasurements is not null && unprocessedMeasurements.Length > 0)
+                InternalProcessQueue.AddRange(unprocessedMeasurements);
 
-            //InternalProcessQueue.Enabled = enabled;
+            InternalProcessQueue.Enabled = enabled;
         }
     }
 
@@ -291,7 +292,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// <summary>
     /// Allows derived class access to internal processing queue.
     /// </summary>
-    //protected ProcessQueue<IMeasurement> InternalProcessQueue { get; private set; }
+    protected ProcessQueue<IMeasurement> InternalProcessQueue { get; private set; }
 
     /// <summary>
     /// Returns the detailed status of the data input source.  Derived classes should extend status with implementation specific information.
@@ -323,7 +324,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
             status.AppendLine($"     Source ID filter list: {(m_inputSourceIDs is null ? "[No filter applied]" : m_inputSourceIDs.ToDelimitedString(','))}");
             status.AppendLine($"   Asynchronous connection: {UseAsyncConnect}");
             status.AppendLine($"     Output is for archive: {OutputIsForArchive}");
-            //status.Append(InternalProcessQueue.Status);
+            status.Append(InternalProcessQueue.Status);
 
             return status.ToString();
         }
@@ -359,26 +360,14 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
             if (!disposing)
                 return;
 
-            //if (m_connectionTimer is not null)
-            //{
-            //    m_connectionTimer.Elapsed -= m_connectionTimer_Elapsed;
-            //    m_connectionTimer.Dispose();
-            //}
-            //m_connectionTimer = null;
+            m_connectionTimer.Elapsed -= m_connectionTimer_Elapsed;
+            m_connectionTimer.Dispose();
 
-            //if (m_monitorTimer is not null)
-            //{
-            //    m_monitorTimer.Elapsed -= m_monitorTimer_Elapsed;
-            //    m_monitorTimer.Dispose();
-            //}
-            m_monitorTimer = null;
+            m_monitorTimer.Elapsed -= m_monitorTimer_Elapsed;
+            m_monitorTimer.Dispose();
 
-            //if (InternalProcessQueue is not null)
-            //{
-            //    InternalProcessQueue.ProcessException -= m_measurementQueue_ProcessException;
-            //    InternalProcessQueue.Dispose();
-            //}
-            //InternalProcessQueue = null;
+            InternalProcessQueue.ProcessException -= m_measurementQueue_ProcessException;
+            InternalProcessQueue.Dispose();
         }
         finally
         {
@@ -402,8 +391,8 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
         else
             InputSourceIDs = null;
 
-        //if (settings.TryGetValue(nameof(RequeueOnException), out setting))
-        //    RequeueOnException = setting.ParseBoolean();
+        if (settings.TryGetValue(nameof(RequeueOnException), out setting))
+            RequeueOnException = setting.ParseBoolean();
 
         // Start data monitor...
         m_monitorTimer?.Start();
@@ -413,16 +402,19 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// Initiates request for metadata refresh for <see cref="OutputAdapterBase"/>, if implemented.
     /// </summary>
     [AdapterCommand("Requests metadata refresh of output adapter.", "Administrator", "Editor")]
-    [SuppressMessage("SonarQube.Miscellaneous", "S1656", Justification = "Self assignment of \"InputSourceIDs\" initiates parse and load of source IDs.")]
     public void RefreshMetadata()
     {
         // Force a recalculation of input measurement keys so that system can appropriately update routing tables
-        InputMeasurementKeys = Settings.TryGetValue(nameof(InputMeasurementKeys), out string setting) ?
+        InputMeasurementKeys = Settings.TryGetValue(nameof(InputMeasurementKeys), out string? setting) ?
             ParseInputMeasurementKeys(DataSource, true, setting) :
             Array.Empty<MeasurementKey>();
 
+        // Self assignment of InputSourceIDs initiates parse and load of source IDs.
+        #pragma warning disable CA2245
         InputSourceIDs = InputSourceIDs;
-        //MetadataRefreshOperation.RunOnceAsync();
+        #pragma warning restore CA2245
+
+        MetadataRefreshOperation.RunAsync();
     }
 
     /// <summary>
@@ -466,7 +458,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     protected virtual void OnConnected()
     {
         // Start data processing thread
-        //InternalProcessQueue?.Start();
+        InternalProcessQueue?.Start();
         OnStatusMessage(MessageLevel.Info, "Connection established.", "Connecting");
     }
 
@@ -486,7 +478,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
             base.Stop();
 
             // Stop data processing thread
-            //InternalProcessQueue.Stop();
+            InternalProcessQueue.Stop();
 
             // Attempt disconnection from historian (e.g., consumer to call historian API disconnect function)
             AttemptDisconnection();
@@ -535,7 +527,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
             return;
 
         IMeasurement[] collection = measurements as IMeasurement[] ?? measurements.ToArray();
-        //InternalProcessQueue.AddRange(collection);
+        InternalProcessQueue.AddRange(collection);
         IncrementProcessedMeasurements(collection.Length);
     }
 
@@ -587,27 +579,27 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
         if (m_disposed)
             return;
 
-        //lock (InternalProcessQueue.SyncRoot)
-        //    InternalProcessQueue.RemoveRange(0, Math.Min(total, InternalProcessQueue.Count));
+        lock (InternalProcessQueue.SyncRoot)
+            InternalProcessQueue.RemoveRange(0, Math.Min(total, InternalProcessQueue.Count));
     }
 
-    ///// <summary>
-    ///// Blocks the current thread, if the <see cref="OutputAdapterBase"/> is connected, until all items
-    ///// in <see cref="OutputAdapterBase"/> queue are processed, and then stops processing.
-    ///// </summary>
-    ///// <remarks>
-    ///// <para>
-    ///// It is possible for items to be added to the queue while the flush is executing. The flush will continue to
-    ///// process items as quickly as possible until the queue is empty. Unless the user stops queuing items to be
-    ///// processed, the flush call may never return (not a happy situation on shutdown).
-    ///// </para>
-    ///// <para>
-    ///// The <see cref="OutputAdapterBase"/> does not clear queue prior to destruction. If the user fails to call
-    ///// this method before the class is destructed, there may be items that remain unprocessed in the queue.
-    ///// </para>
-    ///// </remarks>
-    //public virtual void Flush() =>
-    //    InternalProcessQueue?.Flush();
+    /// <summary>
+    /// Blocks the current thread, if the <see cref="OutputAdapterBase"/> is connected, until all items
+    /// in <see cref="OutputAdapterBase"/> queue are processed, and then stops processing.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// It is possible for items to be added to the queue while the flush is executing. The flush will continue to
+    /// process items as quickly as possible until the queue is empty. Unless the user stops queuing items to be
+    /// processed, the flush call may never return (not a happy situation on shutdown).
+    /// </para>
+    /// <para>
+    /// The <see cref="OutputAdapterBase"/> does not clear queue prior to destruction. If the user fails to call
+    /// this method before the class is destructed, there may be items that remain unprocessed in the queue.
+    /// </para>
+    /// </remarks>
+    public virtual void Flush() =>
+        InternalProcessQueue?.Flush();
 
     /// <summary>
     /// Raises the <see cref="UnprocessedMeasurements"/> event.
@@ -615,15 +607,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// <param name="unprocessedMeasurements">Total measurements in the queue that have not been processed.</param>
     protected virtual void OnUnprocessedMeasurements(int unprocessedMeasurements)
     {
-        try
-        {
-            UnprocessedMeasurements?.Invoke(this, new EventArgs<int>(unprocessedMeasurements));
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(UnprocessedMeasurements)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        UnprocessedMeasurements?.SafeInvoke(this, new EventArgs<int>(unprocessedMeasurements));
     }
 
     private void AttemptConnectionOperation()
@@ -660,16 +644,22 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
         }
     }
 
-    //private void m_connectionTimer_Elapsed(object sender, EventArgs<DateTime> e) =>
-    //    m_connectionOperation.TryRunOnceAsync();
+    private void m_connectionTimer_Elapsed(object? sender, EventArgs<DateTime> e)
+    {
+        m_connectionOperation.TryRunAsync();
+    }
 
-    //// All we do here is expose the total number of unarchived measurements in the queue
-    //private void m_monitorTimer_Elapsed(object sender, EventArgs<DateTime> e) =>
-    //    OnUnprocessedMeasurements(InternalProcessQueue.Count);
+    // All we do here is expose the total number of unarchived measurements in the queue
+    private void m_monitorTimer_Elapsed(object? sender, EventArgs<DateTime> e)
+    {
+        OnUnprocessedMeasurements(InternalProcessQueue.Count);
+    }
 
     // Bubble any exceptions occurring in the process queue to the base class event
-    private void m_measurementQueue_ProcessException(object sender, EventArgs<Exception> e) =>
+    private void m_measurementQueue_ProcessException(object? sender, EventArgs<Exception> e)
+    {
         OnProcessException(MessageLevel.Info, e.Argument);
+    }
 
     #endregion
 }

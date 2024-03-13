@@ -30,6 +30,7 @@ using System.Data;
 using System.Linq;
 using Gemstone.Data.DataExtensions;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -45,7 +46,7 @@ public class FilterAdapterCollection : AdapterCollectionBase<IFilterAdapter>, IF
     /// <summary>
     /// Provides notification of change in collection count.
     /// </summary>
-    public event EventHandler CollectionCountChanged;
+    public event EventHandler? CollectionCountChanged;
 
     // Fields
     private List<IFilterAdapter> m_sortedFilterAdapters;
@@ -178,15 +179,7 @@ public class FilterAdapterCollection : AdapterCollectionBase<IFilterAdapter>, IF
     /// </summary>
     protected virtual void OnCollectionCountChanged()
     {
-        try
-        {
-            CollectionCountChanged?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(CollectionCountChanged)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        CollectionCountChanged?.SafeInvoke(this, EventArgs.Empty);
     }
 
     #endregion

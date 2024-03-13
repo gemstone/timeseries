@@ -24,32 +24,12 @@
 //******************************************************************************************************
 
 using System;
-using Gemstone.Diagnostics;
-using Gemstone.Security;
 
 namespace Gemstone.Timeseries.Model;
 
 internal class GlobalSettings
 {
-    //public Guid NodeID => AdoSecurityProvider.DefaultNodeID;
+    public Guid NodeID => Settings.Instance.NodeID;
 
-    public string CompanyAcronym => s_companyAcronym;
-
-    private static readonly string s_companyAcronym;
-
-    static GlobalSettings()
-    {
-        try
-        {
-            //CategorizedSettingsElementCollection systemSettings = ConfigurationFile.Current.Settings[nameof(systemSettings)];
-            //s_companyAcronym = systemSettings[nameof(CompanyAcronym)]?.Value;
-        }
-        catch (Exception ex)
-        {
-            Logger.SwallowException(ex, "Failed to initialize default company acronym");
-        }
-
-        if (string.IsNullOrWhiteSpace(s_companyAcronym))
-            s_companyAcronym = "GPA";
-    }
+    public string CompanyAcronym => Settings.Instance.CompanyAcronym;
 }

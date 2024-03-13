@@ -25,13 +25,11 @@
 //
 //******************************************************************************************************
 
-using System;
 using System.Reflection;
-using Gemstone.Units;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedParameter.Local
-namespace Gemstone.TimeSeries.Statistics;
+namespace Gemstone.Timeseries.Statistics;
 
 internal static class GatewayStatistics
 {
@@ -46,7 +44,7 @@ internal static class GatewayStatistics
         MethodInfo method = source.GetType().GetMethod(name);
         return method is not null ? (T)method.Invoke(source, parameters) : default;
     }
-    // TODO: implement Transport
+    // TODO: This is for GEP? Still needed since STTP exists?
     /*
     #region [ Subscriber Statistics ]
 

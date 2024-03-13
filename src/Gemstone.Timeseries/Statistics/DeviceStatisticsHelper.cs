@@ -33,9 +33,8 @@ using System.Numerics;
 using System.Threading;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Diagnostics;
-using Gemstone.Timeseries;
 
-namespace Gemstone.TimeSeries.Statistics;
+namespace Gemstone.Timeseries.Statistics;
 
 internal static class GlobalDeviceStatistics
 {
@@ -44,22 +43,16 @@ internal static class GlobalDeviceStatistics
         public long Ticks;
     }
 
-    private const double DefaultMedianTimestampDeviation = 30.0D;
-
     private static readonly BigInteger s_medianTimestampDeviation;
     private static readonly ConcurrentDictionary<IDevice, LatestDeviceTime> s_latestDeviceTimes;
-    private static Dictionary<IDevice, long> s_deviceTimesSnapshot;
+    private static Dictionary<IDevice, long> s_deviceTimesSnapshot = default!;
     private static long s_snapshotTime;
     private static readonly BigInteger s_bigTwo;
     private static readonly BigInteger s_bigMaxLong;
 
     static GlobalDeviceStatistics()
     {
-        //CategorizedSettingsElementCollection settings = ConfigurationFile.Current.Settings["systemSettings"];
-
-        //settings.Add("MedianTimestampDeviation", DefaultMedianTimestampDeviation, "Maximum allowed deviation from median timestamp, in seconds, for consideration in average timestamp calculation.");
-
-        //s_medianTimestampDeviation = new BigInteger(Ticks.FromSeconds(settings["MedianTimestampDeviation"].ValueAs(DefaultMedianTimestampDeviation)).Value);
+        s_medianTimestampDeviation = new BigInteger(Ticks.FromSeconds(Settings.Instance.MedianTimestampDeviation));
         s_latestDeviceTimes = new ConcurrentDictionary<IDevice, LatestDeviceTime>();
         s_bigTwo = new BigInteger(2);
         s_bigMaxLong = new BigInteger(long.MaxValue);
@@ -87,19 +80,19 @@ internal static class GlobalDeviceStatistics
             latestDeviceTime.Ticks = ticks;
     }
 
-    private static void StatisticsEngine_SourceRegistered(object sender, EventArgs<object> e)
+    private static void StatisticsEngine_SourceRegistered(object? sender, EventArgs<object> e)
     {
         if (e.Argument is IDevice device)
             s_latestDeviceTimes[device] = new LatestDeviceTime();
     }
 
-    private static void StatisticsEngine_SourceUnregistered(object sender, EventArgs<object> e)
+    private static void StatisticsEngine_SourceUnregistered(object? sender, EventArgs<object> e)
     {
         if (e.Argument is IDevice device)
             s_latestDeviceTimes.TryRemove(device, out _);
     }
 
-    private static void StatisticsEngine_BeforeCalculate(object sender, EventArgs e)
+    private static void StatisticsEngine_BeforeCalculate(object? sender, EventArgs e)
     {
         try
         {
@@ -117,7 +110,7 @@ internal static class GlobalDeviceStatistics
                     // Filter any timestamps that are outside configured max deviation from the median (defaults to 30 seconds)
                     Array.Sort(deviceTimes);
 
-                    BigInteger[] medians = deviceTimes.Median().Select(value => new BigInteger(value)).ToArray();
+                    BigInteger[] medians = deviceTimes.Median()!.Select(value => new BigInteger(value)).ToArray();
                     BigInteger median = medians.Length == 2 ? (medians[0] + medians[1]) / s_bigTwo : medians[0];
                     BigInteger lowerBound = median - s_medianTimestampDeviation;
                     BigInteger upperBound = median + s_medianTimestampDeviation;

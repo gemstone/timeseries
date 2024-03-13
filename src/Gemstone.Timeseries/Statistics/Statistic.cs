@@ -27,7 +27,7 @@
 
 using System;
 
-namespace Gemstone.TimeSeries.Statistics;
+namespace Gemstone.Timeseries.Statistics;
 
 /// <summary>
 /// Method signature for function used to calculate a statistic for a given object.
@@ -45,12 +45,12 @@ internal class Statistic
     /// <summary>
     /// The method to be called to calculate the statistic.
     /// </summary>
-    public StatisticCalculationFunction Method { get; set; }
+    public StatisticCalculationFunction? Method { get; set; }
 
     /// <summary>
     /// The name of the source of the statistic.
     /// </summary>
-    public string Source { get; set; }
+    public string? Source { get; set; }
 
     /// <summary>
     /// The index of the signal associated with the statistic.
@@ -60,10 +60,10 @@ internal class Statistic
     /// <summary>
     /// The arguments to be passed into the statistic calculation function.
     /// </summary>
-    public string Arguments { get; set; }
+    public string? Arguments { get; set; }
 
     /// <summary>
     /// Target data type of the statistic.
     /// </summary>
-    public Type DataType { get; set; }
+    public Type? DataType { get; set; }
 }

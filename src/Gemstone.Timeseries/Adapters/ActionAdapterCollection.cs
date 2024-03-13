@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
 
 namespace Gemstone.Timeseries.Adapters;
@@ -48,7 +49,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is collection of new measurements for host to process.
     /// </remarks>
-    public event EventHandler<EventArgs<ICollection<IMeasurement>>> NewMeasurements;
+    public event EventHandler<EventArgs<ICollection<IMeasurement>>>? NewMeasurements;
 
     /// <summary>
     /// This event is raised every five seconds allowing consumer to track current number of unpublished seconds of data in the queue.
@@ -56,7 +57,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is the total number of unpublished seconds of data.
     /// </remarks>
-    public event EventHandler<EventArgs<int>> UnpublishedSamples;
+    public event EventHandler<EventArgs<int>>? UnpublishedSamples;
 
     /// <summary>
     /// This event is raised if there are any measurements being discarded during the sorting process.
@@ -64,12 +65,12 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is the enumeration of <see cref="IMeasurement"/> values that are being discarded during the sorting process.
     /// </remarks>
-    public event EventHandler<EventArgs<IEnumerable<IMeasurement>>> DiscardingMeasurements;
+    public event EventHandler<EventArgs<IEnumerable<IMeasurement>>>? DiscardingMeasurements;
 
     /// <summary>
     /// Event is raised when temporal support is requested.
     /// </summary>
-    public event EventHandler RequestTemporalSupport;
+    public event EventHandler? RequestTemporalSupport;
 
     // Fields
 
@@ -197,7 +198,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// This event handler is overridable to allow derived class interception of all
     /// measurements flowing out of the <see cref="ActionAdapterCollection"/>.
     /// </remarks>
-    protected virtual void OnNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
+    protected virtual void OnNewMeasurements(object? sender, EventArgs<ICollection<IMeasurement>> e)
     {
         try
         {
@@ -206,7 +207,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
             if (ConvertReadonlyCollectionsToWritable && measurements.IsReadOnly)
                 e = new EventArgs<ICollection<IMeasurement>>(new List<IMeasurement>(measurements));
 
-            NewMeasurements?.Invoke(sender, e);
+            NewMeasurements?.SafeInvoke(sender, e);
         }
         catch (Exception ex)
         {
@@ -221,15 +222,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// <param name="unpublishedSamples">Total number of unpublished seconds of data in the queue.</param>
     protected virtual void OnUnpublishedSamples(int unpublishedSamples)
     {
-        try
-        {
-            UnpublishedSamples?.Invoke(this, new EventArgs<int>(unpublishedSamples));
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(UnpublishedSamples)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        UnpublishedSamples?.SafeInvoke(this, new EventArgs<int>(unpublishedSamples));
     }
 
     /// <summary>
@@ -238,15 +231,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// <param name="measurements">Enumeration of <see cref="IMeasurement"/> values being discarded.</param>
     protected virtual void OnDiscardingMeasurements(IEnumerable<IMeasurement> measurements)
     {
-        try
-        {
-            DiscardingMeasurements?.Invoke(this, new EventArgs<IEnumerable<IMeasurement>>(measurements));
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(DiscardingMeasurements)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        DiscardingMeasurements?.SafeInvoke(this, new EventArgs<IEnumerable<IMeasurement>>(measurements));
     }
 
     /// <summary>
@@ -254,22 +239,14 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// </summary>
     protected virtual void OnRequestTemporalSupport()
     {
-        try
-        {
-            RequestTemporalSupport?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(RequestTemporalSupport)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        RequestTemporalSupport?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
     /// Wires events and initializes new <see cref="IActionAdapter"/> implementation.
     /// </summary>
     /// <param name="item">New <see cref="IActionAdapter"/> implementation.</param>
-    protected override void InitializeItem(IActionAdapter item)
+    protected override void InitializeItem(IActionAdapter? item)
     {
         if (item is null)
             return;
@@ -308,20 +285,20 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     }
 
     // Raise new measurements event on behalf of each item in collection
-    private void item_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e) =>
+    private void item_NewMeasurements(object? sender, EventArgs<ICollection<IMeasurement>> e) =>
         OnNewMeasurements(sender, e);
 
     // Raise unpublished samples event on behalf of each item in collection
-    private void item_UnpublishedSamples(object sender, EventArgs<int> e) =>
-        UnpublishedSamples?.Invoke(sender, e);
+    private void item_UnpublishedSamples(object? sender, EventArgs<int> e) =>
+        UnpublishedSamples?.SafeInvoke(sender, e);
 
     // Raise discarding measurements event on behalf of each item in collection
-    private void item_DiscardingMeasurements(object sender, EventArgs<IEnumerable<IMeasurement>> e) =>
-        DiscardingMeasurements?.Invoke(sender, e);
+    private void item_DiscardingMeasurements(object? sender, EventArgs<IEnumerable<IMeasurement>> e) =>
+        DiscardingMeasurements?.SafeInvoke(sender, e);
 
     // Raise request temporal support event on behalf of each item in collection
-    private void item_RequestTemporalSupport(object sender, EventArgs e) =>
-        RequestTemporalSupport?.Invoke(sender, e);
+    private void item_RequestTemporalSupport(object? sender, EventArgs e) =>
+        RequestTemporalSupport?.SafeInvoke(sender, e);
 
     #endregion
 }

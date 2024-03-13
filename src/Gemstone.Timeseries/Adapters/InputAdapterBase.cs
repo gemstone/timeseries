@@ -29,10 +29,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
 using Gemstone.Threading.SynchronizedOperations;
-using Gemstone.TimeSeries;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -54,7 +54,7 @@ public abstract class InputAdapterBase : AdapterBase, IInputAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is a collection of new measurements for host to process.
     /// </remarks>
-    public event EventHandler<EventArgs<ICollection<IMeasurement>>> NewMeasurements;
+    public event EventHandler<EventArgs<ICollection<IMeasurement>>>? NewMeasurements;
 
     /// <summary>
     /// Indicates to the host that processing for the input adapter has completed.
@@ -63,13 +63,13 @@ public abstract class InputAdapterBase : AdapterBase, IInputAdapter
     /// This event is expected to only be raised when an input adapter has been designed to process
     /// a finite amount of data, e.g., reading a historical range of data during temporal processing.
     /// </remarks>
-    public event EventHandler ProcessingComplete;
+    public event EventHandler? ProcessingComplete;
 
     // Fields
-    private List<string> m_outputSourceIDs;
+    private List<string>? m_outputSourceIDs;
     private readonly SynchronizedOperationBase m_connectionOperation;
-    private SharedTimer m_connectionTimer;
-    private string m_connectionInfo;
+    private SharedTimer? m_connectionTimer;
+    private string? m_connectionInfo;
     private bool m_disposed;
 
     #endregion
@@ -104,7 +104,7 @@ public abstract class InputAdapterBase : AdapterBase, IInputAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> apply no filter.
     /// </remarks>
-    public virtual string[] OutputSourceIDs
+    public virtual string[]? OutputSourceIDs
     {
         get => m_outputSourceIDs?.ToArray();
         set
@@ -127,7 +127,7 @@ public abstract class InputAdapterBase : AdapterBase, IInputAdapter
     /// <summary>
     /// Gets or sets output measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    public virtual MeasurementKey[] RequestedOutputMeasurementKeys { get; set; }
+    public virtual MeasurementKey[]? RequestedOutputMeasurementKeys { get; set; }
 
     /// <summary>
     /// Gets flag that determines if <see cref="InputAdapterBase"/> is connected.
@@ -204,7 +204,7 @@ public abstract class InputAdapterBase : AdapterBase, IInputAdapter
     /// <remarks>
     /// Redefined to hide attributes defined in the base class.
     /// </remarks>
-    public new virtual MeasurementKey[] InputMeasurementKeys
+    public new virtual MeasurementKey[]? InputMeasurementKeys
     {
         get => base.InputMeasurementKeys;
         set => base.InputMeasurementKeys = value;
@@ -355,7 +355,7 @@ public abstract class InputAdapterBase : AdapterBase, IInputAdapter
     {
         try
         {
-            NewMeasurements?.Invoke(this, new EventArgs<ICollection<IMeasurement>>(measurements));
+            NewMeasurements?.SafeInvoke(this, new EventArgs<ICollection<IMeasurement>>(measurements));
 
             IncrementProcessedMeasurements(measurements.Count);
         }
@@ -371,15 +371,7 @@ public abstract class InputAdapterBase : AdapterBase, IInputAdapter
     /// </summary>
     protected virtual void OnProcessingComplete()
     {
-        try
-        {
-            ProcessingComplete?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(ProcessingComplete)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        ProcessingComplete?.SafeInvoke(this, EventArgs.Empty);
     }
 
     private void AttemptConnectionOperation()
@@ -417,8 +409,8 @@ public abstract class InputAdapterBase : AdapterBase, IInputAdapter
         }
     }
 
-    private void m_connectionTimer_Elapsed(object sender, EventArgs<DateTime> e) =>
-        m_connectionOperation.TryRunOnceAsync();
+    private void m_connectionTimer_Elapsed(object? sender, EventArgs<DateTime> e) =>
+        m_connectionOperation.TryRunAsync();
 
     #endregion
 }

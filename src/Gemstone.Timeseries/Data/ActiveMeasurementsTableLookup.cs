@@ -26,9 +26,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Gemstone.Timeseries.Data;
+using Gemstone.Data.DataExtensions;
 
-namespace Gemstone.TimeSeries.Data;
+namespace Gemstone.Timeseries.Data;
 
 /// <summary>
 /// Represents a table lookup for active measurements.
@@ -48,13 +48,13 @@ public class ActiveMeasurementsTableLookup
         if (!dataSet.Tables.Contains("ActiveMeasurements"))
             return;
 
-        DataTable table = dataSet.Tables["ActiveMeasurements"];
+        DataTable table = dataSet.Tables["ActiveMeasurements"]!;
 
         foreach (DataRow row in table.Rows)
         {
-            uint? id = row.AsUInt32("DeviceID");
+            uint? id = row.ConvertNullableField<uint>("DeviceID");
 
-            List<DataRow> rowList;
+            List<DataRow>? rowList;
 
             if (id.HasValue)
             {
@@ -67,10 +67,10 @@ public class ActiveMeasurementsTableLookup
                 rowList.Add(row);
             }
 
-            if (row.AsString("SignalType", string.Empty).Equals("STAT", StringComparison.CurrentCultureIgnoreCase))
+            if (row.ConvertField("SignalType", string.Empty).Equals("STAT", StringComparison.CurrentCultureIgnoreCase))
                 continue;
 
-            string device = row.AsString("Device");
+            string? device = row.ConvertField<string?>("Device");
 
             if (device is null)
                 continue;
@@ -94,7 +94,7 @@ public class ActiveMeasurementsTableLookup
     /// Returns an empty set if the deviceID could not be found.
     /// </returns>
     public IEnumerable<DataRow> LookupByDeviceID(uint deviceId) =>
-        m_lookupByDeviceID.TryGetValue(deviceId, out List<DataRow> rows) ? rows : m_emptySet;
+        m_lookupByDeviceID.TryGetValue(deviceId, out List<DataRow>? rows) ? rows : m_emptySet;
 
     /// <summary>
     /// Gets all of the rows with the provided device name. This will exclude
@@ -107,5 +107,5 @@ public class ActiveMeasurementsTableLookup
     /// Returns an empty set if the device could not be found.
     /// </returns>
     public IEnumerable<DataRow> LookupByDeviceNameNoStat(string deviceName) =>
-        m_lookupByDeviceNameNoStats.TryGetValue(deviceName, out List<DataRow> rows) ? rows : m_emptySet;
+        m_lookupByDeviceNameNoStats.TryGetValue(deviceName, out List<DataRow>? rows) ? rows : m_emptySet;
 }

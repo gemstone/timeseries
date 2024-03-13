@@ -47,7 +47,7 @@ public interface IOutputAdapter : IAdapter
     /// <see cref="EventArgs{T}.Argument"/> is total number of unprocessed measurements.
     /// </para>
     /// </remarks>
-    event EventHandler<EventArgs<int>> UnprocessedMeasurements;
+    event EventHandler<EventArgs<int>>? UnprocessedMeasurements;
 
     /// <summary>
     /// Gets or sets <see cref="MeasurementKey.Source"/> values used to filter input measurements.
@@ -56,12 +56,12 @@ public interface IOutputAdapter : IAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> apply no filter.
     /// </remarks>
-    string[] InputSourceIDs { get; set; }
+    string[]? InputSourceIDs { get; set; }
 
     /// <summary>
     /// Gets or sets input measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    MeasurementKey[] RequestedInputMeasurementKeys { get; set; }
+    MeasurementKey[]? RequestedInputMeasurementKeys { get; set; }
 
     /// <summary>
     /// Returns a flag that determines if measurements sent to this <see cref="IOutputAdapter"/> are

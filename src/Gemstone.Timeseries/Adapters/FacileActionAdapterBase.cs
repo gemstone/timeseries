@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
 
 namespace Gemstone.Timeseries.Adapters;
@@ -98,7 +99,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is a collection of new measurements for host to process.
     /// </remarks>
-    public event EventHandler<EventArgs<ICollection<IMeasurement>>> NewMeasurements;
+    public event EventHandler<EventArgs<ICollection<IMeasurement>>>? NewMeasurements;
 
     /// <summary>
     /// This event is raised by derived class, if needed, to track current number of unpublished seconds of data in the queue.
@@ -106,7 +107,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is the total number of unpublished seconds of data.
     /// </remarks>
-    public event EventHandler<EventArgs<int>> UnpublishedSamples;
+    public event EventHandler<EventArgs<int>>? UnpublishedSamples;
 
     /// <summary>
     /// This event is raised if there are any measurements being discarded during the sorting process.
@@ -114,7 +115,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is the enumeration of <see cref="IMeasurement"/> values that are being discarded during the sorting process.
     /// </remarks>
-    public event EventHandler<EventArgs<IEnumerable<IMeasurement>>> DiscardingMeasurements;
+    public event EventHandler<EventArgs<IEnumerable<IMeasurement>>>? DiscardingMeasurements;
 
     // Fields
     private List<string> m_inputSourceIDs;
@@ -457,7 +458,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     {
         try
         {
-            NewMeasurements?.Invoke(this, new EventArgs<ICollection<IMeasurement>>(measurements));
+            NewMeasurements?.SafeInvoke(this, new EventArgs<ICollection<IMeasurement>>(measurements));
             IncrementProcessedMeasurements(measurements.Count);
         }
         catch (Exception ex)
@@ -473,15 +474,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// <param name="seconds">Total number of unpublished seconds of data.</param>
     protected virtual void OnUnpublishedSamples(int seconds)
     {
-        try
-        {
-            UnpublishedSamples?.Invoke(this, new EventArgs<int>(seconds));
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(UnpublishedSamples)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        UnpublishedSamples?.SafeInvoke(this, new EventArgs<int>(seconds));
     }
 
     /// <summary>
@@ -490,15 +483,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// <param name="measurements">Enumeration of <see cref="IMeasurement"/> values being discarded.</param>
     protected virtual void OnDiscardingMeasurements(IEnumerable<IMeasurement> measurements)
     {
-        try
-        {
-            DiscardingMeasurements?.Invoke(this, new EventArgs<IEnumerable<IMeasurement>>(measurements));
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(DiscardingMeasurements)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        DiscardingMeasurements?.SafeInvoke(this, new EventArgs<IEnumerable<IMeasurement>>(measurements));
     }
 
     #endregion

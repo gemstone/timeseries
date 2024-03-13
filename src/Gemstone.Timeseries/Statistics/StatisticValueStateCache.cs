@@ -29,7 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Gemstone.TimeSeries.Statistics;
+namespace Gemstone.Timeseries.Statistics;
 
 /// <summary>
 /// Caches statistic values to provide the difference between the
@@ -102,7 +102,7 @@ public class StatisticValueStateCache
     }
 
     // Remove value states cache when statistic source is disposed
-    private void StatisticSourceDisposed(object sender, EventArgs e)
+    private void StatisticSourceDisposed(object? sender, EventArgs e)
     {
         lock (m_statisticValueStates)
             m_statisticValueStates.Remove(sender);

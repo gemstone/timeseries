@@ -27,14 +27,14 @@ using System;
 using System.Data;
 using System.Runtime.CompilerServices;
 
-namespace Gemstone.TimeSeries.Data;
+namespace Gemstone.Timeseries.Data;
 
 /// <summary>
 /// Represents a lookup cache for adapter data source data.
 /// </summary>
 public class DataSourceLookupCache
 {
-    internal DataSet DataSet { get; private set; }
+    internal DataSet? DataSet { get; private set; }
 
     /// <summary>
     /// Table lookup for active measurements.
@@ -50,7 +50,7 @@ public class DataSourceLookupCache
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void DataSet_Disposed(object sender, EventArgs e)
+    private void DataSet_Disposed(object? sender, EventArgs e)
     {
         //Do Nothing. The purpose of this is so a strong reference to this class is maintained by DataSet.
         DataSet = null;

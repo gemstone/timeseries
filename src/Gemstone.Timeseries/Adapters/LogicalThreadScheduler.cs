@@ -23,15 +23,16 @@
 //
 //******************************************************************************************************
 
-
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Gemstone.Threading.Cancellation;
+using CancellationToken = Gemstone.Threading.Cancellation.CancellationToken;
 
-namespace Gemstone.Timeseries;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Manages synchronization of actions by dispatching actions
@@ -47,13 +48,12 @@ internal class LogicalThreadScheduler
     /// Triggered when an action managed by this
     /// synchronization manager throws an exception.
     /// </summary>
-    public event EventHandler<EventArgs<Exception>> UnhandledException;
+    public event EventHandler<EventArgs<Exception>>? UnhandledException;
 
     // Fields
-    private ConcurrentQueue<Func<LogicalThread>>[] m_logicalThreadQueues;
+    private readonly ConcurrentQueue<Func<LogicalThread>?>[] m_logicalThreadQueues;
     private int m_maxThreadCount;
     private int m_threadCount;
-    private bool m_useBackgroundThreads;
 
     #endregion
 
@@ -67,14 +67,14 @@ internal class LogicalThreadScheduler
     public LogicalThreadScheduler(int priorityLevels = 1)
     {
         if (priorityLevels < 1)
-            throw new ArgumentException($"A logical thread scheduler must have at least one priority level.", nameof(priorityLevels));
+            throw new ArgumentException("A logical thread scheduler must have at least one priority level.", nameof(priorityLevels));
 
         m_maxThreadCount = Environment.ProcessorCount;
-        m_logicalThreadQueues = new ConcurrentQueue<Func<LogicalThread>>[priorityLevels];
-        m_useBackgroundThreads = true;
+        m_logicalThreadQueues = new ConcurrentQueue<Func<LogicalThread>?>[priorityLevels];
+        UseBackgroundThreads = true;
 
         for (int i = 0; i < priorityLevels; i++)
-            m_logicalThreadQueues[i] = new ConcurrentQueue<Func<LogicalThread>>();
+            m_logicalThreadQueues[i] = new ConcurrentQueue<Func<LogicalThread>?>();
     }
 
     #endregion
@@ -87,10 +87,7 @@ internal class LogicalThreadScheduler
     /// </summary>
     public int MaxThreadCount
     {
-        get
-        {
-            return Interlocked.CompareExchange(ref m_maxThreadCount, 0, 0);
-        }
+        get => Interlocked.CompareExchange(ref m_maxThreadCount, 0, 0);
         set
         {
             if (value <= 0)
@@ -108,42 +105,20 @@ internal class LogicalThreadScheduler
 
     /// <summary>
     /// Gets or sets the flag that determines whether the threads in
-    /// the scheduler's thread pool should be background threads.
+    /// the schedulers thread pool should be background threads.
     /// </summary>
-    public bool UseBackgroundThreads
-    {
-        get
-        {
-            return m_useBackgroundThreads;
-        }
-        set
-        {
-            m_useBackgroundThreads = value;
-        }
-    }
+    public bool UseBackgroundThreads { get; set; }
 
     /// <summary>
     /// Gets the number of levels of priority
     /// supported by this scheduler.
     /// </summary>
-    public int PriorityLevels
-    {
-        get
-        {
-            return m_logicalThreadQueues.Length;
-        }
-    }
+    public int PriorityLevels => m_logicalThreadQueues.Length;
 
     /// <summary>
     /// Gets the current number of active physical threads.
     /// </summary>
-    private int ThreadCount
-    {
-        get
-        {
-            return Interlocked.CompareExchange(ref m_threadCount, 0, 0);
-        }
-    }
+    private int ThreadCount => Interlocked.CompareExchange(ref m_threadCount, 0, 0);
 
     #endregion
 
@@ -189,14 +164,11 @@ internal class LogicalThreadScheduler
     /// </summary>
     private void ActivatePhysicalThread()
     {
-        int threadCount;
-        int newThreadCount;
-
-        threadCount = ThreadCount;
+        int threadCount = ThreadCount;
 
         while (threadCount < Interlocked.CompareExchange(ref m_maxThreadCount, 0, 0))
         {
-            newThreadCount = Interlocked.CompareExchange(ref m_threadCount, threadCount + 1, threadCount);
+            int newThreadCount = Interlocked.CompareExchange(ref m_threadCount, threadCount + 1, threadCount);
 
             if (newThreadCount == threadCount)
             {
@@ -214,8 +186,7 @@ internal class LogicalThreadScheduler
     /// </summary>
     private void StartNewPhysicalThread()
     {
-        Thread thread = new Thread(ProcessLogicalThreads);
-        thread.IsBackground = m_useBackgroundThreads;
+        Thread thread = new(ProcessLogicalThreads) { IsBackground = UseBackgroundThreads };
         thread.Start();
     }
 
@@ -225,23 +196,19 @@ internal class LogicalThreadScheduler
     /// </summary>
     private void ProcessLogicalThreads()
     {
-        Stopwatch stopwatch;
-        Func<LogicalThread> accessor = null;
-        LogicalThread thread;
-        Action action;
+        Func<LogicalThread?>? accessor = null;
+        Stopwatch stopwatch = new();
 
-        stopwatch = new Stopwatch();
-
-        while (ThreadCount <= MaxThreadCount && (object)m_logicalThreadQueues.FirstOrDefault(queue => queue.TryDequeue(out accessor)) != null)
+        while (ThreadCount <= MaxThreadCount && m_logicalThreadQueues.FirstOrDefault(queue => queue.TryDequeue(out accessor)) is not null)
         {
-            thread = accessor();
+            LogicalThread? thread = accessor?.Invoke();
 
-            if ((object)thread == null)
+            if (thread is null)
                 continue;
 
-            action = thread.Pull();
+            Action? action = thread.Pull();
 
-            if ((object)action != null)
+            if (action is not null)
             {
                 LogicalThread.CurrentThread = thread;
 
@@ -253,8 +220,8 @@ internal class LogicalThreadScheduler
                 thread.UpdateStatistics(stopwatch.Elapsed);
             }
 
-            //if (thread.HasAction)
-            //    Enqueue(thread);
+            if (thread.HasAction)
+                Enqueue(thread);
             else
                 thread.Deactivate();
         }
@@ -265,49 +232,44 @@ internal class LogicalThreadScheduler
             ActivatePhysicalThread();
     }
 
-    ///// <summary>
-    ///// Queues the given thread for execution.
-    ///// </summary>
-    ///// <param name="thread">The thread to be queued for execution.</param>
-    //private void Enqueue(LogicalThread thread)
-    //{
-    //    ICancellationToken executionToken;
-    //    int activePriority;
-    //    int nextPriority;
-    //    do
-    //    {
-    //        // Create the execution token to be used in the closure
-    //        //ICancellationToken nextExecutionToken = new CancellationToken();
+    /// <summary>
+    /// Queues the given thread for execution.
+    /// </summary>
+    /// <param name="thread">The thread to be queued for execution.</param>
+    private void Enqueue(LogicalThread thread)
+    {
+        ICancellationToken executionToken;
+        int activePriority;
+        int nextPriority;
 
-    //        // Always update the thread's active priority before
-    //        // the execution token to mitigate race conditions
-    //        nextPriority = thread.NextPriority;
-    //        thread.ActivePriority = nextPriority;
-    //        //thread.NextExecutionToken = nextExecutionToken;
+        do
+        {
+            // Create the execution token to be used in the closure
+            ICancellationToken nextExecutionToken = new CancellationToken();
 
-    //        // Now that the action can be cancelled by another thread using the
-    //        // new cancellation token, it should be safe to put it in the queue
-    //        m_logicalThreadQueues[PriorityLevels - nextPriority].Enqueue(() =>
-    //        {
-    //            //if (nextExecutionToken.Cancel())
-    //            //    return thread;
+            // Always update the thread's active priority before
+            // the execution token to mitigate race conditions
+            nextPriority = thread.NextPriority;
+            thread.ActivePriority = nextPriority;
+            thread.NextExecutionToken = nextExecutionToken;
 
-    //            return null;
-    //        });
+            // Now that the action can be cancelled by another thread using the
+            // new cancellation token, it should be safe to put it in the queue
+            m_logicalThreadQueues[PriorityLevels - nextPriority].Enqueue(() => nextExecutionToken.Cancel() ? thread : null!);
 
-    //        // Because enqueuing the thread is a multi-step process, we need to
-    //        // double-check in case the thread's priority changed in the meantime
-    //        activePriority = thread.ActivePriority;
-    //        nextPriority = thread.NextPriority;
+            // Because en-queuing the thread is a multi-step process, we need to
+            // double-check in case the thread's priority changed in the meantime
+            activePriority = thread.ActivePriority;
+            nextPriority = thread.NextPriority;
 
-    //        // We can use the cancellation token we just created because we only
-    //        // really need to double-check the work that was done on this thread;
-    //        // in other words, if another thread changed the priority in the
-    //        // meantime, it can double-check its own work
-    //        //executionToken = nextExecutionToken;
-    //    }
-    //    //while (activePriority != nextPriority && executionToken.Cancel());
-    //}
+            // We can use the cancellation token we just created because we only
+            // really need to double-check the work that was done on this thread;
+            // in other words, if another thread changed the priority in the
+            // meantime, it can double-check its own work
+            executionToken = nextExecutionToken;
+        }
+        while (activePriority != nextPriority && executionToken.Cancel());
+    }
 
     /// <summary>
     /// Attempts to execute the given action.
@@ -336,24 +298,22 @@ internal class LogicalThreadScheduler
 
     /// <summary>
     /// Attempts to handle the exception via either the logical thread's
-    /// exception handler or the scheduler's exception handler.
+    /// exception handler or the schedulers exception handler.
     /// </summary>
     /// <param name="unhandledException">The unhandled exception thrown by an action on the logical thread.</param>
     /// <returns>True if the exception could be handled; false otherwise.</returns>
     private bool TryHandleException(Exception unhandledException)
     {
-        AggregateException aggregateException;
-        StringBuilder message;
         bool handled;
 
-        message = new StringBuilder();
+        StringBuilder message = new();
         message.AppendFormat("Logical thread action threw an exception of type {0}: {1}", unhandledException.GetType().FullName, unhandledException.Message);
-        aggregateException = new AggregateException(message.ToString(), unhandledException);
+        AggregateException aggregateException = new(message.ToString(), unhandledException);
 
         try
         {
             // Attempt to handle the exception via the logical thread's exception handler
-            handled = LogicalThread.CurrentThread.OnUnhandledException(unhandledException);
+            handled = LogicalThread.CurrentThread?.OnUnhandledException(unhandledException) ?? false;
         }
         catch (Exception handlerException)
         {
@@ -361,15 +321,15 @@ internal class LogicalThreadScheduler
             // make a note of it in the exception's exception message
             message.AppendLine();
             message.AppendFormat("Logical thread exception handler threw an exception of type {0}: {1}", handlerException.GetType().FullName, handlerException.Message);
-            aggregateException = new AggregateException(message.ToString(), aggregateException.InnerExceptions.Concat(new Exception[] { handlerException }));
+            aggregateException = new AggregateException(message.ToString(), aggregateException.InnerExceptions.Concat(new[] { handlerException }));
             handled = false;
         }
 
         try
         {
             // If the logical thread's exception handler was not able to handle the exception,
-            // attempt to handle the exception via the thread scheduler's exception handler
-            Exception ex = (aggregateException.InnerExceptions.Count > 1) ? aggregateException : unhandledException;
+            // attempt to handle the exception via the thread schedulers exception handler
+            Exception ex = aggregateException.InnerExceptions.Count > 1 ? aggregateException : unhandledException;
             handled = handled || OnUnhandledException(ex);
         }
         catch (Exception handlerException)
@@ -378,22 +338,20 @@ internal class LogicalThreadScheduler
             // make a note of it in the exception's exception message
             message.AppendLine();
             message.AppendFormat("Scheduler exception handler threw an exception of type {0}: {1}", handlerException.GetType().FullName, handlerException.Message);
-            aggregateException = new AggregateException(message.ToString(), aggregateException.InnerExceptions.Concat(new Exception[] { handlerException }));
+            aggregateException = new AggregateException(message.ToString(), aggregateException.InnerExceptions.Concat(new[] { handlerException }));
             handled = false;
         }
 
-        if (!handled)
-        {
-            // If the exception could not be handled by either the
-            // logical thread's exception handler or the scheduler's
-            // exception handler, throw it as an unhandled exception
-            if (aggregateException.InnerExceptions.Count > 1)
-                throw aggregateException;
+        if (handled)
+            return true;
 
-            return false;
-        }
+        // If the exception could not be handled by either the
+        // logical thread's exception handler or the schedulers
+        // exception handler, throw it as an unhandled exception
+        if (aggregateException.InnerExceptions.Count > 1)
+            throw aggregateException;
 
-        return true;
+        return false;
     }
 
     /// <summary>
@@ -403,9 +361,9 @@ internal class LogicalThreadScheduler
     /// <returns>True if there are any handlers attached to this event; false otherwise.</returns>
     private bool OnUnhandledException(Exception ex)
     {
-        EventHandler<EventArgs<Exception>> unhandledException = UnhandledException;
+        EventHandler<EventArgs<Exception>>? unhandledException = UnhandledException;
 
-        if ((object)unhandledException == null)
+        if (unhandledException is null)
             return false;
 
         unhandledException(this, new EventArgs<Exception>(ex));

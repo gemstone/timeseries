@@ -32,7 +32,7 @@ using System.Threading;
 using Gemstone.Data;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
-using Gemstone.TimeSeries.Adapters;
+using ConnectionStringParser = Gemstone.Configuration.ConnectionStringParser<Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute>;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -240,11 +240,11 @@ internal static class IndependentAdapterManagerHandlers
     public static void HandleParseConnectionString(this IIndependentAdapterManager instance)
     {
         // Parse all properties marked with ConnectionStringParameterAttribute from provided ConnectionString value
-        //ConnectionStringParser parser = new();
-        //parser.ParseConnectionString(instance.ConnectionString, instance);
+        ConnectionStringParser parser = new();
+        parser.ParseConnectionString(instance.ConnectionString, instance);
 
         // Parse input measurement keys like class was a typical adapter
-        if (instance.Settings.TryGetValue(nameof(instance.InputMeasurementKeys), out string setting))
+        if (instance.Settings.TryGetValue(nameof(instance.InputMeasurementKeys), out string? setting))
             instance.InputMeasurementKeys = AdapterBase.ParseInputMeasurementKeys(instance.DataSource, true, setting, instance.SourceMeasurementTable);
 
         // Parse output measurement keys like class was a typical adapter
@@ -324,14 +324,14 @@ internal static class IndependentAdapterManagerHandlers
     /// <param name="adapterIndex">Enumerated index for child adapter.</param>
     public static string HandleGetAdapterStatus(this IIndependentAdapterManager instance, int adapterIndex) => instance[adapterIndex].Status;
 
-    ///// <summary>
-    ///// Gets configured database connection.
-    ///// </summary>
-    ///// <param name="instance">Target <see cref="IIndependentAdapterManager"/> instance.</param>
-    ///// <returns>New ADO data connection based on configured settings.</returns>
-    //public static AdoDataConnection HandleGetConfiguredConnection(this IIndependentAdapterManager instance) => string.IsNullOrWhiteSpace(instance.DatabaseConnectionString) ?
-    //    new AdoDataConnection("systemSettings") :
-    //    new AdoDataConnection(instance.DatabaseConnectionString, instance.DatabaseProviderString);
+    /// <summary>
+    /// Gets configured database connection.
+    /// </summary>
+    /// <param name="instance">Target <see cref="IIndependentAdapterManager"/> instance.</param>
+    /// <returns>New ADO data connection based on configured settings.</returns>
+    public static AdoDataConnection HandleGetConfiguredConnection(this IIndependentAdapterManager instance) => string.IsNullOrWhiteSpace(instance.DatabaseConnectionString) ?
+        new AdoDataConnection(Settings.Instance) :
+        new AdoDataConnection(instance.DatabaseConnectionString, instance.DatabaseProviderString);
 
     /// <summary>
     /// Determines whether the data in the data source has actually changed when receiving a new data source.
@@ -353,14 +353,14 @@ internal static class IndependentAdapterManagerHandlers
     }
 
     // Make sure routes are recalculated any time measurements are updated
-    private static void Instance_InputMeasurementKeysUpdated(object sender, EventArgs e)
+    private static void Instance_InputMeasurementKeysUpdated(object? sender, EventArgs e)
     {
         if (sender is IIndependentAdapterManager instance)
             instance.RoutingTables?.CalculateRoutingTables(null);
     }
 
     // Make sure to expose any routing table messages
-    private static void RoutingTables_StatusMessage(object sender, EventArgs<string> e)
+    private static void RoutingTables_StatusMessage(object? sender, EventArgs<string> e)
     {
         if (sender is not RoutingTables routingTables)
             return;
@@ -373,7 +373,7 @@ internal static class IndependentAdapterManagerHandlers
     }
 
     // Make sure to expose any routing table exceptions
-    private static void RoutingTables_ProcessException(object sender, EventArgs<Exception> e)
+    private static void RoutingTables_ProcessException(object? sender, EventArgs<Exception> e)
     {
         if (sender is not RoutingTables routingTables)
             return;

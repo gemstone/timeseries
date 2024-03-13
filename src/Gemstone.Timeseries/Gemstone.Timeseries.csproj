@@ -3,7 +3,7 @@
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;netstandard2.1;</TargetFrameworks>
+    <TargetFrameworks>net8.0;netstandard2.1;</TargetFrameworks>
     <RootNamespace>Gemstone.Timeseries</RootNamespace>
     <PackageId>Gemstone.Timeseries</PackageId>
     <Authors>Grid Protection Alliance</Authors>
@@ -35,7 +35,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DocumentationFile>..\..\build\$(Configuration)\$(AssemblyName).xml</DocumentationFile>
+    <DocumentationFile>..\..\build\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Development'">
@@ -56,7 +56,6 @@
   <ItemGroup>
      <ProjectReference Include="..\..\..\common\src\Gemstone\Gemstone.Common.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Common" Version="1.0.102" Condition="'$(Configuration)'!='Development'" />
-     <PackageReference Include="System.Threading" Version="4.3.0" />
 
      <ProjectReference Include="..\..\..\numeric\src\Gemstone.Numeric\Gemstone.Numeric.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Numeric" Version="1.0.102" Condition="'$(Configuration)'!='Development'" />
@@ -65,10 +64,15 @@
      <PackageReference Include="Gemstone.Data" Version="1.0.102" Condition="'$(Configuration)'!='Development'" /> 
 
      <ProjectReference Include="..\..\..\threading\src\Gemstone.Threading\Gemstone.Threading.csproj" Condition="'$(Configuration)'=='Development'" /> 
-     <PackageReference Include="Gemstone.Threading" Version="1.0.102" Condition="'$(Configuration)'!='Development'" /> 
+     <PackageReference Include="Gemstone.Threading" Version="1.0.102" Condition="'$(Configuration)'!='Development'" />
+     
+     <ProjectReference Include="..\..\..\expressions\src\Gemstone.Expressions\Gemstone.Expressions.csproj" Condition="'$(Configuration)'=='Development'" />
+     <PackageReference Include="Gemstone.Expressions" Version="1.0.102" Condition="'$(Configuration)'!='Development'" />
 
      <ProjectReference Include="..\..\..\diagnostics\src\Gemstone.Diagnostics\Gemstone.Diagnostics.csproj" Condition="'$(Configuration)'=='Development'" /> 
-     <PackageReference Include="Gemstone.Diagnostics" Version="1.0.102" Condition="'$(Configuration)'!='Development'" /> 
+     <PackageReference Include="Gemstone.Diagnostics" Version="1.0.102" Condition="'$(Configuration)'!='Development'" />
+
+     <PackageReference Include="System.Threading" Version="4.3.0" />
   </ItemGroup>
 
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />

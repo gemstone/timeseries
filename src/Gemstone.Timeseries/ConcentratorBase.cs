@@ -28,6 +28,8 @@
 //       Modified Header.
 //
 //******************************************************************************************************
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable PossibleMultipleEnumeration
 
 using System;
 using System.Collections.Generic;
@@ -38,10 +40,6 @@ using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.Threading;
 using Gemstone.Units;
-
-// ReSharper disable MemberCanBePrivate.Local
-// ReSharper disable PossibleMultipleEnumeration
-#pragma warning disable VSSpell001 // Spell Check
 
 namespace Gemstone.Timeseries;
 
@@ -1761,15 +1759,7 @@ public abstract class ConcentratorBase : IDisposable
     /// <param name="seconds">Total number of unpublished seconds of data.</param>
     protected virtual void OnUnpublishedSamples(int seconds)
     {
-        try
-        {
-            UnpublishedSamples?.Invoke(this, new EventArgs<int>(seconds));
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(UnpublishedSamples)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        UnpublishedSamples?.SafeInvoke(this, new EventArgs<int>(seconds));
     }
 
     /// <summary>

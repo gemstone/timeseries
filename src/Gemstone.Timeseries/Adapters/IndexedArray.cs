@@ -28,19 +28,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
-// TODO: Move out of Timeseries. Collections?
-namespace Gemstone.Timeseries;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// A self growing array of items. This class is thread safe.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class IndexedArray<T> : IEnumerable<T>
+internal sealed class IndexedArray<T> : IEnumerable<T>
 {
     private T[] m_items;
-    private object m_syncRoot;
-    private T m_defaultValue;
-    private bool m_defaultSet;
+    private readonly object m_syncRoot;
+    private readonly T m_defaultValue;
+    private readonly bool m_defaultSet;
 
     /// <summary>
     /// Creates an <see cref="IndexedArray{T}"/>.
@@ -50,7 +49,7 @@ public sealed class IndexedArray<T> : IEnumerable<T>
         m_items = new T[32];
         m_syncRoot = new object();
         m_defaultSet = false;
-        m_defaultValue = default(T);
+        m_defaultValue = default!;
     }
 
     /// <summary>
@@ -62,10 +61,9 @@ public sealed class IndexedArray<T> : IEnumerable<T>
         m_items = new T[32];
         m_syncRoot = new object();
         m_defaultSet = true;
+
         for (int x = 0; x < 32; x++)
-        {
             m_items[x] = defaultValue;
-        }
     }
 
     /// <summary>
@@ -75,19 +73,12 @@ public sealed class IndexedArray<T> : IEnumerable<T>
     /// <param name="index">the index position to lookup</param>
     public T this[int index]
     {
-        get
-        {
-            if ((uint)index >= (uint)m_items.Length)
-                return m_defaultValue;
-
-            return m_items[index];
-        }
+        // ReSharper disable once InconsistentlySynchronizedField
+        get => (uint)index >= (uint)m_items.Length ? m_defaultValue: m_items[index];
         set
         {
             if ((uint)index >= (uint)m_items.Length)
-            {
                 Grow(index);
-            }
 
             m_items[index] = value;
         }
@@ -99,17 +90,17 @@ public sealed class IndexedArray<T> : IEnumerable<T>
         {
             if (index < 0)
                 throw new Exception("Index cannot be negative.");
+
             while (index >= m_items.Length)
             {
                 T[] items = new T[m_items.Length * 2];
 
                 if (m_defaultSet)
                 {
-                    for (int x = m_items.Length; x < items.Length; x++)
-                    {
+                    for (int x = m_items.Length; x < items.Length; x++) 
                         items[x] = m_defaultValue;
-                    }
                 }
+
                 m_items.CopyTo(items, 0);
                 Thread.MemoryBarrier();
                 m_items = items;
@@ -127,9 +118,7 @@ public sealed class IndexedArray<T> : IEnumerable<T>
             if (m_defaultSet)
             {
                 for (int x = m_items.Length; x < m_items.Length; x++)
-                {
                     m_items[x] = m_defaultValue;
-                }
             }
             else
             {

@@ -101,15 +101,15 @@ public class RouteMappingDoubleBufferQueue : IRouteMappingTables
                 actionAdapter.NewMeasurements += Route;
         }
 
-        public void Route(object sender, EventArgs<ICollection<IMeasurement>> e)
+        public void Route(object? sender, EventArgs<ICollection<IMeasurement>>? e)
         {
-            ICollection<IMeasurement> measurements = e?.Argument;
+            ICollection<IMeasurement>? measurements = e?.Argument;
 
             if (measurements is null)
                 return;
 
             // Get the global cache from the routing tables
-            GlobalCache globalCache = Interlocked.CompareExchange(ref m_routingTables.m_globalCache, null, null);
+            GlobalCache? globalCache = Interlocked.CompareExchange(ref m_routingTables.m_globalCache, null, null);
 
             // Return if routes are still being calculated
             if (globalCache is null)
@@ -190,8 +190,8 @@ public class RouteMappingDoubleBufferQueue : IRouteMappingTables
 
         public Consumer(IAdapter adapter, Action<Exception> exceptionAction)
         {
-            IActionAdapter actionAdapter = adapter as IActionAdapter;
-            IOutputAdapter outputAdapter;
+            IActionAdapter? actionAdapter = adapter as IActionAdapter;
+            IOutputAdapter? outputAdapter;
 
             Adapter = adapter;
 
@@ -210,7 +210,7 @@ public class RouteMappingDoubleBufferQueue : IRouteMappingTables
         }
     }
 
-    private GlobalCache m_globalCache;
+    private GlobalCache? m_globalCache;
 
     // ReSharper disable once NotAccessedField.Local
     private Action<string> m_onStatusMessage;
@@ -283,6 +283,6 @@ public class RouteMappingDoubleBufferQueue : IRouteMappingTables
     /// </summary>
     /// <param name="sender">the sender object</param>
     /// <param name="measurements">the event arguments</param>
-    public void InjectMeasurements(object sender, EventArgs<ICollection<IMeasurement>> measurements) =>
+    public void InjectMeasurements(object? sender, EventArgs<ICollection<IMeasurement>>? measurements) =>
         m_injectMeasurementsLocalCache.Route(sender, measurements);
 }

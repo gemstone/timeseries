@@ -36,6 +36,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
 
 namespace Gemstone.Timeseries.Adapters;
@@ -61,22 +62,22 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is new status message.
     /// </remarks>
-    public event EventHandler<EventArgs<string>> StatusMessage;
+    public event EventHandler<EventArgs<string>>? StatusMessage;
 
     /// <summary>
     /// Event is raised when <see cref="InputMeasurementKeys"/> are updated.
     /// </summary>
-    public event EventHandler InputMeasurementKeysUpdated;
+    public event EventHandler? InputMeasurementKeysUpdated;
 
     /// <summary>
     /// Event is raised when <see cref="OutputMeasurements"/> are updated.
     /// </summary>
-    public event EventHandler OutputMeasurementsUpdated;
+    public event EventHandler? OutputMeasurementsUpdated;
 
     /// <summary>
     /// Event is raised when adapter is aware of a configuration change.
     /// </summary>
-    public event EventHandler ConfigurationChanged;
+    public event EventHandler? ConfigurationChanged;
 
     /// <summary>
     /// Provides new measurements from action adapter.
@@ -90,8 +91,8 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     private string m_name;
     private uint m_id;
     private string m_connectionString;
-    private MeasurementKey[] m_inputMeasurementKeys;
-    private IMeasurement[] m_outputMeasurements;
+    private MeasurementKey[]? m_inputMeasurementKeys;
+    private IMeasurement[]? m_outputMeasurements;
     private List<string> m_inputSourceIDs;
     private List<string> m_outputSourceIDs;
     private int m_minimumMeasurementsToUse;
@@ -331,7 +332,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [CustomConfigurationEditor("Gemstone.Timeseries.UI.WPF.dll", "Gemstone.Timeseries.UI.Editors.MeasurementEditor")]
-    public virtual MeasurementKey[] InputMeasurementKeys
+    public virtual MeasurementKey[]? InputMeasurementKeys
     {
         get => m_inputMeasurementKeys;
         set
@@ -362,7 +363,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [DefaultValue(null)]
     [Description("Defines primary keys of output measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [CustomConfigurationEditor("Gemstone.Timeseries.UI.WPF.dll", "Gemstone.Timeseries.UI.Editors.MeasurementEditor")]
-    public virtual IMeasurement[] OutputMeasurements
+    public virtual IMeasurement[]? OutputMeasurements
     {
         get => m_outputMeasurements;
         set
@@ -429,12 +430,12 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <summary>
     /// Gets or sets input measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    public virtual MeasurementKey[] RequestedInputMeasurementKeys { get; set; }
+    public virtual MeasurementKey[]? RequestedInputMeasurementKeys { get; set; }
 
     /// <summary>
     /// Gets or sets output measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    public virtual MeasurementKey[] RequestedOutputMeasurementKeys { get; set; }
+    public virtual MeasurementKey[]? RequestedOutputMeasurementKeys { get; set; }
 
     /// <summary>
     /// Gets the flag indicating if this adapter supports temporal processing.
@@ -647,21 +648,21 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
         Initialized = false;
 
         Dictionary<string, string> settings = Settings;
-        const string errorMessage = "{0} is missing from Settings - Example: framesPerSecond=30; lagTime=3; leadTime=1";
+        const string ErrorMessage = "{0} is missing from Settings - Example: framesPerSecond=30; lagTime=3; leadTime=1";
 
         // Load required parameters
-        if (!settings.TryGetValue(nameof(FramesPerSecond), out string setting))
-            throw new ArgumentException(string.Format(errorMessage, nameof(FramesPerSecond)));
+        if (!settings.TryGetValue(nameof(FramesPerSecond), out string? setting))
+            throw new ArgumentException(string.Format(ErrorMessage, nameof(FramesPerSecond)));
 
         base.FramesPerSecond = int.Parse(setting);
 
         if (!settings.TryGetValue(nameof(LagTime), out setting))
-            throw new ArgumentException(string.Format(errorMessage, nameof(LagTime)));
+            throw new ArgumentException(string.Format(ErrorMessage, nameof(LagTime)));
 
         base.LagTime = double.Parse(setting);
 
         if (!settings.TryGetValue(nameof(LeadTime), out setting))
-            throw new ArgumentException(string.Format(errorMessage, nameof(LeadTime)));
+            throw new ArgumentException(string.Format(ErrorMessage, nameof(LeadTime)));
 
         base.LeadTime = double.Parse(setting);
 
@@ -738,7 +739,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
 
         if (startTimeDefined || stopTimeDefined)
         {
-            settings.TryGetValue("timeConstraintParameters", out string parameters);
+            settings.TryGetValue("timeConstraintParameters", out string? parameters);
             SetTemporalConstraint(startTime, stopTime, parameters);
         }
 
@@ -881,7 +882,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </para>
     /// </remarks>
     [AdapterCommand("Defines a temporal processing constraint for the adapter.", "Administrator", "Editor", "Viewer")]
-    public virtual void SetTemporalConstraint(string startTime, string stopTime, string constraintParameters)
+    public virtual void SetTemporalConstraint(string? startTime, string? stopTime, string? constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?
             DateTime.MinValue :
@@ -922,11 +923,11 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// array it must be sized to MinimumMeasurementsToUse
     /// </para>
     /// </remarks>
-    protected virtual bool TryGetMinimumNeededMeasurements(IFrame frame, ref IMeasurement[] measurements)
+    protected virtual bool TryGetMinimumNeededMeasurements(IFrame frame, ref IMeasurement[]? measurements)
     {
         int index = 0, minNeeded = MinimumMeasurementsToUse;
         IDictionary<MeasurementKey, IMeasurement> frameMeasurements = frame.Measurements;
-        MeasurementKey[] measurementKeys = InputMeasurementKeys;
+        MeasurementKey[]? measurementKeys = InputMeasurementKeys;
 
         if (measurements is null || measurements.Length < minNeeded)
             measurements = new IMeasurement[minNeeded];
@@ -947,7 +948,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
             // Loop through all input measurements to see if they exist in this frame
             foreach (MeasurementKey key in measurementKeys)
             {
-                if (!frameMeasurements.TryGetValue(key, out IMeasurement measurement))
+                if (!frameMeasurements.TryGetValue(key, out IMeasurement? measurement))
                     continue;
 
                 measurements[index++] = measurement;
@@ -965,15 +966,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </summary>
     protected virtual void OnNewMeasurements(ICollection<IMeasurement> measurements)
     {
-        try
-        {
-            NewMeasurements?.Invoke(this, new EventArgs<ICollection<IMeasurement>>(measurements));
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(NewMeasurements)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        NewMeasurements?.SafeInvoke(this, new EventArgs<ICollection<IMeasurement>>(measurements));
     }
 
     /// <summary>
@@ -988,14 +981,14 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// generated. In general, there should only be a few dozen distinct event names per class. Exceeding this
     /// threshold will cause the EventName to be replaced with a general warning that a usage issue has occurred.
     /// </remarks>
-    protected virtual void OnStatusMessage(MessageLevel level, string status, string eventName = null, MessageFlags flags = MessageFlags.None)
+    protected virtual void OnStatusMessage(MessageLevel level, string status, string? eventName = null, MessageFlags flags = MessageFlags.None)
     {
         try
         {
             Log.Publish(level, flags, eventName, status);
 
             using (Logger.SuppressLogMessages())
-                StatusMessage?.Invoke(this, new EventArgs<string>(AdapterBase.GetStatusWithMessageLevelPrefix(status, level)));
+                StatusMessage?.SafeInvoke(this, new EventArgs<string>(AdapterBase.GetStatusWithMessageLevelPrefix(status, level)));
         }
         catch (Exception ex)
         {
@@ -1009,15 +1002,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </summary>
     protected virtual void OnInputMeasurementKeysUpdated()
     {
-        try
-        {
-            InputMeasurementKeysUpdated?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(InputMeasurementKeysUpdated)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        InputMeasurementKeysUpdated?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -1025,15 +1010,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </summary>
     protected virtual void OnOutputMeasurementsUpdated()
     {
-        try
-        {
-            OutputMeasurementsUpdated?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(OutputMeasurementsUpdated)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        OutputMeasurementsUpdated?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -1041,15 +1018,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </summary>
     protected virtual void OnConfigurationChanged()
     {
-        try
-        {
-            ConfigurationChanged?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(ConfigurationChanged)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        ConfigurationChanged?.SafeInvoke(this, EventArgs.Empty);
     }
 
     // We cache hash code during construction or after element value change to speed usage

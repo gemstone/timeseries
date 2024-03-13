@@ -74,7 +74,7 @@ public class AllAdaptersCollection : AdapterCollectionBase<IAdapterCollection>
     /// ID, AdapterName, AssemblyName, TypeName, ConnectionString<br/>
     /// ID column type should be integer based, all other column types are expected to be string based.
     /// </remarks>
-    public override DataSet DataSource
+    public override DataSet? DataSource
     {
         get => base.DataSource;
         set
@@ -140,8 +140,11 @@ public class AllAdaptersCollection : AdapterCollectionBase<IAdapterCollection>
     /// <summary>
     /// Create newly defined adapters in the adapter collection configurations. 
     /// </summary>
-    private void AddNewAdapters(DataSet dataSource)
+    private void AddNewAdapters(DataSet? dataSource)
     {
+        if (dataSource is null)
+            return;
+
         List<IAdapterCollection> adapters;
 
         // Create a local synchronized copy of the items to iterate to avoid nested locks
@@ -160,7 +163,7 @@ public class AllAdaptersCollection : AdapterCollectionBase<IAdapterCollection>
                     continue;
 
                 // Create newly defined adapters
-                foreach (DataRow adapterRow in dataSource.Tables[dataMember].Rows)
+                foreach (DataRow adapterRow in dataSource.Tables[dataMember]!.Rows)
                 {
                     if (adapterCollection.TryGetAdapterByID(uint.Parse(adapterRow[nameof(ID)].ToNonNullString("0")), out _) || !adapterCollection.TryCreateAdapter(adapterRow, out IAdapter adapter))
                         continue;
@@ -175,8 +178,11 @@ public class AllAdaptersCollection : AdapterCollectionBase<IAdapterCollection>
     /// <summary>
     /// Remove adapters that are no longer present in the adapter collection configurations. 
     /// </summary>
-    private void RemoveOldAdapters(DataSet dataSource)
+    private void RemoveOldAdapters(DataSet? dataSource)
     {
+        if (dataSource is null)
+            return;
+
         List<IAdapterCollection> adapters;
 
         // Create a local synchronized copy of the items to iterate to avoid nested locks
@@ -198,7 +204,7 @@ public class AllAdaptersCollection : AdapterCollectionBase<IAdapterCollection>
                 for (int i = adapterCollection.Count - 1; i >= 0; i--)
                 {
                     IAdapter adapter = adapterCollection[i];
-                    DataRow[] adapterRows = dataSource.Tables[dataMember].Select($"ID = {adapter.ID}");
+                    DataRow[] adapterRows = dataSource.Tables[dataMember]!.Select($"ID = {adapter.ID}");
 
                     if (adapterRows.Length != 0 || adapter.ID == 0)
                         continue;
@@ -226,7 +232,7 @@ public class AllAdaptersCollection : AdapterCollectionBase<IAdapterCollection>
     /// <param name="adapter">Adapter reference if found; otherwise null.</param>
     /// <param name="adapterCollection">Adapter collection reference if <paramref name="adapter"/> is found; otherwise null.</param>
     /// <returns><c>true</c> if adapter with the specified <paramref name="id"/> was found; otherwise <c>false</c>.</returns>
-    public bool TryGetAnyAdapterByID(uint id, out IAdapter adapter, out IAdapterCollection adapterCollection)
+    public bool TryGetAnyAdapterByID(uint id, out IAdapter? adapter, out IAdapterCollection? adapterCollection)
     {
         lock (this)
         {
@@ -252,7 +258,7 @@ public class AllAdaptersCollection : AdapterCollectionBase<IAdapterCollection>
     /// <param name="adapter">Adapter reference if found; otherwise null.</param>
     /// <param name="adapterCollection">Adapter collection reference if <paramref name="adapter"/> is found; otherwise null.</param>
     /// <returns><c>true</c> if adapter with the specified <paramref name="name"/> was found; otherwise <c>false</c>.</returns>
-    public bool TryGetAnyAdapterByName(string name, out IAdapter adapter, out IAdapterCollection adapterCollection)
+    public bool TryGetAnyAdapterByName(string name, out IAdapter? adapter, out IAdapterCollection? adapterCollection)
     {
         lock (this)
         {
@@ -297,14 +303,14 @@ public class AllAdaptersCollection : AdapterCollectionBase<IAdapterCollection>
     /// This method is not implemented in <see cref="AllAdaptersCollection"/>.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override bool TryCreateAdapter(DataRow adapterRow, out IAdapterCollection adapter) =>
+    public override bool TryCreateAdapter(DataRow adapterRow, out IAdapterCollection? adapter) =>
         throw new NotImplementedException();
 
     /// <summary>
     /// This method is not implemented in <see cref="AllAdaptersCollection"/>.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override bool TryGetAdapterByID(uint id, out IAdapterCollection adapter) =>
+    public override bool TryGetAdapterByID(uint id, out IAdapterCollection? adapter) =>
         throw new NotImplementedException();
 
     #endregion

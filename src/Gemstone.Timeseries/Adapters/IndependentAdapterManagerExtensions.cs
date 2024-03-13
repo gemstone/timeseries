@@ -25,15 +25,18 @@
 using System;
 using System.Data;
 using System.Linq;
-using Gemstone.Timeseries.Adapters;
-using Gemstone.TimeSeries.Data;
-using Gemstone.TimeSeries.Model;
-//using HistorianRecord = Gemstone.TimeSeries.Model.Historian;
-//using MeasurementRecord = Gemstone.TimeSeries.Model.Measurement;
-//using SignalType = Gemstone.Model.SignalType;
-//using SignalTypeRecord = Gemstone.TimeSeries.Model.SignalType;
+using Gemstone.Data;
+using Gemstone.Data.DataExtensions;
+using Gemstone.Data.Model;
+using Gemstone.Numeric.EE;
+using Gemstone.Timeseries.Data;
+using DeviceRecord = Gemstone.Timeseries.Model.Device;
+using MeasurementRecord = Gemstone.Timeseries.Model.Measurement;
+using PhasorRecord = Gemstone.Timeseries.Model.Phasor;
+using HistorianRecord = Gemstone.Timeseries.Model.Historian;
+using SignalTypeRecord = Gemstone.Timeseries.Model.SignalType;
 
-namespace Gemstone.TimeSeries.Adapters;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Represents an adapter base class that provides functionality to manage and distribute measurements to a collection of action adapters.
@@ -143,7 +146,7 @@ public static class IndependentAdapterManagerExtensions
         string device = null;
 
         if (record is not null)
-            device = record[nameof(Device)].ToString();
+            device = record[nameof(Model.Device)].ToString();
 
         if (string.IsNullOrWhiteSpace(device))
             device = instance.LookupPointTag(signalID, measurementTable);
@@ -151,30 +154,30 @@ public static class IndependentAdapterManagerExtensions
         return device.ToUpper();
     }
 
-    ///// <summary>
-    ///// Lookups up associated phasor label from provided <paramref name="signalID"/>.
-    ///// </summary>
-    ///// <param name="instance">Target <see cref="IIndependentAdapterManager"/> instance.</param>
-    ///// <param name="signalID"><see cref="Guid"/> signal ID to lookup.</param>
-    ///// <param name="measurementTable">Measurement table name used for meta-data lookup.</param>
-    ///// <returns>Phasor label name, if found; otherwise, string representation associated point tag.</returns>
-    //public static string LookupPhasorLabel(this IIndependentAdapterManager instance, Guid signalID, string measurementTable = "ActiveMeasurements")
-    //{
-    //    DataRow record = instance.DataSource.LookupMetadata(signalID, measurementTable);
-    //    int phasorID = 0;
+    /// <summary>
+    /// Lookups up associated phasor label from provided <paramref name="signalID"/>.
+    /// </summary>
+    /// <param name="instance">Target <see cref="IIndependentAdapterManager"/> instance.</param>
+    /// <param name="signalID"><see cref="Guid"/> signal ID to lookup.</param>
+    /// <param name="measurementTable">Measurement table name used for meta-data lookup.</param>
+    /// <returns>Phasor label name, if found; otherwise, string representation associated point tag.</returns>
+    public static string LookupPhasorLabel(this IIndependentAdapterManager instance, Guid signalID, string measurementTable = "ActiveMeasurements")
+    {
+        DataRow record = instance.DataSource.LookupMetadata(signalID, measurementTable);
+        int phasorID = 0;
 
-    //    if (record is not null)
-    //        phasorID = record.ConvertNullableField<int>("PhasorID") ?? 0;
+        if (record is not null)
+            phasorID = record.ConvertNullableField<int>("PhasorID") ?? 0;
 
-    //    if (phasorID == 0)
-    //        return instance.LookupPointTag(signalID, measurementTable);
+        if (phasorID == 0)
+            return instance.LookupPointTag(signalID, measurementTable);
 
-    //    using AdoDataConnection connection = instance.HandleGetConfiguredConnection();
+        using AdoDataConnection connection = instance.HandleGetConfiguredConnection();
 
-    //    TableOperations<Phasor> phasorTable = new(connection);
-    //    Phasor phasorRecord = phasorTable.QueryRecordWhere("ID = {0}", phasorID);
-    //    return phasorRecord is null ? instance.LookupPointTag(signalID, measurementTable) : phasorRecord.Label.Trim().ToUpper();
-    //}
+        TableOperations<PhasorRecord> phasorTable = new(connection);
+        PhasorRecord phasorRecord = phasorTable.QueryRecordWhere("ID = {0}", phasorID);
+        return phasorRecord is null ? instance.LookupPointTag(signalID, measurementTable) : phasorRecord.Label.Trim().ToUpper();
+    }
 
     /// <summary>
     /// Determines if <paramref name="signalID"/> exists in local configuration.
@@ -185,62 +188,61 @@ public static class IndependentAdapterManagerExtensions
     /// <returns><c>true</c>, if <paramref name="signalID"/> is found; otherwise, <c>false</c>.</returns>
     public static bool SignalIDExists(this IIndependentAdapterManager instance, Guid signalID, string measurementTable = "ActiveMeasurements") => instance.DataSource.LookupMetadata(signalID, measurementTable) is not null;
 
-    // TODO: Connect TableOperations to Model
-    ///// <summary>
-    ///// Gets measurement record, creating it if needed.
-    ///// </summary>
-    ///// <param name="instance">Target <see cref="IIndependentAdapterManager"/> instance.</param>
-    ///// <param name="currentDeviceID">Device ID associated with current adapter, or zero if none.</param>
-    ///// <param name="pointTag">Point tag of measurement.</param>
-    ///// <param name="alternateTag">Alternate tag of measurement.</param>
-    ///// <param name="signalReference">Signal reference of measurement.</param>
-    ///// <param name="description">Description of measurement.</param>
-    ///// <param name="signalType">Signal type of measurement.</param>
-    ///// <param name="targetHistorianAcronym">Acronym of target historian for measurement.</param>
-    ///// <returns>Measurement record.</returns>
-    //public static MeasurementRecord GetMeasurementRecord(this IIndependentAdapterManager instance, int currentDeviceID, string pointTag, string alternateTag, string signalReference, string description, SignalType signalType = SignalType.CALC, string targetHistorianAcronym = "PPA")
-    //{
-    //    // Open database connection as defined in configuration file "systemSettings" category
-    //    using AdoDataConnection connection = instance.GetConfiguredConnection();
+    /// <summary>
+    /// Gets measurement record, creating it if needed.
+    /// </summary>
+    /// <param name="instance">Target <see cref="IIndependentAdapterManager"/> instance.</param>
+    /// <param name="currentDeviceID">Device ID associated with current adapter, or zero if none.</param>
+    /// <param name="pointTag">Point tag of measurement.</param>
+    /// <param name="alternateTag">Alternate tag of measurement.</param>
+    /// <param name="signalReference">Signal reference of measurement.</param>
+    /// <param name="description">Description of measurement.</param>
+    /// <param name="signalType">Signal type of measurement.</param>
+    /// <param name="targetHistorianAcronym">Acronym of target historian for measurement.</param>
+    /// <returns>Measurement record.</returns>
+    public static MeasurementRecord GetMeasurementRecord(this IIndependentAdapterManager instance, int currentDeviceID, string pointTag, string alternateTag, string signalReference, string description, SignalType signalType = SignalType.CALC, string targetHistorianAcronym = "PPA")
+    {
+        // Open database connection as defined in configuration file "systemSettings" category
+        using AdoDataConnection connection = instance.GetConfiguredConnection();
 
-    //    TableOperations<DeviceRecord> deviceTable = new(connection);
-    //    TableOperations<MeasurementRecord> measurementTable = new(connection);
-    //    TableOperations<HistorianRecord> historianTable = new(connection);
-    //    TableOperations<SignalTypeRecord> signalTypeTable = new(connection);
+        TableOperations<DeviceRecord> deviceTable = new(connection);
+        TableOperations<MeasurementRecord> measurementTable = new(connection);
+        TableOperations<HistorianRecord> historianTable = new(connection);
+        TableOperations<SignalTypeRecord> signalTypeTable = new(connection);
 
-    //    // Lookup target device ID
-    //    int? deviceID = currentDeviceID > 0 ? currentDeviceID : deviceTable.QueryRecordWhere("Acronym = {0}", instance.Name)?.ID;
+        // Lookup target device ID
+        int? deviceID = currentDeviceID > 0 ? currentDeviceID : deviceTable.QueryRecordWhere("Acronym = {0}", instance.Name)?.ID;
 
-    //    // Lookup target historian ID
-    //    int? historianID = historianTable.QueryRecordWhere("Acronym = {0}", targetHistorianAcronym)?.ID;
+        // Lookup target historian ID
+        int? historianID = historianTable.QueryRecordWhere("Acronym = {0}", targetHistorianAcronym)?.ID;
 
-    //    // Lookup signal type ID
-    //    int signalTypeID = signalTypeTable.QueryRecordWhere("Acronym = {0}", signalType.ToString())?.ID ?? 1;
+        // Lookup signal type ID
+        int signalTypeID = signalTypeTable.QueryRecordWhere("Acronym = {0}", signalType.ToString())?.ID ?? 1;
 
-    //    // Lookup measurement record by point tag, creating a new record if one does not exist
-    //    MeasurementRecord measurement = measurementTable.QueryRecordWhere("SignalReference = {0}", signalReference) ?? measurementTable.NewRecord();
+        // Lookup measurement record by point tag, creating a new record if one does not exist
+        MeasurementRecord measurement = measurementTable.QueryRecordWhere("SignalReference = {0}", signalReference) ?? measurementTable.NewRecord();
 
-    //    // Update record fields
-    //    measurement.DeviceID = deviceID;
-    //    measurement.HistorianID = historianID;
-    //    measurement.PointTag = pointTag;
-    //    measurement.AlternateTag = alternateTag;
-    //    measurement.SignalReference = signalReference;
-    //    measurement.SignalTypeID = signalTypeID;
-    //    measurement.Description = description;
+        // Update record fields
+        measurement.DeviceID = deviceID;
+        measurement.HistorianID = historianID;
+        measurement.PointTag = pointTag;
+        measurement.AlternateTag = alternateTag;
+        measurement.SignalReference = signalReference;
+        measurement.SignalTypeID = signalTypeID;
+        measurement.Description = description;
 
-    //    // Save record updates
-    //    measurementTable.AddNewOrUpdateRecord(measurement);
+        // Save record updates
+        measurementTable.AddNewOrUpdateRecord(measurement);
 
-    //    // Re-query new records to get any database assigned information, e.g., unique Guid-based signal ID
-    //    if (measurement.PointID == 0)
-    //        measurement = measurementTable.QueryRecordWhere("SignalReference = {0}", signalReference);
+        // Re-query new records to get any database assigned information, e.g., unique Guid-based signal ID
+        if (measurement.PointID == 0)
+            measurement = measurementTable.QueryRecordWhere("SignalReference = {0}", signalReference);
 
-    //    // Notify host system of configuration changes
-    //    instance.OnConfigurationChanged();
+        // Notify host system of configuration changes
+        instance.OnConfigurationChanged();
 
-    //    return measurement;
-    //}
+        return measurement;
+    }
 
     /// <summary>
     /// Waits for <paramref name="signalIDs"/> to be loaded in system configuration.

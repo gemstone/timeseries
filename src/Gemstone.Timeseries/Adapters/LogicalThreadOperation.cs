@@ -28,8 +28,9 @@
 using System;
 using System.Threading;
 using Gemstone.Threading.SynchronizedOperations;
+using CancellationToken = Gemstone.Threading.Cancellation.CancellationToken;
 
-namespace Gemstone.Timeseries;
+namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
 /// Synchronized operation that executes on a logical thread.
@@ -60,7 +61,7 @@ namespace Gemstone.Timeseries;
 /// });
 /// </code>
 /// </remarks>
-public class LogicalThreadOperation
+internal class LogicalThreadOperation
 {
     #region [ Members ]
 
@@ -77,7 +78,7 @@ public class LogicalThreadOperation
 
     private int m_state;
     private int m_queuedPriority;
-    private CancellationToken m_cancellationToken;
+    private CancellationToken? m_cancellationToken;
 
     #endregion
 
@@ -119,7 +120,7 @@ public class LogicalThreadOperation
         // calls to EnsurePriority before the first call to
         // ExecuteActionAsync do not inadvertently queue actions
         m_cancellationToken = new CancellationToken();
-        //m_cancellationToken.Cancel();
+        m_cancellationToken.Cancel();
     }
 
     #endregion
@@ -326,28 +327,25 @@ public class LogicalThreadOperation
     /// <param name="priority">The priority at which the current operation should be requeued.</param>
     public void RequeueAction(int priority)
     {
-        CancellationToken cancellationToken;
-        int queuedPriority;
-
         // Order of operations here is vital to avoid cancelling freshly
         // queued operations when the user hasn't changed the priority level
-        //cancellationToken = Interlocked.CompareExchange(ref m_cancellationToken, null, null);
-        queuedPriority = Interlocked.CompareExchange(ref m_queuedPriority, 0, 0);
+        CancellationToken? cancellationToken = Interlocked.CompareExchange(ref m_cancellationToken, null, null);
+        int queuedPriority = Interlocked.CompareExchange(ref m_queuedPriority, 0, 0);
 
         // If the priority has changed, attempt to cancel the currently queued action.
         // If the action was not previously cancelled, requeue the action at the given priority
-        //if (queuedPriority != priority && cancellationToken.Cancel())
+        if (queuedPriority != priority && (cancellationToken?.Cancel() ?? false))
             ExecuteActionAsync(priority);
     }
 
     private void ExecuteActionAsync(int priority)
     {
-        CancellationToken cancellationToken = new CancellationToken();
+        CancellationToken cancellationToken = new();
 
         // Order of operations here is vital to avoid getting
         // cancelled when the user hasn't changed the priority level
         Interlocked.Exchange(ref m_queuedPriority, priority);
-        //Interlocked.Exchange(ref m_cancellationToken, cancellationToken);
+        Interlocked.Exchange(ref m_cancellationToken, cancellationToken);
 
         m_thread.Push(priority, () =>
         {
@@ -355,7 +353,7 @@ public class LogicalThreadOperation
             // it means this action has been requeued so don't do anything.
             // By cancelling it now, we let requeue operations know that the
             // action is currently executing and will soon be requeued anyway
-            //if (m_cancellationToken.Cancel())
+            if (m_cancellationToken.Cancel())
                 ExecuteAction(m_action);
         });
     }

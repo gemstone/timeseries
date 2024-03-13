@@ -30,7 +30,6 @@ using Gemstone.Data.Model;
 
 namespace Gemstone.Timeseries.Model;
 public class SignalType
-
 {
     [PrimaryKey(true)]
     public int ID { get; set; }
@@ -64,6 +63,4 @@ public class SignalType
 
     [StringLength(10)]
     public string EngineeringUnits { get; set; }
-
-
 }

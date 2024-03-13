@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -47,7 +48,7 @@ public class InputAdapterCollection : AdapterCollectionBase<IInputAdapter>, IInp
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is collection of new measurements for host to process.
     /// </remarks>
-    public event EventHandler<EventArgs<ICollection<IMeasurement>>> NewMeasurements;
+    public event EventHandler<EventArgs<ICollection<IMeasurement>>>? NewMeasurements;
 
     /// <summary>
     /// Indicates to the host that processing for one of the input adapters has completed.
@@ -56,7 +57,7 @@ public class InputAdapterCollection : AdapterCollectionBase<IInputAdapter>, IInp
     /// This event is expected to only be raised when an input adapter has been designed to process
     /// a finite amount of data, e.g., reading a historical range of data during temporal processing.
     /// </remarks>
-    public event EventHandler ProcessingComplete;
+    public event EventHandler? ProcessingComplete;
 
     #endregion
 
@@ -123,7 +124,7 @@ public class InputAdapterCollection : AdapterCollectionBase<IInputAdapter>, IInp
     /// This event handler is overridable to allow derived class interception of all
     /// measurements flowing out of the <see cref="InputAdapterCollection"/>.
     /// </remarks>
-    protected virtual void OnNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
+    protected virtual void OnNewMeasurements(object? sender, EventArgs<ICollection<IMeasurement>> e)
     {
         try
         {
@@ -132,7 +133,7 @@ public class InputAdapterCollection : AdapterCollectionBase<IInputAdapter>, IInp
             if (ConvertReadonlyCollectionsToWritable && measurements.IsReadOnly)
                 e = new EventArgs<ICollection<IMeasurement>>(new List<IMeasurement>(measurements));
 
-            NewMeasurements?.Invoke(sender, e);
+            NewMeasurements?.SafeInvoke(sender, e);
         }
         catch (Exception ex)
         {
@@ -146,15 +147,7 @@ public class InputAdapterCollection : AdapterCollectionBase<IInputAdapter>, IInp
     /// </summary>
     protected virtual void OnProcessingComplete()
     {
-        try
-        {
-            ProcessingComplete?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(ProcessingComplete)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        ProcessingComplete?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -188,12 +181,12 @@ public class InputAdapterCollection : AdapterCollectionBase<IInputAdapter>, IInp
     }
 
     // Raise new measurements event on behalf of each item in collection
-    private void item_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e) =>
+    private void item_NewMeasurements(object? sender, EventArgs<ICollection<IMeasurement>> e) =>
         OnNewMeasurements(sender, e);
 
     // Raise processing complete event on behalf of each item in collection
-    private void item_ProcessingComplete(object sender, EventArgs e) =>
-        ProcessingComplete?.Invoke(sender, e);
+    private void item_ProcessingComplete(object? sender, EventArgs e) =>
+        ProcessingComplete?.SafeInvoke(sender, e);
 
     #endregion
 }

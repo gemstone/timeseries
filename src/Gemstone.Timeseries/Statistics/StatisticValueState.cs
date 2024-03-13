@@ -25,9 +25,7 @@
 //
 //******************************************************************************************************
 
-using Gemstone.Timeseries;
-
-namespace Gemstone.TimeSeries.Statistics
+namespace Gemstone.Timeseries.Statistics
 {
     /// <summary>
     /// Represents an object that can track the current and previous

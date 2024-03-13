@@ -36,9 +36,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Gemstone.Data;
-using Gemstone.Data.DataExtensions;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
 using Gemstone.Units;
 
@@ -73,7 +72,7 @@ public abstract class AdapterBase : IAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is new status message.
     /// </remarks>
-    public event EventHandler<EventArgs<string>> StatusMessage;
+    public event EventHandler<EventArgs<string>>? StatusMessage;
 
     /// <summary>
     /// Event is raised when there is an exception encountered while processing.
@@ -81,35 +80,35 @@ public abstract class AdapterBase : IAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is the exception that was thrown.
     /// </remarks>
-    public event EventHandler<EventArgs<Exception>> ProcessException;
+    public event EventHandler<EventArgs<Exception>>? ProcessException;
 
     /// <summary>
     /// Event is raised when <see cref="InputMeasurementKeys"/> are updated.
     /// </summary>
-    public event EventHandler InputMeasurementKeysUpdated;
+    public event EventHandler? InputMeasurementKeysUpdated;
 
     /// <summary>
     /// Event is raised when <see cref="OutputMeasurements"/> are updated.
     /// </summary>
-    public event EventHandler OutputMeasurementsUpdated;
+    public event EventHandler? OutputMeasurementsUpdated;
 
     /// <summary>
     /// Event is raised when adapter is aware of a configuration change.
     /// </summary>
-    public event EventHandler ConfigurationChanged;
+    public event EventHandler? ConfigurationChanged;
 
     /// <summary>
     /// Event is raised when <see cref="AdapterBase"/> is disposed.
     /// </summary>
-    public event EventHandler Disposed;
+    public event EventHandler? Disposed;
 
     // Fields
     private string m_name;
     private uint m_id;
     private string m_connectionString;
     private int m_initializationTimeout;
-    private MeasurementKey[] m_inputMeasurementKeys;
-    private IMeasurement[] m_outputMeasurements;
+    private MeasurementKey[]? m_inputMeasurementKeys;
+    private IMeasurement[]? m_outputMeasurements;
     private long m_processedMeasurements;
     private bool m_enabled;
     private long m_startTime;
@@ -266,7 +265,7 @@ public abstract class AdapterBase : IAdapter
     /// <summary>
     /// Gets or sets <see cref="DataSet"/> based data source available to this <see cref="AdapterBase"/>.
     /// </summary>
-    public virtual DataSet DataSource { get; set; }
+    public virtual DataSet? DataSource { get; set; }
 
     /// <summary>
     /// Gets or sets maximum time system will wait during <see cref="Start"/> for initialization.
@@ -295,7 +294,7 @@ public abstract class AdapterBase : IAdapter
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
-    public virtual MeasurementKey[] InputMeasurementKeys
+    public virtual MeasurementKey[]? InputMeasurementKeys
     {
         get => m_inputMeasurementKeys;
         set
@@ -321,7 +320,7 @@ public abstract class AdapterBase : IAdapter
     [DefaultValue(null)]
     [Description("Defines primary keys of output measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
-    public virtual IMeasurement[] OutputMeasurements
+    public virtual IMeasurement[]? OutputMeasurements
     {
         get => m_outputMeasurements;
         set
@@ -576,7 +575,7 @@ public abstract class AdapterBase : IAdapter
             return;
 
         IsDisposed = true;  // Prevent duplicate dispose.
-        Disposed?.Invoke(this, EventArgs.Empty);
+        Disposed?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -588,7 +587,7 @@ public abstract class AdapterBase : IAdapter
 
         Dictionary<string, string> settings = Settings;
 
-        InputMeasurementKeys = settings.TryGetValue(nameof(InputMeasurementKeys), out string setting) ?
+        InputMeasurementKeys = settings.TryGetValue(nameof(InputMeasurementKeys), out string? setting) ?
             ParseInputMeasurementKeys(DataSource, true, setting) :
             Array.Empty<MeasurementKey>();
 
@@ -604,12 +603,12 @@ public abstract class AdapterBase : IAdapter
         else
             AutoStart = true;
 
-        bool startTimeDefined = settings.TryGetValue(nameof(StartTimeConstraint), out string startTime);
-        bool stopTimeDefined = settings.TryGetValue(nameof(StopTimeConstraint), out string stopTime);
+        bool startTimeDefined = settings.TryGetValue(nameof(StartTimeConstraint), out string? startTime);
+        bool stopTimeDefined = settings.TryGetValue(nameof(StopTimeConstraint), out string? stopTime);
 
         if (startTimeDefined || stopTimeDefined)
         {
-            settings.TryGetValue("timeConstraintParameters", out string parameters);
+            settings.TryGetValue("timeConstraintParameters", out string? parameters);
             SetTemporalConstraint(startTime, stopTime, parameters);
         }
 
@@ -750,7 +749,7 @@ public abstract class AdapterBase : IAdapter
             Log.Publish(level, flags, eventName, status);
 
             using (Logger.SuppressLogMessages())
-                StatusMessage?.Invoke(this, new EventArgs<string>(GetStatusWithMessageLevelPrefix(status, level)));
+                StatusMessage?.SafeInvoke(this, new EventArgs<string>(GetStatusWithMessageLevelPrefix(status, level)));
         }
         catch (Exception ex)
         {
@@ -778,7 +777,7 @@ public abstract class AdapterBase : IAdapter
             Log.Publish(level, flags, eventName, exception?.Message, null, exception);
 
             using (Logger.SuppressLogMessages())
-                ProcessException?.Invoke(this, new EventArgs<Exception>(exception));
+                ProcessException?.SafeInvoke(this, new EventArgs<Exception>(exception));
         }
         catch (Exception ex)
         {
@@ -792,15 +791,7 @@ public abstract class AdapterBase : IAdapter
     /// </summary>
     protected virtual void OnInputMeasurementKeysUpdated()
     {
-        try
-        {
-            InputMeasurementKeysUpdated?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(InputMeasurementKeysUpdated)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        InputMeasurementKeysUpdated?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -808,15 +799,7 @@ public abstract class AdapterBase : IAdapter
     /// </summary>
     protected virtual void OnOutputMeasurementsUpdated()
     {
-        try
-        {
-            OutputMeasurementsUpdated?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(OutputMeasurementsUpdated)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        OutputMeasurementsUpdated?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -824,15 +807,7 @@ public abstract class AdapterBase : IAdapter
     /// </summary>
     protected virtual void OnConfigurationChanged()
     {
-        try
-        {
-            ConfigurationChanged?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(ConfigurationChanged)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        ConfigurationChanged?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -1197,7 +1172,7 @@ public abstract class AdapterBase : IAdapter
     /// Security warning: allowing SELECT statements, i.e., setting <paramref name="allowSelect"/> to <c>true</c>, should only be allowed in cases where SQL
     /// injection would not be an issue (e.g., in places where a user can already access the database and would have nothing to gain via an injection attack).
     /// </remarks>
-    public static MeasurementKey[] ParseInputMeasurementKeys(DataSet dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements")
+    public static MeasurementKey[] ParseInputMeasurementKeys(DataSet? dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements")
     {
         List<MeasurementKey> keys = new();
         MeasurementKey key;
@@ -1210,7 +1185,7 @@ public abstract class AdapterBase : IAdapter
 
         if (dataSourceAvailable && ParseFilterExpression(value, out string tableName, out string expression, out string sortField, out int takeCount))
         {
-            foreach (DataRow row in dataSource.Tables[tableName].Select(expression, sortField).Take(takeCount))
+            foreach (DataRow row in dataSource!.Tables[tableName].Select(expression, sortField).Take(takeCount))
             {
                 key = MeasurementKey.LookUpOrCreate(row["SignalID"].ToNonNullString(Guid.Empty.ToString()).ConvertToType<Guid>(), row[nameof(ID)].ToString());
 

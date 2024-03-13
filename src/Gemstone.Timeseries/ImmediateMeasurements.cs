@@ -32,8 +32,6 @@ using System.Data;
 using System.Linq;
 using Gemstone.StringExtensions;
 
-#pragma warning disable VSSpell001 // Spell Check
-
 namespace Gemstone.Timeseries;
 
 /// <summary>

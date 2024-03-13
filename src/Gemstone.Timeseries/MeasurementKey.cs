@@ -27,7 +27,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Threading;
-using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
 using Gemstone.StringExtensions;
 
@@ -452,7 +451,6 @@ public class MeasurementKey
     /// Establish default <see cref="MeasurementKey"/> cache.
     /// </summary>
     /// <param name="connection">The database connection.</param>
-    /// <param name="adapterType">The database adapter type.</param>
     /// <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
     /// <remarks>
     /// Source tables are expected to have at least the following fields:
@@ -461,24 +459,10 @@ public class MeasurementKey
     ///      SignalID    GUID        Unique identification for measurement
     /// </code>
     /// </remarks>
-    public static void EstablishDefaultCache(IDbConnection connection, Type adapterType, string measurementTable = "ActiveMeasurement")
+    public static void EstablishDefaultCache(IDbConnection connection, string measurementTable = "ActiveMeasurement")
     {
-        DataRowCollection RetrieveData()
-        {
-            using IDbCommand command = connection.CreateParameterizedCommand($"SELECT {nameof(ID)}, {nameof(SignalID)} FROM {measurementTable}");
-            command.CommandTimeout = 30;
-
-            if (Activator.CreateInstance(adapterType, command) is not IDataAdapter dataAdapter)
-                throw new NullReferenceException($"Failed to create {adapterType}");
-
-            DataSet data = new("Temp");
-            dataAdapter.Fill(data);
-
-            return data.Tables[0].Rows;
-        }
-
         // Establish default measurement key cache
-        foreach (DataRow measurement in RetrieveData())
+        foreach (DataRow measurement in connection.RetrieveData($"SELECT ID, SignalID FROM {measurementTable}").Rows)
         {
             if (TrySplit(measurement[nameof(ID)].ToString()!, out string source, out ulong id))
                 CreateOrUpdate(measurement[nameof(SignalID)].ToNonNullString(Guid.Empty.ToString()).ConvertToType<Guid>(), source, id);

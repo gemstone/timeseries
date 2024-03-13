@@ -44,7 +44,7 @@ public interface IAdapter : ISupportLifecycle, IProvideStatus
         /// <remarks>
         /// <see cref="EventArgs{T}.Argument"/> is new status message.
         /// </remarks>
-        event EventHandler<EventArgs<string>> StatusMessage;
+        event EventHandler<EventArgs<string>>? StatusMessage;
 
         /// <summary>
         /// Event is raised when there is an exception encountered while processing.
@@ -60,27 +60,27 @@ public interface IAdapter : ISupportLifecycle, IProvideStatus
         /// <see cref="EventArgs{T}.Argument"/> is the exception that was thrown.
         /// </para>
         /// </remarks>
-        event EventHandler<EventArgs<Exception>> ProcessException;
+        event EventHandler<EventArgs<Exception>>? ProcessException;
 
         /// <summary>
         /// Event is raised when <see cref="InputMeasurementKeys"/> are updated.
         /// </summary>
-        event EventHandler InputMeasurementKeysUpdated;
+        event EventHandler? InputMeasurementKeysUpdated;
 
         /// <summary>
         /// Event is raised when <see cref="OutputMeasurements"/> are updated.
         /// </summary>
-        event EventHandler OutputMeasurementsUpdated;
+        event EventHandler? OutputMeasurementsUpdated;
 
         /// <summary>
         /// Event is raised when adapter is aware of a configuration change.
         /// </summary>
-        event EventHandler ConfigurationChanged;
+        event EventHandler? ConfigurationChanged;
 
         /// <summary>
         /// Gets or sets <see cref="DataSet"/> based data source available to <see cref="IAdapter"/>.
         /// </summary>
-        DataSet DataSource { get; set; }
+        DataSet? DataSource { get; set; }
 
         /// <summary>
         /// Gets or sets key/value pair connection information specific to <see cref="IAdapter"/>.
@@ -134,12 +134,12 @@ public interface IAdapter : ISupportLifecycle, IProvideStatus
         /// <summary>
         /// Gets or sets primary keys of input measurements the adapter expects.
         /// </summary>
-        MeasurementKey[] InputMeasurementKeys { get; set; }
+        MeasurementKey[]? InputMeasurementKeys { get; set; }
 
         /// <summary>
         /// Gets or sets output measurements that the adapter will produce, if any.
         /// </summary>
-        IMeasurement[] OutputMeasurements { get; set; }
+        IMeasurement[]? OutputMeasurements { get; set; }
 
         /// <summary>
         /// Gets the total number of measurements processed thus far by the <see cref="IAdapter"/>.
@@ -245,7 +245,7 @@ public interface IAdapter : ISupportLifecycle, IProvideStatus
         /// </list>
         /// </para>
         /// </remarks>
-        void SetTemporalConstraint(string startTime, string stopTime, string constraintParameters);
+        void SetTemporalConstraint(string? startTime, string? stopTime, string? constraintParameters);
     }
 
     /// <summary>

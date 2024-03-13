@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Units;
 
@@ -53,7 +54,7 @@ public class RoutingTables : IDisposable
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is new status message.
     /// </remarks>
-    public event EventHandler<EventArgs<string>> StatusMessage;
+    public event EventHandler<EventArgs<string>>? StatusMessage;
 
     /// <summary>
     /// Event is raised when there is an exception encountered while processing.
@@ -61,12 +62,12 @@ public class RoutingTables : IDisposable
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is the exception that was thrown.
     /// </remarks>
-    public event EventHandler<EventArgs<Exception>> ProcessException;
+    public event EventHandler<EventArgs<Exception>>? ProcessException;
 
     // Fields
 
     private readonly LongSynchronizedOperation m_calculateRoutingTablesOperation;
-    private volatile MeasurementKey[] m_inputMeasurementKeysRestriction;
+    private volatile MeasurementKey[]? m_inputMeasurementKeysRestriction;
     private readonly IRouteMappingTables m_routeMappingTables;
 
     private HashSet<IAdapter> m_prevCalculatedConsumers;
@@ -171,12 +172,12 @@ public class RoutingTables : IDisposable
     /// <remarks>
     /// Set the <paramref name="inputMeasurementKeysRestriction"/> to null to use full adapter I/O routing demands.
     /// </remarks>
-    public virtual void CalculateRoutingTables(MeasurementKey[] inputMeasurementKeysRestriction)
+    public virtual void CalculateRoutingTables(MeasurementKey[]? inputMeasurementKeysRestriction)
     {
         try
         {
             m_inputMeasurementKeysRestriction = inputMeasurementKeysRestriction;
-/*            m_calculateRoutingTablesOperation.RunOnceAsync();*/ // comes from GSF.Core.Shared\Threading\SynchronizedOperationBase.cs
+            m_calculateRoutingTablesOperation.RunAsync();
         }
         catch (Exception ex)
         {
@@ -189,9 +190,9 @@ public class RoutingTables : IDisposable
     {
         long startTime = DateTime.UtcNow.Ticks;
 
-        IInputAdapter[] inputAdapterCollection = null;
-        IActionAdapter[] actionAdapterCollection = null;
-        IOutputAdapter[] outputAdapterCollection = null;
+        IInputAdapter[]? inputAdapterCollection = null;
+        IActionAdapter[]? actionAdapterCollection = null;
+        IOutputAdapter[]? outputAdapterCollection = null;
         bool retry = true;
 
         OnStatusMessage(MessageLevel.Info, "Starting measurement route calculation...");
@@ -274,7 +275,7 @@ public class RoutingTables : IDisposable
     /// </summary>
     /// <param name="sender">the sender object</param>
     /// <param name="measurements">the event arguments</param>
-    public void InjectMeasurements(object sender, EventArgs<ICollection<IMeasurement>>? measurements) =>
+    public void InjectMeasurements(object? sender, EventArgs<ICollection<IMeasurement>>? measurements) =>
         m_routeMappingTables.InjectMeasurements(sender, measurements);
 
     /// <summary>
@@ -285,7 +286,7 @@ public class RoutingTables : IDisposable
     /// <remarks>
     /// Time-series framework uses this handler to route new measurements to the action and output adapters; adapter will handle filtering.
     /// </remarks>
-    public virtual void BroadcastMeasurementsHandler(object sender, EventArgs<ICollection<IMeasurement>> e)
+    public virtual void BroadcastMeasurementsHandler(object? sender, EventArgs<ICollection<IMeasurement>> e)
     {
         ICollection<IMeasurement> newMeasurements = e.Argument;
 
@@ -305,14 +306,14 @@ public class RoutingTables : IDisposable
     /// generated. In general, there should only be a few dozen distinct event names per class. Exceeding this
     /// threshold will cause the EventName to be replaced with a general warning that a usage issue has occurred.
     /// </remarks>
-    protected virtual void OnStatusMessage(MessageLevel level, string status, string eventName = null, MessageFlags flags = MessageFlags.None)
+    protected virtual void OnStatusMessage(MessageLevel level, string status, string? eventName = null, MessageFlags flags = MessageFlags.None)
     {
         try
         {
             Log.Publish(level, flags, eventName ?? "CalculateRoutingTables", status);
 
             using (Logger.SuppressLogMessages())
-                StatusMessage?.Invoke(this, new EventArgs<string>(AdapterBase.GetStatusWithMessageLevelPrefix(status, level)));
+                StatusMessage?.SafeInvoke(this, new EventArgs<string>(AdapterBase.GetStatusWithMessageLevelPrefix(status, level)));
         }
         catch (Exception ex)
         {
@@ -320,7 +321,6 @@ public class RoutingTables : IDisposable
             OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for StatusMessage event: {ex.Message}", ex), "ConsumerEventException");
         }
     }
-
 
     /// <summary>
     /// Raises the <see cref="ProcessException"/> event.
@@ -334,14 +334,14 @@ public class RoutingTables : IDisposable
     /// generated. In general, there should only be a few dozen distinct event names per class. Exceeding this
     /// threshold will cause the EventName to be replaced with a general warning that a usage issue has occurred.
     /// </remarks>
-    protected virtual void OnProcessException(MessageLevel level, Exception exception, string eventName = null, MessageFlags flags = MessageFlags.None)
+    protected virtual void OnProcessException(MessageLevel level, Exception exception, string? eventName = null, MessageFlags flags = MessageFlags.None)
     {
         try
         {
-            Log.Publish(level, flags, eventName ?? "CalculateRoutingTables", exception?.Message, null, exception);
+            Log.Publish(level, flags, eventName ?? "CalculateRoutingTables", exception.Message, null, exception);
 
             using (Logger.SuppressLogMessages())
-                ProcessException?.Invoke(this, new EventArgs<Exception>(exception));
+                ProcessException?.SafeInvoke(this, new EventArgs<Exception>(exception));
         }
         catch (Exception ex)
         {
@@ -360,7 +360,7 @@ public class RoutingTables : IDisposable
     /// <remarks>
     /// Set the <paramref name="inputMeasurementKeysRestriction"/> to null to use full adapter routing demands.
     /// </remarks>
-    protected virtual void HandleConnectOnDemandAdapters(ISet<MeasurementKey> inputMeasurementKeysRestriction, IInputAdapter[] inputAdapterCollection, IActionAdapter[] actionAdapterCollection, IOutputAdapter[] outputAdapterCollection)
+    protected virtual void HandleConnectOnDemandAdapters(ISet<MeasurementKey> inputMeasurementKeysRestriction, IInputAdapter[] inputAdapterCollection, IActionAdapter[]? actionAdapterCollection, IOutputAdapter[]? outputAdapterCollection)
     {
         ISet<IAdapter> dependencyChain;
 
@@ -470,7 +470,7 @@ public class RoutingTables : IDisposable
     /// <param name="inputAdapterCollection">Collection of input adapters at start of routing table calculation.</param>
     /// <param name="actionAdapterCollection">Collection of action adapters at start of routing table calculation.</param>
     /// <param name="outputAdapterCollection">Collection of output adapters at start of routing table calculation.</param>
-    protected virtual ISet<IAdapter> TraverseDependencyChain(ISet<MeasurementKey> inputMeasurementKeysRestriction, IInputAdapter[] inputAdapterCollection, IActionAdapter[] actionAdapterCollection, IOutputAdapter[] outputAdapterCollection)
+    protected virtual ISet<IAdapter> TraverseDependencyChain(ISet<MeasurementKey> inputMeasurementKeysRestriction, IInputAdapter[]? inputAdapterCollection, IActionAdapter[] actionAdapterCollection, IOutputAdapter[]? outputAdapterCollection)
     {
         ISet<IAdapter> dependencyChain = new HashSet<IAdapter>();
 
@@ -501,7 +501,7 @@ public class RoutingTables : IDisposable
     /// <param name="inputAdapterCollection">Collection of input adapters at start of routing table calculation.</param>
     /// <param name="actionAdapterCollection">Collection of action adapters at start of routing table calculation.</param>
     /// <param name="outputAdapterCollection">Collection of output adapters at start of routing table calculation.</param>
-    protected virtual ISet<IAdapter> TraverseDependencyChain(IInputAdapter[] inputAdapterCollection, IActionAdapter[] actionAdapterCollection, IOutputAdapter[] outputAdapterCollection)
+    protected virtual ISet<IAdapter> TraverseDependencyChain(IInputAdapter[] inputAdapterCollection, IActionAdapter[] ?actionAdapterCollection, IOutputAdapter[] outputAdapterCollection)
     {
         ISet<IAdapter> dependencyChain = new HashSet<IAdapter>();
 
@@ -536,7 +536,7 @@ public class RoutingTables : IDisposable
     }
 
     // Adds an input adapter to the dependency chain.
-    private void AddInputAdapter(IInputAdapter adapter, ISet<IAdapter> dependencyChain, IInputAdapter[] inputAdapterCollection, IActionAdapter[] actionAdapterCollection, IOutputAdapter[] outputAdapterCollection)
+    private void AddInputAdapter(IInputAdapter adapter, ISet<IAdapter> dependencyChain, IInputAdapter[]? inputAdapterCollection, IActionAdapter[] actionAdapterCollection, IOutputAdapter[]? outputAdapterCollection)
     {
         HashSet<MeasurementKey> outputMeasurementKeys = new(adapter.OutputMeasurementKeys());
 
@@ -567,7 +567,7 @@ public class RoutingTables : IDisposable
     }
 
     // Adds an action adapter to the dependency chain.
-    private void AddActionAdapter(IActionAdapter adapter, ISet<IAdapter> dependencyChain, IInputAdapter[] inputAdapterCollection, IActionAdapter[] actionAdapterCollection, IOutputAdapter[] outputAdapterCollection)
+    private void AddActionAdapter(IActionAdapter adapter, ISet<IAdapter> dependencyChain, IInputAdapter[]? inputAdapterCollection, IActionAdapter[]? actionAdapterCollection, IOutputAdapter[] outputAdapterCollection)
     {
         HashSet<MeasurementKey> inputMeasurementKeys = new(adapter.InputMeasurementKeys());
         HashSet<MeasurementKey> outputMeasurementKeys = new(adapter.OutputMeasurementKeys());

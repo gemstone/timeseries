@@ -58,6 +58,5 @@ public interface IRouteMappingTables
     /// </summary>
     /// <param name="sender">the sender object</param>
     /// <param name="measurements">the event arguments</param>
-    void InjectMeasurements(object sender, EventArgs<ICollection<IMeasurement>> measurements);
-
+    void InjectMeasurements(object? sender, EventArgs<ICollection<IMeasurement>>? measurements);
 }

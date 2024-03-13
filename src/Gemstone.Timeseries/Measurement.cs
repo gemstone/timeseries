@@ -162,7 +162,6 @@ public class Measurement : IMeasurement
     /// </summary>
     public Ticks CreatedTimestamp => m_lifespan.UtcTime.Ticks;
 
-    // Big-Endian binary value interpretation
     object ITimeseriesValue.Value
     {
         get => m_value;

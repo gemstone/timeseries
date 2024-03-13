@@ -32,9 +32,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Gemstone.Diagnostics;
+using Gemstone.Numeric.EE;
 using Gemstone.StringExtensions;
-
-//using ConnectionStringParser = Gemstone.Configuration.ConnectionStringParser<Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute>;
+using Gemstone.Threading.SynchronizedOperations;
+using Gemstone.Timeseries.Data;
+using ConnectionStringParser = Gemstone.Configuration.ConnectionStringParser<Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute>;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -77,47 +79,47 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
     /// <summary>
     /// Gets sub-second offsets based on current <see cref="ActionAdapterBase.FramesPerSecond"/>.
     /// </summary>
-    public Ticks[] SubsecondOffsets { get; private set; }
+    public Ticks[]? SubsecondOffsets { get; private set; }
 
-    ///// <summary>
-    ///// Gets or sets primary keys of input measurements the action adapter expects.
-    ///// </summary>
-    ///// <remarks>
-    ///// If your adapter needs to receive all measurements, you must explicitly set InputMeasurementKeys to null.
-    ///// </remarks>
-    //[ConnectionStringParameter]
-    //[Description("Defines primary keys of input measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    //[DefaultValue(null)]
-    //[CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
-    //public override MeasurementKey[] InputMeasurementKeys
-    //{
-    //    get => base.InputMeasurementKeys;
-    //    set
-    //    {
-    //        base.InputMeasurementKeys = value;
-    //        InputMeasurementKeyTypes = DataSource.GetSignalTypes(value, SourceMeasurementTable);
+    /// <summary>
+    /// Gets or sets primary keys of input measurements the action adapter expects.
+    /// </summary>
+    /// <remarks>
+    /// If your adapter needs to receive all measurements, you must explicitly set InputMeasurementKeys to null.
+    /// </remarks>
+    [ConnectionStringParameter]
+    [Description("Defines primary keys of input measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
+    [DefaultValue(null)]
+    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
+    public override MeasurementKey[]? InputMeasurementKeys
+    {
+        get => base.InputMeasurementKeys;
+        set
+        {
+            base.InputMeasurementKeys = value;
+            InputMeasurementKeyTypes = DataSource.GetSignalTypes(value, SourceMeasurementTable);
 
-    //        for (int i = 0; i < value?.Length; i++)
-    //            m_keyIndexes[value[i]] = i;
-    //    }
-    //}
+            for (int i = 0; i < value?.Length; i++)
+                m_keyIndexes[value[i]] = i;
+        }
+    }
 
-    ///// <summary>
-    ///// Gets or sets output measurements that the action adapter will produce, if any.
-    ///// </summary>
-    //[ConnectionStringParameter]
-    //[Description("Defines primary keys of output measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    //[DefaultValue(null)]
-    //[CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
-    //public override IMeasurement[] OutputMeasurements
-    //{
-    //    get => base.OutputMeasurements;
-    //    set
-    //    {
-    //        base.OutputMeasurements = value;
-    //        OutputMeasurementTypes = DataSource.GetSignalTypes(value, SourceMeasurementTable);
-    //    }
-    //}
+    /// <summary>
+    /// Gets or sets output measurements that the action adapter will produce, if any.
+    /// </summary>
+    [ConnectionStringParameter]
+    [Description("Defines primary keys of output measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
+    [DefaultValue(null)]
+    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
+    public override IMeasurement[]? OutputMeasurements
+    {
+        get => base.OutputMeasurements;
+        set
+        {
+            base.OutputMeasurements = value;
+            OutputMeasurementTypes = DataSource.GetSignalTypes(value, SourceMeasurementTable);
+        }
+    }
 
     /// <summary>
     /// Gets or sets the source measurement table to use for configuration.
@@ -130,12 +132,12 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
     /// <summary>
     /// Gets or sets input measurement <see cref="SignalType"/>'s for each of the <see cref="ActionAdapterBase.InputMeasurementKeys"/>, if any.
     /// </summary>
-    public virtual SignalType[] InputMeasurementKeyTypes { get; private set; }
+    public virtual SignalType[]? InputMeasurementKeyTypes { get; private set; }
 
     /// <summary>
     /// Gets or sets output measurement <see cref="SignalType"/>'s for each of the <see cref="ActionAdapterBase.OutputMeasurements"/>, if any.
     /// </summary>
-    public virtual SignalType[] OutputMeasurementTypes { get; private set; }
+    public virtual SignalType[]? OutputMeasurementTypes { get; private set; }
 
     /// <summary>
     /// Gets the flag indicating if this adapter supports temporal processing.
@@ -165,7 +167,7 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
 
                 foreach (SignalType signalType in Enum.GetValues(typeof(SignalType)))
                 {
-                    int count = OutputMeasurements.Where((_, index) => OutputMeasurementTypes[index] == signalType).Count();
+                    int count = OutputMeasurements.Where((_, index) => OutputMeasurementTypes![index] == signalType).Count();
 
                     if (count <= 0)
                         continue;
@@ -182,7 +184,7 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
 
                 foreach (SignalType signalType in Enum.GetValues(typeof(SignalType)))
                 {
-                    int count = InputMeasurementKeys.Where((_, index) => InputMeasurementKeyTypes[index] == signalType).Count();
+                    int count = InputMeasurementKeys.Where((_, index) => InputMeasurementKeyTypes![index] == signalType).Count();
 
                     if (count <= 0)
                         continue;
@@ -204,11 +206,11 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
     /// </summary>
     public override void Initialize()
     {
-        string setting;
+        string? setting;
 
         // Parse all properties marked with ConnectionStringParameterAttribute from provided ConnectionString value
-        //ConnectionStringParser parser = new();
-        //parser.ParseConnectionString(ConnectionString, this);
+        ConnectionStringParser parser = new();
+        parser.ParseConnectionString(ConnectionString, this);
 
         base.Initialize();
 
@@ -271,8 +273,8 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
         IMeasurement[,] dataWindow = m_dataWindows.GetOrAdd(Interlocked.Read(ref m_lastFrameTimestamp), CreateNewDataWindow);
 
         // At the top of each second, process any prior data windows
-        //if (index == 0)
-        //    m_processDataWindows.RunOnceAsync();
+        if (index == 0)
+            m_processDataWindows.RunAsync();
 
         // Update current data window with provided measurements
         foreach (IMeasurement measurement in frame.Measurements.Values)
@@ -308,7 +310,7 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
 
         for (int i = 0; i < InputCount; i++)
         {
-            MeasurementKey key = InputMeasurementKeys[i];
+            MeasurementKey key = InputMeasurementKeys![i];
 
             for (int j = 0; j < FramesPerSecond; j++)
             {
@@ -316,7 +318,7 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
                 {
                     Metadata = key.Metadata,
                     Value = double.NaN,
-                    Timestamp = timestamp + SubsecondOffsets[j],
+                    Timestamp = timestamp + SubsecondOffsets![j],
                     StateFlags = MeasurementStateFlags.BadData
                 };
             }

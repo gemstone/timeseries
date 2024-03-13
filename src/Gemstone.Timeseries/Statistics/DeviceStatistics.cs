@@ -23,13 +23,11 @@
 //
 //******************************************************************************************************
 
-using Gemstone.Timeseries;
-
 #pragma warning disable IDE0051 // Remove unused private members
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedParameter.Local
-namespace Gemstone.TimeSeries.Statistics;
+namespace Gemstone.Timeseries.Statistics;
 
 internal class DeviceStatistics
 {

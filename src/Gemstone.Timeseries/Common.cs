@@ -18,11 +18,10 @@
 //  ----------------------------------------------------------------------------------------------------
 //  11/15/2016 - Ritchie Carroll
 //       Generated original version of source code.
-//  11/09/2023 - Lillian Gensolin
-//       Added UpdateType enum / changed Common class from internal to public (temporary).
+//
 //******************************************************************************************************
 
-//using Gemstone.Diagnostics;
+using Gemstone.Diagnostics;
 using Gemstone.Threading;
 
 namespace Gemstone.Timeseries;
@@ -30,8 +29,7 @@ namespace Gemstone.Timeseries;
 /// <summary>
 /// Defines common properties and functions for the time-series library.
 /// </summary>
-// TODO: Change to internal once UpdateType is moved
-public class Common
+internal class Common
 {
     /// <summary>
     /// Folder name for dynamically compiled assemblies.
@@ -41,29 +39,10 @@ public class Common
     // Common use static timer for the Time-Series Library
     public static readonly SharedTimerScheduler TimerScheduler;
 
-    //Static Constructor
+    // Static Constructor
     static Common()
     {
-        //using Logger.AppendStackMessages("Owner", "Timeseries.Common");
-        TimerScheduler = new SharedTimerScheduler();
-    }
-    /// <summary>
-    /// Indicates the type of update.
-    /// </summary>
-    // TODO: This needs to be moved into Gemstone Common.
-    public enum UpdateType
-    {
-        /// <summary>
-        /// Update is informational.
-        /// </summary>
-        Information,
-        /// <summary>
-        /// Update is a warning.
-        /// </summary>
-        Warning,
-        /// <summary>
-        /// Update is an alarm.
-        /// </summary>
-        Alarm
+        using (Logger.AppendStackMessages("Owner", "Timeseries.Common"))
+            TimerScheduler = new SharedTimerScheduler();
     }
 }

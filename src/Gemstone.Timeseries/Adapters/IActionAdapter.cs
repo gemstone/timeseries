@@ -41,7 +41,7 @@ public interface IActionAdapter : IAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is a collection of new measurements for host to process.
     /// </remarks>
-    event EventHandler<EventArgs<ICollection<IMeasurement>>> NewMeasurements;
+    event EventHandler<EventArgs<ICollection<IMeasurement>>>? NewMeasurements;
 
     /// <summary>
     /// This event is raised every five seconds allowing consumer to track current number of unpublished seconds of data in the queue.
@@ -49,7 +49,7 @@ public interface IActionAdapter : IAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is the total number of unpublished seconds of data.
     /// </remarks>
-    event EventHandler<EventArgs<int>> UnpublishedSamples;
+    event EventHandler<EventArgs<int>>? UnpublishedSamples;
 
     /// <summary>
     /// This event is raised if there are any measurements being discarded during the sorting process.
@@ -57,7 +57,7 @@ public interface IActionAdapter : IAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is the enumeration of <see cref="IMeasurement"/> values that are being discarded during the sorting process.
     /// </remarks>
-    event EventHandler<EventArgs<IEnumerable<IMeasurement>>> DiscardingMeasurements;
+    event EventHandler<EventArgs<IEnumerable<IMeasurement>>>? DiscardingMeasurements;
 
     /// <summary>
     /// Gets or sets flag indicating if action adapter should respect auto-start requests based on input demands.
@@ -86,7 +86,7 @@ public interface IActionAdapter : IAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> to apply no filter.
     /// </remarks>
-    string[] InputSourceIDs { get; set; }
+    string[]? InputSourceIDs { get; set; }
 
     /// <summary>
     /// Gets or sets <see cref="MeasurementKey.Source"/> values used to filter output measurements.
@@ -95,17 +95,17 @@ public interface IActionAdapter : IAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> to apply no filter.
     /// </remarks>
-    string[] OutputSourceIDs { get; set; }
+    string[]? OutputSourceIDs { get; set; }
 
     /// <summary>
     /// Gets or sets input measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    MeasurementKey[] RequestedInputMeasurementKeys { get; set; }
+    MeasurementKey[]? RequestedInputMeasurementKeys { get; set; }
 
     /// <summary>
     /// Gets or sets output measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    MeasurementKey[] RequestedOutputMeasurementKeys { get; set; }
+    MeasurementKey[]? RequestedOutputMeasurementKeys { get; set; }
 
     /// <summary>
     /// Queues measurements for processing.  Measurements are automatically filtered to the defined <see cref="IAdapter.InputMeasurementKeys"/>.

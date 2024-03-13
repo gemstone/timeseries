@@ -41,7 +41,7 @@ public interface IInputAdapter : IAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is a collection of new measurements for host to process.
     /// </remarks>
-    event EventHandler<EventArgs<ICollection<IMeasurement>>> NewMeasurements;
+    event EventHandler<EventArgs<ICollection<IMeasurement>>>? NewMeasurements;
 
     /// <summary>
     /// Indicates to the host that processing for the input adapter has completed.
@@ -50,7 +50,7 @@ public interface IInputAdapter : IAdapter
     /// This event is expected to only be raised when an input adapter has been designed to process
     /// a finite amount of data, e.g., reading a historical range of data during temporal processing.
     /// </remarks>
-    event EventHandler ProcessingComplete;
+    event EventHandler? ProcessingComplete;
 
     /// <summary>
     /// Gets or sets <see cref="MeasurementKey.Source"/> values used to filter output measurements.
@@ -59,10 +59,10 @@ public interface IInputAdapter : IAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> apply no filter.
     /// </remarks>
-    string[] OutputSourceIDs { get; set; }
+    string[]? OutputSourceIDs { get; set; }
 
     /// <summary>
     /// Gets or sets output measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    MeasurementKey[] RequestedOutputMeasurementKeys { get; set; }
+    MeasurementKey[]? RequestedOutputMeasurementKeys { get; set; }
 }

@@ -22,6 +22,7 @@
 //       Converted code to .NET core.
 //
 //******************************************************************************************************
+#pragma warning disable CA1416
 
 using System;
 using System.Collections.Concurrent;
@@ -34,6 +35,7 @@ using System.Security;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
+using Gemstone.Console;
 using Gemstone.IO;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;

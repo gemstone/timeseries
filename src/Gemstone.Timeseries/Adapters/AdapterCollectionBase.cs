@@ -38,6 +38,7 @@ using Gemstone.ActionExtensions;
 using Gemstone.Collections;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Diagnostics;
+using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
@@ -62,7 +63,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is new status message.
     /// </remarks>
-    public event EventHandler<EventArgs<string>> StatusMessage;
+    public event EventHandler<EventArgs<string>>? StatusMessage;
 
     /// <summary>
     /// Event is raised when there is an exception encountered while processing.
@@ -70,45 +71,45 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is the exception that was thrown.
     /// </remarks>
-    public event EventHandler<EventArgs<Exception>> ProcessException;
+    public event EventHandler<EventArgs<Exception>>? ProcessException;
 
     /// <summary>
     /// Event is raised when <see cref="InputMeasurementKeys"/> are updated.
     /// </summary>
-    public event EventHandler InputMeasurementKeysUpdated;
+    public event EventHandler? InputMeasurementKeysUpdated;
 
     /// <summary>
     /// Event is raised when <see cref="OutputMeasurements"/> are updated.
     /// </summary>
-    public event EventHandler OutputMeasurementsUpdated;
+    public event EventHandler? OutputMeasurementsUpdated;
 
     /// <summary>
     /// Event is raised when adapter is aware of a configuration change.
     /// </summary>
-    public event EventHandler ConfigurationChanged;
+    public event EventHandler? ConfigurationChanged;
 
     /// <summary>
     /// Event is raised when this <see cref="AdapterCollectionBase{T}"/> is disposed or an <see cref="IAdapter"/> in the collection is disposed.
     /// </summary>
-    public event EventHandler Disposed;
+    public event EventHandler? Disposed;
 
     // Fields
     private string m_name;
     private string m_connectionString;
-    private DataSet m_dataSource;
+    private DataSet? m_dataSource;
     private int m_initializationTimeout;
     private bool m_autoStart;
-    private IMeasurement[] m_outputMeasurements;
-    private MeasurementKey[] m_inputMeasurementKeys;
-    private MeasurementKey[] m_requestedInputMeasurementKeys;
-    private MeasurementKey[] m_requestedOutputMeasurementKeys;
+    private IMeasurement[]? m_outputMeasurements;
+    private MeasurementKey[]? m_inputMeasurementKeys;
+    private MeasurementKey[]? m_requestedInputMeasurementKeys;
+    private MeasurementKey[]? m_requestedOutputMeasurementKeys;
     private Ticks m_lastProcessTime;
     private Time m_totalProcessTime;
     private long m_processedMeasurements;
     private DateTime m_startTimeConstraint;
     private DateTime m_stopTimeConstraint;
     private int m_processingInterval;
-    private SharedTimer m_monitorTimer;
+    private readonly SharedTimer m_monitorTimer;
     private bool m_monitorTimerEnabled;
     private readonly LogicalThreadScheduler m_lifecycleThreadScheduler;
     private readonly Dictionary<uint, LogicalThread> m_lifecycleThreads;
@@ -225,7 +226,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// ID, AdapterName, AssemblyName, TypeName, ConnectionString<br/>
     /// ID column type should be integer based, all other column types are expected to be string based.
     /// </remarks>
-    public virtual DataSet DataSource
+    public virtual DataSet? DataSource
     {
         get => m_dataSource;
         set
@@ -276,7 +277,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Gets or sets primary keys of input measurements the <see cref="AdapterCollectionBase{T}"/> expects, if any.
     /// </summary>
-    public virtual MeasurementKey[] InputMeasurementKeys
+    public virtual MeasurementKey[]? InputMeasurementKeys
     {
         get
         {
@@ -312,7 +313,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Gets or sets output measurements that the <see cref="AdapterCollectionBase{T}"/> will produce, if any.
     /// </summary>
-    public virtual IMeasurement[] OutputMeasurements
+    public virtual IMeasurement[]? OutputMeasurements
     {
         get
         {
@@ -350,7 +351,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <remarks>
     /// The collection classes simply track this value if assigned, no automatic action is taken.
     /// </remarks>
-    public virtual string[] InputSourceIDs { get; set; }
+    public virtual string[]? InputSourceIDs { get; set; }
 
     /// <summary>
     /// Gets or sets <see cref="MeasurementKey.Source"/> values used to filter output measurements.
@@ -363,7 +364,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Gets or sets input measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    public virtual MeasurementKey[] RequestedInputMeasurementKeys
+    public virtual MeasurementKey[]? RequestedInputMeasurementKeys
     {
         get
         {
@@ -704,19 +705,15 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             if (!disposing)
                 return;
 
-            if (m_monitorTimer is not null)
-            {
-                m_monitorTimer.Elapsed -= m_monitorTimer_Elapsed;
-                m_monitorTimer.Dispose();
-            }
-            m_monitorTimer = null;
+            m_monitorTimer.Elapsed -= m_monitorTimer_Elapsed;
+            m_monitorTimer.Dispose();
 
             Clear();        // This disposes all items in collection...
         }
         finally
         {
             IsDisposed = true;  // Prevent duplicate dispose.
-            Disposed?.Invoke(this, EventArgs.Empty);
+            Disposed?.SafeInvoke(this, EventArgs.Empty);
         }
     }
 
@@ -1125,7 +1122,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             Log.Publish(level, flags, eventName, status);
 
             using (Logger.SuppressLogMessages())
-                StatusMessage?.Invoke(this, new EventArgs<string>(AdapterBase.GetStatusWithMessageLevelPrefix(status, level)));
+                StatusMessage?.SafeInvoke(this, new EventArgs<string>(AdapterBase.GetStatusWithMessageLevelPrefix(status, level)));
         }
         catch (Exception ex)
         {
@@ -1153,7 +1150,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             Log.Publish(level, flags, eventName, exception?.Message, null, exception);
 
             using (Logger.SuppressLogMessages())
-                ProcessException?.Invoke(this, new EventArgs<Exception>(exception));
+                ProcessException?.SafeInvoke(this, new EventArgs<Exception>(exception));
         }
         catch (Exception ex)
         {
@@ -1167,15 +1164,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// </summary>
     protected virtual void OnInputMeasurementKeysUpdated()
     {
-        try
-        {
-            InputMeasurementKeysUpdated?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(InputMeasurementKeysUpdated)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        InputMeasurementKeysUpdated?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -1183,15 +1172,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// </summary>
     protected virtual void OnOutputMeasurementsUpdated()
     {
-        try
-        {
-            OutputMeasurementsUpdated?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(OutputMeasurementsUpdated)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        OutputMeasurementsUpdated?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -1199,15 +1180,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// </summary>
     protected virtual void OnConfigurationChanged()
     {
-        try
-        {
-            ConfigurationChanged?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            // We protect our code from consumer thrown exceptions
-            OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(ConfigurationChanged)} event: {ex.Message}", ex), "ConsumerEventException");
-        }
+        ConfigurationChanged?.SafeInvoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -1333,8 +1306,8 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     // Handle item initialization
     private void Initialize(T item)
     {
-        Action initializationTimeoutAction = null;
-        ICancellationToken initializationTimeoutToken = null;
+        Action? initializationTimeoutAction = null;
+        Func<bool>? cancelInitializationTimeout = null;
 
         if (m_activeItem.Value != item)
             return;
@@ -1358,17 +1331,17 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
                         OnStatusMessage(MessageLevel.Warning, string.Format(MessageFormat, item.Name, item.InitializationTimeout / 1000.0), "Initialization");
 
                         // ReSharper disable once AccessToModifiedClosure
-                        //initializationTimeoutToken = initializationTimeoutAction?.DelayAndExecute(item.InitializationTimeout);
+                        cancelInitializationTimeout = initializationTimeoutAction?.DelayAndExecute(item.InitializationTimeout);
                     };
 
-                    //initializationTimeoutToken = initializationTimeoutAction.DelayAndExecute(item.InitializationTimeout);
+                    cancelInitializationTimeout = initializationTimeoutAction.DelayAndExecute(item.InitializationTimeout);
                 }
 
                 // Initialize the item
                 item.Initialize();
 
                 // Initialization successfully completed, so stop the timeout timer
-                initializationTimeoutToken?.Cancel();
+                cancelInitializationTimeout?.Invoke();
             }
 
             // If the item is set to auto-start and not already started, start it now
@@ -1414,7 +1387,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             OnProcessException(MessageLevel.Warning, new InvalidOperationException($"Failed to initialize adapter {item.Name}: {ex.Message}", ex), "Initialization");
 
             // Initialization failed, so stop the timeout timer
-            initializationTimeoutToken?.Cancel();
+            cancelInitializationTimeout?.Invoke();
         }
     }
 
@@ -1473,25 +1446,25 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     }
 
     // Raise status message event on behalf of each item in collection
-    private void item_StatusMessage(object sender, EventArgs<string> e) => StatusMessage?.Invoke(sender, e);
+    private void item_StatusMessage(object? sender, EventArgs<string> e) => StatusMessage?.SafeInvoke(sender, e);
 
     // Raise process exception event on behalf of each item in collection
-    private void item_ProcessException(object sender, EventArgs<Exception> e) => ProcessException?.Invoke(sender, e);
+    private void item_ProcessException(object? sender, EventArgs<Exception> e) => ProcessException?.SafeInvoke(sender, e);
 
     // Raise input measurement keys updated event on behalf of each item in collection
-    private void item_InputMeasurementKeysUpdated(object sender, EventArgs e) => InputMeasurementKeysUpdated?.Invoke(sender, e);
+    private void item_InputMeasurementKeysUpdated(object? sender, EventArgs e) => InputMeasurementKeysUpdated?.SafeInvoke(sender, e);
 
     // Raise output measurements updated event on behalf of each item in collection
-    private void item_OutputMeasurementsUpdated(object sender, EventArgs e) => OutputMeasurementsUpdated?.Invoke(sender, e);
+    private void item_OutputMeasurementsUpdated(object? sender, EventArgs e) => OutputMeasurementsUpdated?.SafeInvoke(sender, e);
 
     // Raise configuration changed event on behalf of each item in collection
-    private void item_ConfigurationChanged(object sender, EventArgs e) => ConfigurationChanged?.Invoke(sender, e);
+    private void item_ConfigurationChanged(object? sender, EventArgs e) => ConfigurationChanged?.SafeInvoke(sender, e);
 
     // Raise disposed event on behalf of each item in collection
-    private void item_Disposed(object sender, EventArgs e) => Disposed?.Invoke(sender, e);
+    private void item_Disposed(object? sender, EventArgs e) => Disposed?.SafeInvoke(sender, e);
 
     // We monitor the total number of measurements destined for archival here...
-    private void m_monitorTimer_Elapsed(object sender, EventArgs<DateTime> e)
+    private void m_monitorTimer_Elapsed(object? sender, EventArgs<DateTime> e)
     {
         StringBuilder status = new();
         long processedMeasurements = ProcessedMeasurements;

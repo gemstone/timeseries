@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Gemstone.Configuration;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
 
@@ -99,7 +100,7 @@ public static class OptimizationOptions
 
         try
         {
-            setting = Settings.Instance.OptimizationsConnectionString;
+            setting = Settings.Default.OptimizationsConnectionString;
             Dictionary<string, string> optimizations = setting.ParseKeyValuePairs();
 
             //LoadThreadPoolMonitoring(optimizations);

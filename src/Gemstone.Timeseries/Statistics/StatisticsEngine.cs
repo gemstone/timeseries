@@ -36,6 +36,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Timers;
 using Gemstone.Collections.CollectionExtensions;
+using Gemstone.Configuration;
 using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
 using Gemstone.Data.DataSetExtensions;
@@ -183,7 +184,7 @@ public class StatisticsEngine : FacileActionAdapterBase
 
         public int Index => Convert.ToInt32(m_statistic!["SignalIndex"]);
 
-        private Guid NodeID => m_nodeID ?? (Guid)(m_nodeID = Timeseries.Settings.Instance.NodeID);
+        private Guid NodeID => m_nodeID ?? (Guid)(m_nodeID = SystemSettings.NodeID);
 
         private string Company => m_company ??= GetCompany();
 
@@ -278,7 +279,7 @@ public class StatisticsEngine : FacileActionAdapterBase
             }
             catch
             {
-                companyAcronym = Timeseries.Settings.Instance.CompanyAcronym.TruncateRight(3);
+                companyAcronym = SystemSettings.CompanyAcronym.TruncateRight(3);
             }
 
             return companyAcronym;
@@ -550,7 +551,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     public void ReloadStatistics()
     {
         // See if statistics should be processed
-        if (Timeseries.Settings.Instance.ProcessStatistics)
+        if (SystemSettings.ProcessStatistics)
         {
             m_updateStatisticMeasurementsOperation.RunAsync();
             m_loadStatisticsOperation.Run();
@@ -615,7 +616,7 @@ public class StatisticsEngine : FacileActionAdapterBase
             sources = s_statisticSources.ToArray();
         }
 
-        using (AdoDataConnection database = new(Timeseries.Settings.Instance))
+        using (AdoDataConnection database = new(SettingsInstance!))
         {
             // Handles database queries, caching, and lazy loading for
             // determining the parameters to send in to each INSERT query
@@ -982,9 +983,9 @@ public class StatisticsEngine : FacileActionAdapterBase
                 .ToUpper();
         }
 
-        using AdoDataConnection database = new(Timeseries.Settings.Instance);
+        using AdoDataConnection database = new(SettingsInstance!);
 
-        return database.Connection.ExecuteScalar($"SELECT Name FROM Node WHERE ID = '{database.Guid(Timeseries.Settings.Instance.NodeID)}'").ToNonNullString().ToUpper();
+        return database.Connection.ExecuteScalar($"SELECT Name FROM Node WHERE ID = '{database.Guid(SystemSettings.NodeID)}'").ToNonNullString().ToUpper();
     }
 
     private void RestartReloadStatisticsTimer()
@@ -1041,7 +1042,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     static StatisticsEngine()
     {
         s_statisticSources = new List<StatisticSource>();
-        s_forwardToSnmp = Timeseries.Settings.Instance.ForwardStatisticsToSnmp;
+        s_forwardToSnmp = SystemSettings.ForwardStatisticsToSnmp;
     }
 
     // Static Methods
@@ -1248,6 +1249,10 @@ public class StatisticsEngine : FacileActionAdapterBase
                 s_statisticSources.RemoveAt(expiredSources[i]);
         }
     }
+
+    private static Settings SettingsInstance => Gemstone.Configuration.Settings.Instance;
+
+    private static dynamic SystemSettings => Gemstone.Configuration.Settings.Default.System;
 
     #endregion
 }

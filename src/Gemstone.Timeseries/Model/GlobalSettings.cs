@@ -24,12 +24,13 @@
 //******************************************************************************************************
 
 using System;
+using Gemstone.Configuration;
 
 namespace Gemstone.Timeseries.Model;
 
 internal class GlobalSettings
 {
-    public Guid NodeID => Settings.Instance.NodeID;
+    public Guid NodeID => Settings.Default.System.NodeID;
 
-    public string CompanyAcronym => Settings.Instance.CompanyAcronym;
+    public string CompanyAcronym => Settings.Default.System.CompanyAcronym;
 }

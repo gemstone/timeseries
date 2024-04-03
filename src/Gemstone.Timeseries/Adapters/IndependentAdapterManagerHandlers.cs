@@ -29,6 +29,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Gemstone.Configuration;
 using Gemstone.Data;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
@@ -330,7 +331,7 @@ internal static class IndependentAdapterManagerHandlers
     /// <param name="instance">Target <see cref="IIndependentAdapterManager"/> instance.</param>
     /// <returns>New ADO data connection based on configured settings.</returns>
     public static AdoDataConnection HandleGetConfiguredConnection(this IIndependentAdapterManager instance) => string.IsNullOrWhiteSpace(instance.DatabaseConnectionString) ?
-        new AdoDataConnection(Settings.Instance) :
+        new AdoDataConnection(Settings.Instance!) :
         new AdoDataConnection(instance.DatabaseConnectionString, instance.DatabaseProviderString);
 
     /// <summary>

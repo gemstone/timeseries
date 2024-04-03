@@ -32,6 +32,7 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using Gemstone.Collections.CollectionExtensions;
+using Gemstone.Configuration;
 using Gemstone.Diagnostics;
 
 namespace Gemstone.Timeseries.Statistics;
@@ -52,7 +53,7 @@ internal static class GlobalDeviceStatistics
 
     static GlobalDeviceStatistics()
     {
-        s_medianTimestampDeviation = new BigInteger(Ticks.FromSeconds(Settings.Instance.MedianTimestampDeviation));
+        s_medianTimestampDeviation = new BigInteger(Ticks.FromSeconds(Settings.Default.MedianTimestampDeviation));
         s_latestDeviceTimes = new ConcurrentDictionary<IDevice, LatestDeviceTime>();
         s_bigTwo = new BigInteger(2);
         s_bigMaxLong = new BigInteger(long.MaxValue);

@@ -31,6 +31,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using Gemstone.Collections.CollectionExtensions;
+using Gemstone.Configuration;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
@@ -139,7 +140,7 @@ public class IaonSession : IProvideStatus, IDisposable
     /// </summary>
     public IaonSession()
     {
-        Settings settings = Settings.Instance;
+        dynamic settings = Settings.Default;
 
         m_measurementWarningThreshold = settings.MeasurementWarningThreshold;
         m_measurementDumpingThreshold = settings.MeasurementDumpingThreshold;

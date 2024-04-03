@@ -40,6 +40,8 @@
 
   <PropertyGroup Condition="'$(Configuration)'=='Development'">
     <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -57,8 +59,14 @@
      <ProjectReference Include="..\..\..\common\src\Gemstone\Gemstone.Common.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Common" Version="1.0.110" Condition="'$(Configuration)'!='Development'" />
 
+     <ProjectReference Include="..\..\..\communication\src\Gemstone.Communication\Gemstone.Communication.csproj" Condition="'$(Configuration)'=='Development'" />
+     <PackageReference Include="Gemstone.Communication" Version="1.0.102" Condition="'$(Configuration)'!='Development'" />
+
      <ProjectReference Include="..\..\..\numeric\src\Gemstone.Numeric\Gemstone.Numeric.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Numeric" Version="1.0.110" Condition="'$(Configuration)'!='Development'" />
+
+     <ProjectReference Include="..\..\..\io\src\Gemstone.IO\Gemstone.IO.csproj" Condition="'$(Configuration)'=='Development'" />
+     <PackageReference Include="Gemstone.IO" Version="1.0.102" Condition="'$(Configuration)'!='Development'" />
 
      <ProjectReference Include="..\..\..\data\src\Gemstone.Data\Gemstone.Data.csproj" Condition="'$(Configuration)'=='Development'" /> 
      <PackageReference Include="Gemstone.Data" Version="1.0.110" Condition="'$(Configuration)'!='Development'" /> 

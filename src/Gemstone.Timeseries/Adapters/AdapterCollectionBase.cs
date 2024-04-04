@@ -42,6 +42,7 @@ using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
+using Gemstone.Threading.LogicalThreads;
 using Gemstone.Units;
 
 namespace Gemstone.Timeseries.Adapters;

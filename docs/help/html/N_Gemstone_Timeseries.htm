@@ -23,11 +23,18 @@
             Represents a primary key for a measurement.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_MeasurementMetadata.htm">MeasurementMetadata</a></td><td>
             Represents a set of meta-data fields for <a href="T_Gemstone_Timeseries_IMeasurement.htm">IMeasurement</a> that should rarely change.
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_OptimizationOptions.htm">OptimizationOptions</a></td><td>
+            This class will contain various optimizations that can be enabled in certain circumstances 
+            through the SystemSettings. Since this framework is used in many settings, for stability
+            reasons, tradeoffs are made. This gives the users opportunities to enable/disable certain
+            optimizations if for some reason they cause adverse effects on their system.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_PrecisionInputTimer.htm">PrecisionInputTimer</a></td><td>
             Precision input timer.
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_ServiceHostBase.htm">ServiceHostBase</a></td><td>
+            Represents the time-series framework service host.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_TemporalMeasurement.htm">TemporalMeasurement</a></td><td>
             Represents a time constrained measured value.
-            </td></tr><tr><td><a href="T_Gemstone_Timeseries_TimeSeriesStartupOperations.htm">TimeSeriesStartupOperations</a></td><td>
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_TimeseriesStartupOperations.htm">TimeseriesStartupOperations</a></td><td>
             Defines a data operations to be performed at startup.
             </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Interfaces</h2><div id="IDJCASection"><table id="interfaceList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_IDevice.htm">IDevice</a></td><td>
             Represents a device that acts as a source of <a href="T_Gemstone_Timeseries_IMeasurement.htm">IMeasurement</a>s.
@@ -35,9 +42,9 @@
             Abstract frame interface representing a collection of measurements at an exact moment in time.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_IMeasurement.htm">IMeasurement</a></td><td>
             Represents an interface for an abstract measurement value measured by a device at an exact time.
-            </td></tr><tr><td><a href="T_Gemstone_Timeseries_ITimeSeriesValue.htm">ITimeSeriesValue</a></td><td>
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_ITimeseriesValue.htm">ITimeseriesValue</a></td><td>
             Represents the fundamental binary value interface for a time-series value.
-            </td></tr><tr><td><a href="T_Gemstone_Timeseries_ITimeSeriesValue_1.htm">ITimeSeriesValue<span id="LST5B7D0E46_0" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'"></span>T<span id="LST5B7D0E46_1" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;"></span></a></td><td>
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_ITimeseriesValue_1.htm">ITimeseriesValue<span id="LST5B7D0E46_0" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'"></span>T<span id="LST5B7D0E46_1" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;"></span></a></td><td>
             Represents the fundamental typed interface for a time-series value.
             </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Delegates</h2><div id="IDLCASection"><table id="delegateList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_MeasurementValueFilterFunction.htm">MeasurementValueFilterFunction</a></td><td>
             Method signature for function used to apply a value filter over a sequence of <a href="T_Gemstone_Timeseries_IMeasurement.htm">IMeasurement</a> values.
@@ -52,6 +59,8 @@
             Down-sampling method enumeration.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_MeasurementStateFlags.htm">MeasurementStateFlags</a></td><td>
             Measurement state flags.
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_OptimizationOptions_RoutingMethod.htm">OptimizationOptions<span id="LST5B7D0E46_2" data-languageSpecificText="cs=.|vb=.|cpp=::|nu=.|fs=."></span>RoutingMethod</a></td><td>
+            The routing method to use.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_TemporalOutlierOperation.htm">TemporalOutlierOperation</a></td><td>
             Enumeration that defines how to handle <a href="T_Gemstone_Timeseries_TemporalMeasurement.htm">TemporalMeasurement</a>
             values that are outside of the defined Lag/Lead time bounds.

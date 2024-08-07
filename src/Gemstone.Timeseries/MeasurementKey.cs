@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
 using Gemstone.Data.DataExtensions;
 using Gemstone.StringExtensions;
@@ -459,7 +460,7 @@ public class MeasurementKey
     ///      SignalID    GUID        Unique identification for measurement
     /// </code>
     /// </remarks>
-    public static void EstablishDefaultCache(IDbConnection connection, string measurementTable = "ActiveMeasurement")
+    public static void EstablishDefaultCache(DbConnection connection, string measurementTable = "ActiveMeasurement")
     {
         // Establish default measurement key cache
         foreach (DataRow measurement in connection.RetrieveData($"SELECT ID, SignalID FROM {measurementTable}").Rows)

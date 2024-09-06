@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
 using Gemstone.Identity;
@@ -169,7 +170,10 @@ public static class TimeseriesStartupOperations
         Dictionary<string, string> updateMap = new();
 
         // Find user accounts that need to be updated
-        using (IDataReader userAccountReader = database.Connection.ExecuteReader(SelectUserAccountQuery))
+        (DbDataReader userAccountReader, DbCommand command) = database.Connection.ExecuteReader(SelectUserAccountQuery);
+
+        using (userAccountReader)
+        using (command)
         {
             while (userAccountReader.Read())
             {
@@ -193,7 +197,10 @@ public static class TimeseriesStartupOperations
         updateMap.Clear();
 
         // Find security groups that need to be updated
-        using (IDataReader securityGroupReader = database.Connection.ExecuteReader(SelectSecurityGroupQuery))
+        (DbDataReader securityGroupReader, command) = database.Connection.ExecuteReader(SelectSecurityGroupQuery);
+
+        using (securityGroupReader)
+        using (command)
         {
             while (securityGroupReader.Read())
             {

@@ -91,8 +91,6 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     #region [ Members ]
 
     // Constants
-    private const int DefaultMinThreadPoolSize = 25;
-    private const int DefaultMaxThreadPoolSize = 100;
     private const int DefaultConfigurationBackups = 5;
 
     // Fields
@@ -3842,6 +3840,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     {
         AdoDataConnection.DefineSettings(settings);
         DataProtection.DefineSettings(settings);
+        IaonSession.DefineSettings(settings);
 
         dynamic section = settings[settingsCategory];
 
@@ -3849,24 +3848,32 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         string cachePath = string.Format("{0}{1}ConfigurationCache{1}", servicePath, Path.DirectorySeparatorChar);
 
         // System settings
-        section.ConfigurationType = ("Database", "Specifies type of configuration: Database, WebService, BinaryFile or XmlFile");
+        section.NodeID = (Guid.Empty, "Defines the configured NodeID for the system"); // TODO: Remove this
+        section.ConfigurationType = (ConfigurationType.Database, "Specifies type of configuration: Database, WebService, BinaryFile or XmlFile");
         section.ConnectionString = ($"Data Source=localhost\\SQLEXPRESS; Initial Catalog={ServiceName}; Integrated Security=SSPI; Connect Timeout=5", "Configuration database connection string");
         section.DataProviderString = ("AssemblyName={System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089}; ConnectionType=System.Data.SqlClient.SqlConnection; AdapterType=System.Data.SqlClient.SqlDataAdapter", "Configuration database ADO.NET data provider assembly type creation string");
         section.ConfigurationCachePath = (cachePath, "Defines the path used to cache serialized configurations");
         section.CachedConfigurationFile = ("SystemConfiguration.xml", "File name for last known good system configuration (only cached for a Database or WebService connection)");
         section.UniqueAdaptersIDs = ("True", "Set to true if all runtime adapter ID's will be unique to allow for easier adapter specification");
         section.ProcessPriority = ("High", "Sets desired process priority: Normal, AboveNormal, High, RealTime");
-        section.AllowRemoteRestart = ("True", "Controls ability to remotely restart the host service.");
-        section.MinThreadPoolWorkerThreads = (DefaultMinThreadPoolSize, "Defines the minimum number of allowed thread pool worker threads.");
-        section.MaxThreadPoolWorkerThreads = (DefaultMaxThreadPoolSize, "Defines the maximum number of allowed thread pool worker threads.");
-        section.MinThreadPoolIOPortThreads = (DefaultMinThreadPoolSize, "Defines the minimum number of allowed thread pool I/O completion port threads (used by socket layer).");
-        section.MaxThreadPoolIOPortThreads = (DefaultMaxThreadPoolSize, "Defines the maximum number of allowed thread pool I/O completion port threads (used by socket layer).");
-        section.ConfigurationBackups = (DefaultConfigurationBackups, "Defines the total number of older backup configurations to maintain.");
-        section.PreferCachedConfiguration = ("False", "Set to true to try the cached configuration first, before loading database configuration - typically used when cache is updated by external process.");
-        section.LocalCertificate = ($"{ServiceName}.cer", "Path to the local certificate used by this server for authentication.");
-        section.RemoteCertificatesPath = (@"Certs\Remotes", "Path to the directory where remote certificates are stored.");
-        section.DefaultCulture = ("en-US", "Default culture to use for language, country/region and calendar formats.");
-    
+        section.AllowRemoteRestart = ("True", "Controls ability to remotely restart the host service");
+
+        ThreadPool.GetMinThreads(out int minWorkerThreads, out int minIOPortThreads);
+        section.MinThreadPoolWorkerThreads = (minWorkerThreads, "Defines the minimum number of allowed thread pool worker threads");
+        section.MinThreadPoolIOPortThreads = (minIOPortThreads, "Defines the minimum number of allowed thread pool I/O completion port threads (used by socket layer)");
+
+        ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxIOPortThreads);
+        section.MaxThreadPoolWorkerThreads = (maxWorkerThreads, "Defines the maximum number of allowed thread pool worker threads");
+        section.MaxThreadPoolIOPortThreads = (maxIOPortThreads, "Defines the maximum number of allowed thread pool I/O completion port threads (used by socket layer)");
+
+        section.ConfigurationBackups = (DefaultConfigurationBackups, "Defines the total number of older backup configurations to maintain");
+        section.PreferCachedConfiguration = (false, "Set to true to try the cached configuration first, before loading database configuration - typically used when cache is updated by external process");
+        section.LocalCertificate = ($"{ServiceName}.cer", "Path to the local certificate used by this server for authentication");
+        section.RemoteCertificatesPath = (@"Certs\Remotes", "Path to the directory where remote certificates are stored");
+        section.DefaultCulture = ("en-US", "Default culture to use for language, country/region and calendar formats");
+        section.CompanyName = ("Grid Protection Alliance", "Defines the company name for the system");
+        section.CompanyAcronym = ("GPA", "Defines the company acronym for the system");
+
         MultipleDestinationExporter.DefineSettings(settings, "HealthExporter");
         MultipleDestinationExporter.DefineSettings(settings, "StatusExporter");
     }

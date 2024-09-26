@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Gemstone.Collections.CollectionExtensions;
@@ -42,7 +43,7 @@ namespace Gemstone.Timeseries.Adapters;
 /// <summary>
 /// Represents a new Input, Action, Output interface session.
 /// </summary>
-public class IaonSession : IProvideStatus, IDisposable
+public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
 {
     #region [ Members ]
 
@@ -140,7 +141,7 @@ public class IaonSession : IProvideStatus, IDisposable
     /// </summary>
     public IaonSession()
     {
-        dynamic settings = Settings.Default;
+        dynamic settings = Settings.Instance[Settings.SystemSettingsCategory];
 
         m_measurementWarningThreshold = settings.MeasurementWarningThreshold;
         m_measurementDumpingThreshold = settings.MeasurementDumpingThreshold;
@@ -866,6 +867,19 @@ public class IaonSession : IProvideStatus, IDisposable
                 throw;
             }
         }
+    }
+    /// <inheritdoc cref="IDefineSettings.DefineSettings" />
+    public static void DefineSettings(Settings settings, string settingsCategory = Settings.SystemSettingsCategory)
+    {
+        dynamic section = settings[settingsCategory];
+
+        // System settings
+        section.ProcessStatistics = (true, "Defines flag that determines if statistics should be processed during operation");
+        section.ForwardStatisticsToSnmp = (false, "Defines flag that determines if statistics should be published as SNMP trap messages");
+        section.MeasurementWarningThreshold = (100000, "Defines the number of unarchived measurements allowed in any output adapter queue before displaying a warning message");
+        section.MeasurementDumpingThreshold = (500000, "Defines the number of unarchived measurements allowed in any output adapter queue before taking evasive action and dumping data");
+        section.SampleSizeWarningThreshold = (10, "Defines the default number of unpublished samples (in seconds) allowed in any action adapter queue before displaying a warning message");
+        section.MedianTimestampDeviation = (30.0D, "Defines the maximum allowed deviation from median timestamp, in seconds, for consideration in average timestamp calculation");
     }
 
     #endregion

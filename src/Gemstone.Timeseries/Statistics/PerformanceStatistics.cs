@@ -34,13 +34,12 @@ using static Gemstone.Common;
 // ReSharper disable UnusedParameter.Local
 namespace Gemstone.Timeseries.Statistics;
 
-// TODO: Uncomment all after creating PerformanceMonitor connection (Gemstone Diagnostics?)
 internal static class PerformanceStatistics
 {
     private static readonly double s_totalPhysicalMemory;
 
     // Run-time log used to calculate system run-time
-    internal static RunTimeLog s_systemRunTimeLog = default!;
+    internal static RunTimeLog SystemRunTimeLog;
 
     static PerformanceStatistics()
     {
@@ -184,7 +183,7 @@ internal static class PerformanceStatistics
     #region [ System Times ]
 
     private static double GetSystemStatistic_UpTime(object source, string _) =>
-        !(s_systemRunTimeLog?.IsDisposed ?? true) ? s_systemRunTimeLog.UpTime.TotalSeconds : double.NaN;
+        !(SystemRunTimeLog?.IsDisposed ?? true) ? SystemRunTimeLog.UpTime.TotalSeconds : double.NaN;
 
     private static double GetSystemStatistic_AverageDeviceTime(object source, string _) =>
         (double)new UnixTimeTag(GlobalDeviceStatistics.AverageTime).Value;

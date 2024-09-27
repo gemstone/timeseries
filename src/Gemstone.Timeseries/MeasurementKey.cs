@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
@@ -314,13 +315,9 @@ public class MeasurementKey
     /// </remarks>
     public static MeasurementKey LookUpBySource(string source, ulong id)
     {
-        if (!s_keyCache.TryGetValue(source, out ConcurrentDictionary<ulong, MeasurementKey>? idLookup))
-            return Undefined;
-
-        if (!idLookup.TryGetValue(id, out MeasurementKey? key))
-            return Undefined;
-
-        return key;
+        return !s_keyCache.TryGetValue(source, out ConcurrentDictionary<ulong, MeasurementKey>? idLookup) ? 
+            Undefined : 
+            idLookup.GetValueOrDefault(id, Undefined);
     }
 
     /// <summary>

@@ -34,12 +34,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.Threading;
 using Gemstone.Units;
+
+[assembly: InternalsVisibleTo("PhasorProtocolAdapters")]
 
 namespace Gemstone.Timeseries;
 

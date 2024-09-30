@@ -45,7 +45,7 @@ public static class DataSourceLookups
     /// </summary>
     /// <param name="dataSet">The non-null dataset provided by the time-series framework</param>
     /// <returns>Lookup cache for the provided dataset.</returns>
-    public static DataSourceLookupCache GetLookupCache(DataSet dataSet)
+    public static DataSourceLookupCache GetLookupCache(DataSet? dataSet)
     {
         if (dataSet is null)
             throw new ArgumentNullException(nameof(dataSet));

@@ -32,6 +32,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -277,13 +278,14 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         // Use this run-time log for system up-time calculations
         PerformanceStatistics.SystemRunTimeLog = m_runTimeLog;
 
+        dynamic section = Settings.Default[Settings.SystemSettingsCategory];
+
         // Initialize Iaon session
         m_iaonSession = new IaonSession();
+        m_iaonSession.NodeID = section.NodeID ?? Guid.Empty;
         m_iaonSession.StatusMessage += StatusMessageHandler;
         m_iaonSession.ProcessException += ProcessExceptionHandler;
         m_iaonSession.ConfigurationChanged += ConfigurationChangedHandler;
-
-        dynamic section = Settings.Default[Settings.SystemSettingsCategory];
 
         // Attempt to set default culture
         try
@@ -3855,7 +3857,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         section.ConfigurationCachePath = (cachePath, "Defines the path used to cache serialized configurations");
         section.CachedConfigurationFile = ("SystemConfiguration.xml", "File name for last known good system configuration (only cached for a Database or WebService connection)");
         section.UniqueAdaptersIDs = ("True", "Set to true if all runtime adapter ID's will be unique to allow for easier adapter specification");
-        section.ProcessPriority = ("High", "Sets desired process priority: Normal, AboveNormal, High, RealTime");
+        section.ProcessPriority = (ProcessPriorityClass.High, "Sets desired process priority: Normal, AboveNormal, High, RealTime");
         section.AllowRemoteRestart = ("True", "Controls ability to remotely restart the host service");
 
         ThreadPool.GetMinThreads(out int minWorkerThreads, out int minIOPortThreads);

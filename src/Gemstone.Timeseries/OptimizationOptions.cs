@@ -100,7 +100,7 @@ public static class OptimizationOptions
 
         try
         {
-            setting = Settings.Default.OptimizationsConnectionString;
+            setting = Settings.Default.Settings.OptimizationsConnectionString;
             Dictionary<string, string> optimizations = setting.ParseKeyValuePairs();
 
             //LoadThreadPoolMonitoring(optimizations);

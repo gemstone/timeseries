@@ -53,7 +53,10 @@ internal static class GlobalDeviceStatistics
 
     static GlobalDeviceStatistics()
     {
-        s_medianTimestampDeviation = new BigInteger(Ticks.FromSeconds(Settings.Default.MedianTimestampDeviation));
+        dynamic systemSettings = Settings.Instance[Settings.SystemSettingsCategory];
+        double medianTimestampDeviation = systemSettings["MedianTimestampDeviation", 30.0D, "Defines the maximum allowed deviation from median timestamp, in seconds, for consideration in average timestamp calculation"];
+        s_medianTimestampDeviation = new BigInteger(Ticks.FromSeconds(medianTimestampDeviation));
+
         s_latestDeviceTimes = new ConcurrentDictionary<IDevice, LatestDeviceTime>();
         s_bigTwo = new BigInteger(2);
         s_bigMaxLong = new BigInteger(long.MaxValue);

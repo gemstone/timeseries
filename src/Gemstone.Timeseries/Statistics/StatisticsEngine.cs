@@ -48,6 +48,7 @@ using Gemstone.IO.Parsing;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries.Adapters;
+using ConfigSettings = Gemstone.Configuration.Settings;
 using Timer = System.Timers.Timer;
 
 #pragma warning disable 414
@@ -307,19 +308,19 @@ public class StatisticsEngine : FacileActionAdapterBase
         public T ExecuteScalar<T>(string queryFormat, params object[] parameters)
         {
             string query = m_database.ParameterizedQueryString(queryFormat, parameters.Select((_, index) => $"p{index}").ToArray());
-            return (T)Convert.ChangeType(m_database.Connection.ExecuteScalar(query, DataExtensions.DefaultTimeoutDuration, parameters), typeof(T));
+            return (T)Convert.ChangeType(m_database.Connection.ExecuteScalar(query, parameters), typeof(T));
         }
 
         public void ExecuteNonQuery(string queryFormat, params object[] parameters)
         {
             string query = m_database.ParameterizedQueryString(queryFormat, parameters.Select((_, index) => $"p{index}").ToArray());
-            m_database.Connection.ExecuteNonQuery(query, DataExtensions.DefaultTimeoutDuration, parameters);
+            m_database.Connection.ExecuteNonQuery(query, parameters);
         }
 
         public DataTable RetrieveData(string queryFormat, params object[] parameters)
         {
             string query = m_database.ParameterizedQueryString(queryFormat, parameters.Select((_, index) => $"p{index}").ToArray());
-            return m_database.Connection.RetrieveData(query, DataExtensions.DefaultTimeoutDuration, parameters);
+            return m_database.Connection.RetrieveData(query, parameters);
         }
 
         #endregion
@@ -617,7 +618,7 @@ public class StatisticsEngine : FacileActionAdapterBase
             sources = s_statisticSources.ToArray();
         }
 
-        using (AdoDataConnection database = new(SettingsInstance!))
+        using (AdoDataConnection database = new(ConfigSettings.Default))
         {
             // Handles database queries, caching, and lazy loading for
             // determining the parameters to send in to each INSERT query

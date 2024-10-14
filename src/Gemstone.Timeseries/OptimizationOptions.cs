@@ -101,11 +101,15 @@ public static class OptimizationOptions
         try
         {
             setting = Settings.Default.Settings.OptimizationsConnectionString;
+
+            if (setting is null)
+                return;
+
             Dictionary<string, string> optimizations = setting.ParseKeyValuePairs();
 
             //LoadThreadPoolMonitoring(optimizations);
             //LoadPreferDedicatedThreads(optimizations);
-            
+
             LoadAsyncQueueInProtocolParsing(optimizations);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

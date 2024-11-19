@@ -143,7 +143,6 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     public override MeasurementKey[] InputMeasurementKeys
     {
         get => base.InputMeasurementKeys;

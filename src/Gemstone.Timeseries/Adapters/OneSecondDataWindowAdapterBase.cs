@@ -90,7 +90,6 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
     [ConnectionStringParameter]
     [Description("Defines primary keys of input measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [DefaultValue(null)]
-    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     public override MeasurementKey[]? InputMeasurementKeys
     {
         get => base.InputMeasurementKeys;
@@ -110,7 +109,6 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
     [ConnectionStringParameter]
     [Description("Defines primary keys of output measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [DefaultValue(null)]
-    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     public override IMeasurement[]? OutputMeasurements
     {
         get => base.OutputMeasurements;

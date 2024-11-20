@@ -45,6 +45,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Statistics\Resources\chunk.js" />
+    <None Remove="Statistics\Resources\Gemstone_TimeSeries_Statistics.js" />
+    <None Remove="Statistics\Resources\main.js" />
+    <None Remove="Statistics\Resources\StatisticsEngine\chunk.js" />
+    <None Remove="Statistics\Resources\StatisticsEngine\Gemstone_TimeSeries_Statistics.js" />
+    <None Remove="Statistics\Resources\StatisticsEngine\main.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Statistics\Resources\StatisticsEngine\chunk.js" />
+    <EmbeddedResource Include="Statistics\Resources\StatisticsEngine\Gemstone_TimeSeries_Statistics.js" />
+    <EmbeddedResource Include="Statistics\Resources\StatisticsEngine\main.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\docs\README.md" Link="README.md" Visible="false">
       <Pack>True</Pack>
       <PackagePath />
@@ -58,6 +73,7 @@
   <ItemGroup>
      <ProjectReference Include="..\..\..\common\src\Gemstone\Gemstone.Common.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Common" Version="1.0.128" Condition="'$(Configuration)'!='Development'" />
+     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
 
      <ProjectReference Include="..\..\..\communication\src\Gemstone.Communication\Gemstone.Communication.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Communication" Version="1.0.128" Condition="'$(Configuration)'!='Development'" />

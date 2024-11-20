@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -48,6 +49,7 @@ using Gemstone.IO.Parsing;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries.Adapters;
+using Microsoft.AspNetCore.Mvc;
 using ConfigSettings = Gemstone.Configuration.Settings;
 using Timer = System.Timers.Timer;
 
@@ -1255,6 +1257,38 @@ public class StatisticsEngine : FacileActionAdapterBase
     private static Settings SettingsInstance => Gemstone.Configuration.Settings.Instance;
 
     private static dynamic SystemSettings => Gemstone.Configuration.Settings.Default.System;
+
+    [UserInterfaceResource("Gemstone.Timeseries.Statistics.StatisticsEngine.js")]
+    public static IActionResult GetUIEntryFile(ControllerBase baseController)
+    {
+        Stream stream = GetEmbbededFileStream("Gemstone_TimeSeries_Statistics.js");
+        return baseController.File(stream, "text/javascript");
+    }
+
+    [UserInterfaceResource("main.js")]
+    public static IActionResult GetUIBaseFile(ControllerBase baseController)
+    {
+        Stream stream = GetEmbbededFileStream("main.js");
+        return baseController.File(stream, "text/javascript");
+    }
+
+    [UserInterfaceResource("chunk.js")]
+    public static IActionResult GetUIChunkFile(ControllerBase baseController)
+    {
+        Stream stream = GetEmbbededFileStream("chunk.js");
+        return baseController.File(stream, "text/javascript");
+    }
+
+    private static Stream GetEmbbededFileStream(string fileName)
+    {
+        string? namespaceName = typeof(StatisticsEngine).Namespace;
+        string resource = string.Format("{0}.Resources.StatisticsEngine.{1}", namespaceName, fileName);
+
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        Stream? stream = assembly.GetManifestResourceStream(resource);
+
+        return stream;
+    }
 
     #endregion
 }

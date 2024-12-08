@@ -90,13 +90,13 @@ public interface IIndependentAdapterManager : IAdapterCollection
     /// <summary>
     /// Gets per adapter signal type for output measurements, used when each output needs to be a different type.
     /// </summary>
-    SignalType[] SignalTypes { get; }
+    SignalType[]? SignalTypes { get; }
 
     /// <summary>
     /// Gets any custom adapter settings to be added to each adapter connection string. Can be used to add
     /// settings that are custom per adapter.
     /// </summary>
-    string CustomAdapterSettings { get; }
+    string? CustomAdapterSettings { get; }
 
     /// <summary>
     /// Gets or sets the target historian acronym for output measurements.

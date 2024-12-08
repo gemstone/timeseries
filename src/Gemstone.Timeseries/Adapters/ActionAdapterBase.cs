@@ -923,14 +923,12 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// array it must be sized to MinimumMeasurementsToUse
     /// </para>
     /// </remarks>
-    protected virtual bool TryGetMinimumNeededMeasurements(IFrame frame, ref IMeasurement[]? measurements)
+    protected virtual bool TryGetMinimumNeededMeasurements(IFrame frame, out IMeasurement[] measurements)
     {
         int index = 0, minNeeded = MinimumMeasurementsToUse;
         IDictionary<MeasurementKey, IMeasurement> frameMeasurements = frame.Measurements;
         MeasurementKey[]? measurementKeys = InputMeasurementKeys;
-
-        if (measurements is null || measurements.Length < minNeeded)
-            measurements = new IMeasurement[minNeeded];
+        measurements = new IMeasurement[minNeeded];
 
         if (measurementKeys is null)
         {

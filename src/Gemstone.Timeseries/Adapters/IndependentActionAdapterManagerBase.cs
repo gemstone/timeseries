@@ -260,13 +260,13 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// <summary>
     /// Gets per adapter signal type for output measurements, used when each output needs to be a different type.
     /// </summary>
-    public virtual SignalType[] SignalTypes { get; } = null;
+    public virtual SignalType[]? SignalTypes => null;
 
     /// <summary>
     /// Gets any custom adapter settings to be added to each adapter connection string. Can be used to add
     /// settings that are custom per adapter.
     /// </summary>
-    public virtual string CustomAdapterSettings { get; } = null;
+    public virtual string? CustomAdapterSettings => null;
 
     /// <summary>
     /// Gets or sets the target historian acronym for output measurements.
@@ -360,7 +360,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// Gets associated device ID for <see cref="CurrentAdapterIndex"/>, if any, for measurement generation. If overridden to provide custom
     /// device ID, <see cref="ParentDeviceAcronymTemplate"/> should be set to <c>null</c> so no parent device is created.
     /// </summary>
-    public virtual int CurrentDeviceID { get; } = 0;
+    public virtual int CurrentDeviceID => 0;
 
     /// <summary>
     /// Returns the detailed status of the <see cref="IndependentActionAdapterManagerBase{TAdapter}"/>.

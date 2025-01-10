@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System;
+using System.Text.Json.Serialization;
 
 namespace Gemstone.Timeseries.Adapters
 {
@@ -59,6 +60,7 @@ namespace Gemstone.Timeseries.Adapters
         /// <summary>
         /// Gets the type of the adapter protocol.
         /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ProtocolType Type { get; }
 
         /// <summary>

@@ -32,6 +32,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using System.Threading;
 
 namespace Gemstone.Timeseries.Adapters;
@@ -44,6 +45,7 @@ public record AdapterInfo
     /// <summary>
     /// Gets the type of the adapter.
     /// </summary>
+    [JsonIgnore]
     public required Type Type { get; init; }
 
     /// <summary>
@@ -88,6 +90,7 @@ public record AdapterInfo
     /// <summary>
     /// Gets the <see cref="EditorBrowsableState"/> for the adapter.
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public required EditorBrowsableState BrowsableState { get; init; }
 }
 
@@ -220,8 +223,8 @@ public static class AdapterCache
                 // Only input and action adapters can be protocols
                 IEnumerable<AdapterInfo> protocolTypes = s_allAdapters.Values
                     .Where(info =>
-                        info.Type.IsAssignableFrom(typeof(IInputAdapter)) ||
-                        info.Type.IsAssignableFrom(typeof(IActionAdapter)));
+                        typeof(IInputAdapter).IsAssignableFrom(info.Type) ||
+                        typeof(IActionAdapter).IsAssignableFrom(info.Type));
 
                 // Load adapter types with protocol attributes
                 s_adapterProtocols = protocolTypes
@@ -419,9 +422,13 @@ public static class AdapterCache
         return type.GetCustomAttribute<EditorBrowsableAttribute>()?.State ?? EditorBrowsableState.Always;
     }
 
-    // Clears all cached adapter types and their attributes which will force a reload on next access.
-    // Method should be exposed through an admin only interface.
-    internal static void ReloadAdapterTypes()
+    /// <summary>
+    /// Clears all cached adapter types and their attributes which will force a reload on next access.
+    /// </summary>
+    /// <remarks>
+    /// Method should be exposed through an admin only interface.
+    /// </remarks>
+    public static void ReloadAdapterTypes()
     {
         lock (s_loadLock)
         {
@@ -429,6 +436,9 @@ public static class AdapterCache
             Interlocked.Exchange(ref s_uiResources, null);
             Interlocked.Exchange(ref s_adapterProtocols, null);
             Interlocked.Exchange(ref s_assemblyTypes, null);
+
+            // Calling event inside lock ensures all subscribers can safely reset their caches
+            AdaptersReloaded?.SafeInvoke(typeof(AdapterCache), EventArgs.Empty);
         }
     }
 

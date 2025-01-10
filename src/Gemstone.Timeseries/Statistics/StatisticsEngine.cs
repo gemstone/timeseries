@@ -61,9 +61,9 @@ namespace Gemstone.Timeseries.Statistics;
 /// Represents the engine that computes statistics within applications of the TimeSeriesFramework.
 /// </summary>
 [Description("Statistics: defines the engine that computes all statistics within the system.")]
-[UIResource("AdapterUI", $".{nameof(Timeseries)}{nameof(StatisticsEngine)}.entry.js", "EntryFile")]
-[UIResource("AdapterUI", $".{nameof(Timeseries)}{nameof(StatisticsEngine)}.main.js", "BaseFile")]
-[UIResource("AdapterUI", $".{nameof(Timeseries)} {nameof(StatisticsEngine)}.chunk.js", "CHunkFile")]
+[UIResource("AdapterUI", $".{nameof(Timeseries)}.{nameof(StatisticsEngine)}.entry.js")]
+[UIResource("AdapterUI", $".{nameof(Timeseries)}.{nameof(StatisticsEngine)}.main.js")]
+[UIResource("AdapterUI", $".{nameof(Timeseries)}.{nameof(StatisticsEngine)}.chunk.js")]
 public class StatisticsEngine : FacileActionAdapterBase
 {
     #region [ Members ]

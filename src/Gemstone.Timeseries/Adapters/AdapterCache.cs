@@ -60,7 +60,7 @@ public record AdapterInfo
     /// <remarks>
     /// Maps to 'AssemblyName' in the database model.
     /// </remarks>
-    public required string AssemblyFileName { get; init; }
+    public required string AssemblyName { get; init; }
 
     /// <summary>
     /// Gets the full name of the adapter type.
@@ -68,7 +68,7 @@ public record AdapterInfo
     /// <remarks>
     /// Maps to 'TypeName' in the database model.
     /// </remarks>
-    public required string FullName { get; init; }
+    public required string TypeName { get; init; }
 
     /// <summary>
     /// Gets the connection string parameters for the adapter.
@@ -105,6 +105,11 @@ public record UIResourceInfo
     /// Gets the UI resource attributes for the adapter.
     /// </summary>
     public required UIResourceAttribute[] Attributes { get; init; }
+
+    /// <summary>
+    /// Gets the map of UI resource attributes by resource ID.
+    /// </summary>
+    public required Dictionary<string, UIResourceAttribute> AttributeMap { get; init; } 
 }
 
 /// <summary>
@@ -144,7 +149,7 @@ public static class AdapterCache
     private static Dictionary<Type, AdapterInfo>? s_allAdapters;
     private static Dictionary<Type, UIResourceInfo>? s_uiResources;
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
-    private static Dictionary<(string, string), Type>? s_assemblyTypeCache;
+    private static Dictionary<(string, string), Type>? s_assemblyTypes;
     private static readonly object s_loadLock = new();
 
     private class StringTupleComparer(StringComparison comparison) : IEqualityComparer<(string, string)>
@@ -193,8 +198,8 @@ public static class AdapterCache
                     {
                         Type = item.type,
                         AdapterName = item.info.adapterName,                        // Database field name: AdapterName
-                        AssemblyFileName = item.type.GetAssemblyFileName(),         // Database field name: AssemblyName
-                        FullName = item.type.GetFullName(),                         // Database field name: TypeName
+                        AssemblyName = item.type.GetAssemblyFileName(),             // Database field name: AssemblyName
+                        TypeName = item.type.GetFullName(),                         // Database field name: TypeName
                         Parameters = item.type.GetConnectionParameters().ToArray(), // Database field name: ConnectionString
                         Description = item.info.description,
                         BrowsableState = item.type.GetEditorBrowsableState()
@@ -202,17 +207,18 @@ public static class AdapterCache
                     .ToDictionary(item => item.Type, item => item);
 
                 // Load adapter types with UI resource attributes
-                s_uiResources = AllAdapters.Values
+                s_uiResources = s_allAdapters.Values
                     .GetAdapterAttributes<UIResourceAttribute>()
                     .Select(item => new UIResourceInfo
                     {
                         Info = item.info,
-                        Attributes = item.attributes
+                        Attributes = item.attributes,
+                        AttributeMap = item.attributes.ToDictionary(attr => attr.ResourceID)
                     })
                     .ToDictionary(item => item.Info.Type, item => item);
 
                 // Only input and action adapters can be protocols
-                IEnumerable<AdapterInfo> protocolTypes = AllAdapters.Values
+                IEnumerable<AdapterInfo> protocolTypes = s_allAdapters.Values
                     .Where(info =>
                         info.Type.IsAssignableFrom(typeof(IInputAdapter)) ||
                         info.Type.IsAssignableFrom(typeof(IActionAdapter)));
@@ -228,7 +234,7 @@ public static class AdapterCache
                     .ToDictionary(item => item.Info.Type, item => item);
 
                 // Create a cache for faster lookups by assembly file name and type name
-                s_assemblyTypeCache = AllAdapters.Values.ToDictionary(
+                s_assemblyTypes = s_allAdapters.Values.ToDictionary(
                     info => (info.Type.GetAssemblyFileName(), info.Type.GetFullName()),
                     info => info.Type,
                     StringTupleComparer.OrdinalIgnoreCase);
@@ -287,20 +293,20 @@ public static class AdapterCache
     /// Gets a cache of adapter types keyed by assembly file name and type name, e.g.:
     /// <c>("FileAdapters.dll", "FileAdapters.ProcessLauncher")</c> for faster lookups.
     /// </summary>
-    public static Dictionary<(string assemblyFileName, string typeName), Type> AssemblyTypeCache
+    public static Dictionary<(string assemblyFileName, string typeName), Type> AssemblyTypes
     {
         get
         {
-            Dictionary<(string, string), Type>? typeCache = Interlocked.CompareExchange(ref s_assemblyTypeCache, null, null);
+            Dictionary<(string, string), Type>? assemblyTypes = Interlocked.CompareExchange(ref s_assemblyTypes, null, null);
 
-            if (typeCache is not null)
-                return typeCache;
+            if (assemblyTypes is not null)
+                return assemblyTypes;
 
             lock (s_loadLock)
             {
                 // Get list of adapter types, this establishes cache of adapter protocol attributes
                 _ = AllAdapters;
-                return s_assemblyTypeCache!;
+                return s_assemblyTypes!;
             }
         }
     }
@@ -337,7 +343,7 @@ public static class AdapterCache
     public static IEnumerable<ConnectionParameter> GetConnectionParameters(string assemblyName, string typeName, Dictionary<string, string>? settings = null)
     {
         // Attempt to lookup type by assembly name and type name, then lookup adapter info for the type
-        if (!AssemblyTypeCache.TryGetValue((assemblyName, typeName), out Type? type) || !AllAdapters.TryGetValue(type, out AdapterInfo? info))
+        if (!AssemblyTypes.TryGetValue((assemblyName, typeName), out Type? type) || !AllAdapters.TryGetValue(type, out AdapterInfo? info))
             return [];
 
         ConnectionParameter[] parameters = info.Parameters;
@@ -422,7 +428,7 @@ public static class AdapterCache
             Interlocked.Exchange(ref s_allAdapters, null);
             Interlocked.Exchange(ref s_uiResources, null);
             Interlocked.Exchange(ref s_adapterProtocols, null);
-            Interlocked.Exchange(ref s_assemblyTypeCache, null);
+            Interlocked.Exchange(ref s_assemblyTypes, null);
         }
     }
 
@@ -548,8 +554,8 @@ public static class AdapterCache<T> where T : IAdapter
     /// Gets a cache of adapter types keyed by assembly file name and type name, e.g.:
     /// <c>("FileAdapters.dll", "FileAdapters.ProcessLauncher")</c> for faster lookups.
     /// </summary>
-    public static Dictionary<(string assemblyFileName, string typeName), Type> AssemblyTypeCache => 
-        AdapterCache.AssemblyTypeCache; // No need to filter by type 'T'
+    public static Dictionary<(string assemblyFileName, string typeName), Type> AssemblyTypes => 
+        AdapterCache.AssemblyTypes; // No need to filter by type 'T'
 
     /// <summary>
     /// Returns all adapters of type <typeparamref name="T"/> in the application directory filtered by <see cref="EditorBrowsableState"/>.

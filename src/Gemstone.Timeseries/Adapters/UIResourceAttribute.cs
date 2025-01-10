@@ -24,6 +24,10 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace Gemstone.Timeseries.Adapters
 {
@@ -51,32 +55,84 @@ namespace Gemstone.Timeseries.Adapters
         /// Gets the usage target of the UI resource.
         /// </summary>
         /// <remarks>
-        /// Examples include: "EntryFile", "BaseFile" and "ChunkFile". If more complex
-        /// use cases exist, e.g., separating configuration from monitoring, prefix with
-        /// a category, e.g., "Configuration:EntryFile".
+        /// <para>
+        /// Defaults to last segment of <see cref="ResourceName"/> if not specified.
+        /// For example, for a resource name of "AdapterUI.CSVAdapters.main.js",
+        /// the default resource ID would be "main.js".
+        /// </para>
+        /// <para>
+        /// Examples might include: "EntryFile", "BaseFile" and "ChunkFile". If more
+        /// complex use cases exist, e.g., separating configuration from monitoring,
+        /// prefix with a category, e.g., "Configuration:EntryFile".
+        /// </para>
         /// </remarks>
-        public string UseTarget { get; }
+        public string ResourceID { get; }
 
         /// <summary>
         /// Creates a new <see cref="UIResourceAttribute"/>.
         /// </summary>
         /// <param name="assemblyName">Name of assembly where the UI resource is located.</param>
         /// <param name="resourceName">Name of the UI resource to load.</param>
-        /// <param name="useTarget">Usage target of the UI resource.</param>
-        public UIResourceAttribute(string assemblyName, string resourceName, string useTarget = "Default")
+        /// <param name="resourceID">Usage target of the UI resource.</param>
+        public UIResourceAttribute(string assemblyName, string resourceName, string? resourceID = null)
         {
         #if NET
             ArgumentException.ThrowIfNullOrWhiteSpace(assemblyName);
             ArgumentException.ThrowIfNullOrWhiteSpace(resourceName);
-            ArgumentException.ThrowIfNullOrWhiteSpace(useTarget);
         #endif
 
-            if (resourceName.StartsWith('.'))
-                resourceName = $"{assemblyName}{resourceName}";
+            AssemblyName = assemblyName.Trim();
 
-            AssemblyName = assemblyName;
+            resourceName = resourceName.Trim();
+
+            if (resourceName.StartsWith("."))
+                resourceName = $"{AssemblyName}{resourceName}";
+
             ResourceName = resourceName;
-            UseTarget = useTarget;
+
+            if (string.IsNullOrWhiteSpace(resourceID))
+            {
+                // Resource name is expected to end in a file extension,
+                // so last segment of resource name is next to last dot
+                string[] segments = resourceName.Split('.');
+
+                resourceID = segments.Length > 1 ? string.Join(".", segments[^2..]) : resourceName;
+            }
+            else
+            {
+                resourceID = resourceID.Trim();
+            }
+
+            ResourceID = resourceID;
         }
+
+        /// <summary>
+        /// Gets the stream for the resource.
+        /// </summary>
+        /// <returns>Stream for the resource.</returns>
+        public Stream? GetResourceStream()
+        {
+            return s_assemblyCache.GetOrAdd(AssemblyName, getAssembly)
+                .GetManifestResourceStream(ResourceName);
+
+            Assembly getAssembly(string assemblyName)
+            {
+                // Try to get the already loaded assembly
+                Assembly? assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(isMatchingAssembly);
+
+                // If the assembly is not already loaded, load it
+                if (assembly == null)
+                    assembly = Assembly.Load(assemblyName);
+
+                return assembly;
+            }
+
+            bool isMatchingAssembly(Assembly assembly)
+            {
+                return assembly.GetName().Name?.Equals(AssemblyName, StringComparison.OrdinalIgnoreCase) ?? false;
+            }
+        }
+
+        private static readonly ConcurrentDictionary<string, Assembly> s_assemblyCache = [];
     }
 }

@@ -29,7 +29,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json.Serialization;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -125,7 +124,7 @@ public class ConnectionParameter
     /// <summary>
     /// Gets the basic type of the parameter.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    //[JsonConverter(typeof(JsonStringEnumConverter))]
     public DataType DataType { get; init; }
 
     /// <summary>

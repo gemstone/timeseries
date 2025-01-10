@@ -372,7 +372,7 @@ public static class AdapterCache
         // as the first part of the description, separated by a colon
         string[] parts = description.Split(':');
 
-        return parts.Length > 1 ? (parts[0], string.Join(";", parts.Skip(1))) : (type.Name, description);
+        return parts.Length > 1 ? (parts[0].Trim(), string.Join(":", parts[1..]).Trim()) : (type.Name, description);
     }
 
     /// <summary>

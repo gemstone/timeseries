@@ -29,7 +29,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -37,19 +36,15 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Timers;
 using Gemstone.Collections.CollectionExtensions;
-using Gemstone.Configuration;
 using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
-using Gemstone.Data.DataSetExtensions;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
-using Gemstone.Expressions;
 using Gemstone.IO;
 using Gemstone.IO.Parsing;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries.Adapters;
-using Microsoft.AspNetCore.Mvc;
 using ConfigSettings = Gemstone.Configuration.Settings;
 using Timer = System.Timers.Timer;
 
@@ -66,6 +61,9 @@ namespace Gemstone.Timeseries.Statistics;
 /// Represents the engine that computes statistics within applications of the TimeSeriesFramework.
 /// </summary>
 [Description("Statistics: defines the engine that computes all statistics within the system.")]
+[UIResource("AdapterUI", $".{nameof(Timeseries)}{nameof(StatisticsEngine)}.entry.js", "EntryFile")]
+[UIResource("AdapterUI", $".{nameof(Timeseries)}{nameof(StatisticsEngine)}.main.js", "BaseFile")]
+[UIResource("AdapterUI", $".{nameof(Timeseries)} {nameof(StatisticsEngine)}.chunk.js", "CHunkFile")]
 public class StatisticsEngine : FacileActionAdapterBase
 {
     #region [ Members ]
@@ -140,8 +138,10 @@ public class StatisticsEngine : FacileActionAdapterBase
 
         #region [ Constructors ]
 
-        public DBUpdateHelper(AdoDataConnection database) =>
+        public DBUpdateHelper(AdoDataConnection database)
+        {
             m_database = database;
+        }
 
         #endregion
 
@@ -381,7 +381,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     public StatisticsEngine()
     {
         m_statisticsLock = new object();
-        m_statistics = new List<Statistic>();
+        m_statistics = [];
         m_reloadStatisticsTimer = new Timer();
         m_statisticCalculationTimer = new Timer();
 
@@ -648,7 +648,7 @@ public class StatisticsEngine : FacileActionAdapterBase
 
                 // Build a list of signal references for this source
                 // based on the statistics in this category
-                List<string> signalReferences = new();
+                List<string> signalReferences = [];
 
                 helper.Source = source;
 
@@ -669,10 +669,13 @@ public class StatisticsEngine : FacileActionAdapterBase
                     continue;
 
                 // Get a collection of signal indexes already have statistic measurements
-                HashSet<int> existingIndexes = new(statisticMeasurements
-                    .Select(measurement => measurement[nameof(SignalReference)].ToNonNullString())
-                    .Select(str => new SignalReference(str))
-                    .Select(signalReference => signalReference.Index));
+                HashSet<int> existingIndexes =
+                [
+                    ..statisticMeasurements
+                        .Select(measurement => measurement[nameof(SignalReference)].ToNonNullString())
+                        .Select(str => new SignalReference(str))
+                        .Select(signalReference => signalReference.Index)
+                ];
 
                 // Create statistic measurements for statistics that do not have any
                 foreach (DataRow statistic in statistics)
@@ -820,7 +823,7 @@ public class StatisticsEngine : FacileActionAdapterBase
             if (!sourceLookup.TryGetValue(row.Field<string>(nameof(SignalReference)), out StatisticSource source))
                 continue;
 
-            List<DataRow> statisticMeasurements = activeMeasurementsLookup.GetOrAdd(source, _ => new List<DataRow>());
+            List<DataRow> statisticMeasurements = activeMeasurementsLookup.GetOrAdd(source, _ => []);
             statisticMeasurements.Add(row);
             statisticMeasurementCount++;
         }
@@ -839,7 +842,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     {
         try
         {
-            List<IMeasurement> calculatedStatistics = new();
+            List<IMeasurement> calculatedStatistics = [];
             StatisticSource[] sources;
             Statistic[] statistics;
 
@@ -973,6 +976,7 @@ public class StatisticsEngine : FacileActionAdapterBase
         return null;
     }
 
+    // TODO: Replace this will a log from configuration file, Node table is going away
     private string GetSystemName()
     {
         if (DataSource is null)
@@ -1013,12 +1017,16 @@ public class StatisticsEngine : FacileActionAdapterBase
             RestartReloadStatisticsTimer();
     }
 
-    private void ReloadStatisticsTimer_Elapsed(object? sender, ElapsedEventArgs elapsedEventArgs) =>
+    private void ReloadStatisticsTimer_Elapsed(object? sender, ElapsedEventArgs elapsedEventArgs)
+    {
         ReloadStatistics();
+    }
 
     // If multiple timer events overlap, try-run will make sure only one is running at once
-    private void StatisticCalculationTimer_Elapsed(object? sender, ElapsedEventArgs e) =>
+    private void StatisticCalculationTimer_Elapsed(object? sender, ElapsedEventArgs e)
+    {
         m_calculateStatisticsOperation.TryRun();
+    }
 
     private void OnBeforeCalculate()
     {
@@ -1045,7 +1053,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// </summary>
     static StatisticsEngine()
     {
-        s_statisticSources = new List<StatisticSource>();
+        s_statisticSources = [];
         s_forwardToSnmp = SystemSettings.ForwardStatisticsToSnmp;
     }
 
@@ -1058,8 +1066,10 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// <param name="sourceCategory">The category of the statistics.</param>
     /// <param name="sourceAcronym">The acronym used in signal references.</param>
     /// <param name="statisticMeasurementNameFormat">Format string used to name statistic measurements for this source.</param>
-    public static void Register(IAdapter adapter, string sourceCategory, string sourceAcronym, string statisticMeasurementNameFormat = "{}") =>
+    public static void Register(IAdapter adapter, string sourceCategory, string sourceAcronym, string statisticMeasurementNameFormat = "{}")
+    {
         Register(adapter, adapter.Name, sourceCategory, sourceAcronym, statisticMeasurementNameFormat);
+    }
 
     /// <summary>
     /// Registers the given object with the statistics engine as a source of statistics.
@@ -1239,7 +1249,7 @@ public class StatisticsEngine : FacileActionAdapterBase
 
     private static void ValidateSourceReferences()
     {
-        List<int> expiredSources = new();
+        List<int> expiredSources = [];
 
         lock (s_statisticSources)
         {
@@ -1254,41 +1264,9 @@ public class StatisticsEngine : FacileActionAdapterBase
         }
     }
 
-    private static Settings SettingsInstance => Gemstone.Configuration.Settings.Instance;
+    private static ConfigSettings SettingsInstance => ConfigSettings.Instance;
 
-    private static dynamic SystemSettings => Gemstone.Configuration.Settings.Default.System;
-
-    [UserInterfaceResource("Gemstone.Timeseries.Statistics.StatisticsEngine.js")]
-    public static IActionResult GetUIEntryFile(ControllerBase baseController)
-    {
-        Stream stream = GetEmbbededFileStream("Gemstone_TimeSeries_Statistics.js");
-        return baseController.File(stream, "text/javascript");
-    }
-
-    [UserInterfaceResource("main.js")]
-    public static IActionResult GetUIBaseFile(ControllerBase baseController)
-    {
-        Stream stream = GetEmbbededFileStream("main.js");
-        return baseController.File(stream, "text/javascript");
-    }
-
-    [UserInterfaceResource("chunk.js")]
-    public static IActionResult GetUIChunkFile(ControllerBase baseController)
-    {
-        Stream stream = GetEmbbededFileStream("chunk.js");
-        return baseController.File(stream, "text/javascript");
-    }
-
-    private static Stream GetEmbbededFileStream(string fileName)
-    {
-        string? namespaceName = typeof(StatisticsEngine).Namespace;
-        string resource = string.Format("{0}.Resources.StatisticsEngine.{1}", namespaceName, fileName);
-
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        Stream? stream = assembly.GetManifestResourceStream(resource);
-
-        return stream;
-    }
+    private static dynamic SystemSettings => ConfigSettings.Default.System;
 
     #endregion
 }

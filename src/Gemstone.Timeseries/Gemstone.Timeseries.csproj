@@ -3,7 +3,7 @@
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;netstandard2.1;</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <RootNamespace>Gemstone.Timeseries</RootNamespace>
     <PackageId>Gemstone.Timeseries</PackageId>
     <Authors>Grid Protection Alliance</Authors>
@@ -20,7 +20,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>GPA;Gemstone;library;timeseries</PackageTags>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>latest</LangVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Nullable>enable</Nullable>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -43,21 +43,6 @@
     <Optimize>False</Optimize>
     <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Statistics\Resources\chunk.js" />
-    <None Remove="Statistics\Resources\Gemstone_TimeSeries_Statistics.js" />
-    <None Remove="Statistics\Resources\main.js" />
-    <None Remove="Statistics\Resources\StatisticsEngine\chunk.js" />
-    <None Remove="Statistics\Resources\StatisticsEngine\Gemstone_TimeSeries_Statistics.js" />
-    <None Remove="Statistics\Resources\StatisticsEngine\main.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Statistics\Resources\StatisticsEngine\chunk.js" />
-    <EmbeddedResource Include="Statistics\Resources\StatisticsEngine\Gemstone_TimeSeries_Statistics.js" />
-    <EmbeddedResource Include="Statistics\Resources\StatisticsEngine\main.js" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\docs\README.md" Link="README.md" Visible="false">

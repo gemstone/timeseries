@@ -132,6 +132,27 @@ public record AdapterProtocolInfo
 }
 
 /// <summary>
+/// Represents the set of adapter command attributes for an adapter.
+/// </summary>
+public record AdapterCommandInfo
+{
+    /// <summary>
+    /// Gets the adapter type and its key attributes.
+    /// </summary>
+    public required AdapterInfo Info { get; init; }
+
+    /// <summary>
+    /// Gets the adapter command method attributes for the adapter.
+    /// </summary>
+    public required (MethodInfo method, AdapterCommandAttribute attribute)[] MethodAttributes { get; init; }
+
+    /// <summary>
+    /// Gets the map of adapter command attributes by name.
+    /// </summary>
+    public required Dictionary<string, (MethodInfo method, AdapterCommandAttribute attribute)> MethodAttributeMap { get; init; }
+}
+
+/// <summary>
 /// Represents a cache of loaded adapter types and their attributes.
 /// </summary>
 /// <remarks>
@@ -152,6 +173,7 @@ public static class AdapterCache
     private static Dictionary<Type, AdapterInfo>? s_allAdapters;
     private static Dictionary<Type, UIResourceInfo>? s_uiResources;
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
+    private static Dictionary<Type, AdapterCommandInfo>? s_adapterCommands;
     private static Dictionary<(string, string), Type>? s_assemblyTypes;
     private static readonly object s_loadLock = new();
 
@@ -236,6 +258,17 @@ public static class AdapterCache
                     })
                     .ToDictionary(item => item.Info.Type, item => item);
 
+                // Load adapter types with command attributes
+                s_adapterCommands = s_allAdapters.Values
+                    .GetAdapterMethodAttributes<AdapterCommandAttribute>()
+                    .Select(item => new AdapterCommandInfo
+                    {
+                        Info = item.info,
+                        MethodAttributes = item.methodAttributes,
+                        MethodAttributeMap = item.methodAttributes.ToDictionary(attr => attr.method.Name)
+                    })
+                    .ToDictionary(item => item.Info.Type, item => item);
+
                 // Create a cache for faster lookups by assembly file name and type name
                 s_assemblyTypes = s_allAdapters.Values.ToDictionary(
                     info => (info.Type.GetAssemblyFileName(), info.Type.GetFullName()),
@@ -288,6 +321,27 @@ public static class AdapterCache
                 // Get list of adapter types, this establishes cache of adapter protocol attributes
                 _ = AllAdapters;
                 return s_adapterProtocols!;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets all adapter command attribute information for adapter types in the application directory.
+    /// </summary>
+    public static Dictionary<Type, AdapterCommandInfo> AdapterCommands
+    {
+        get
+        {
+            Dictionary<Type, AdapterCommandInfo>? adapterCommands = Interlocked.CompareExchange(ref s_adapterCommands, null, null);
+
+            if (adapterCommands is not null)
+                return adapterCommands;
+
+            lock (s_loadLock)
+            {
+                // Get list of adapter types, this establishes cache of adapter command attributes
+                _ = AllAdapters;
+                return s_adapterCommands!;
             }
         }
     }
@@ -435,6 +489,7 @@ public static class AdapterCache
             Interlocked.Exchange(ref s_allAdapters, null);
             Interlocked.Exchange(ref s_uiResources, null);
             Interlocked.Exchange(ref s_adapterProtocols, null);
+            Interlocked.Exchange(ref s_adapterCommands, null);
             Interlocked.Exchange(ref s_assemblyTypes, null);
 
             // Calling event inside lock ensures all subscribers can safely reset their caches
@@ -448,6 +503,21 @@ public static class AdapterCache
         return adapters
             .Select(info => (info, attributes: info.Type.GetCustomAttributes<TAttr>().ToArray()))
             .Where(item => item.attributes.Length > 0);
+    }
+
+    // Gets all adapters grouped with each of its specified attributes for all adapters with methods that are marked with the attribute.
+    internal static IEnumerable<(AdapterInfo info, (MethodInfo method, TAttr attribute)[] methodAttributes)> GetAdapterMethodAttributes<TAttr>(this IEnumerable<AdapterInfo> adapters) where TAttr : Attribute
+    {
+        return adapters.Select(info => (info, methodAttributes: getMethodAttributes(info)));
+
+        (MethodInfo, TAttr)[] getMethodAttributes(AdapterInfo info)
+        {
+            return info.Type
+                .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                .Select(method => (method, attribute: method.GetCustomAttribute<TAttr>()))
+                .Where(item => item.attribute is not null)
+                .ToArray()!;
+        }
     }
 
     // Gets all adapters filtered by editor browsable state.
@@ -468,6 +538,7 @@ public static class AdapterCache<T> where T : IAdapter
     private static Dictionary<Type, AdapterInfo>? s_allAdapters;
     private static Dictionary<Type, UIResourceInfo>? s_uiResources;
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
+    private static Dictionary<Type, AdapterCommandInfo>? s_adapterCommands;
     private static readonly object s_loadLock = new();
 
     static AdapterCache()
@@ -480,6 +551,7 @@ public static class AdapterCache<T> where T : IAdapter
                 Interlocked.Exchange(ref s_allAdapters, null);
                 Interlocked.Exchange(ref s_uiResources, null);
                 Interlocked.Exchange(ref s_adapterProtocols, null);
+                Interlocked.Exchange(ref s_adapterCommands, null);
             }
         };
     }
@@ -512,6 +584,7 @@ public static class AdapterCache<T> where T : IAdapter
                 s_allAdapters = AdapterCache.AllAdapters.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
                 s_uiResources = AdapterCache.UIResources.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
                 s_adapterProtocols = AdapterCache.AdapterProtocols.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
+                s_adapterCommands = AdapterCache.AdapterCommands.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
             }
 
             return s_allAdapters;
@@ -556,6 +629,27 @@ public static class AdapterCache<T> where T : IAdapter
                 // Get list of adapter types, this establishes cache of adapter protocol attributes
                 _ = AllAdapters;
                 return s_adapterProtocols!;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets all adapter command attribute information for adapters of type <typeparamref name="T"/> in the application directory.
+    /// </summary>
+    public static Dictionary<Type, AdapterCommandInfo> AdapterCommands
+    {
+        get
+        {
+            Dictionary<Type, AdapterCommandInfo>? adapterCommands = Interlocked.CompareExchange(ref s_adapterCommands, null, null);
+
+            if (adapterCommands is not null)
+                return adapterCommands;
+
+            lock (s_loadLock)
+            {
+                // Get list of adapter types, this establishes cache of adapter command attributes
+                _ = AllAdapters;
+                return s_adapterCommands!;
             }
         }
     }

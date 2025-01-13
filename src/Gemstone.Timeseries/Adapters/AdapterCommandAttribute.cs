@@ -42,7 +42,7 @@ public sealed class AdapterCommandAttribute : Attribute
     #region [ Members ]
 
     // Fields
-    private readonly string[] m_allowedRoles;
+    private readonly string[]? m_allowedRoles;
 
     #endregion
 
@@ -52,16 +52,20 @@ public sealed class AdapterCommandAttribute : Attribute
     /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
     /// </summary>
     /// <param name="description">Assigns the description for this adapter command.</param>
-    public AdapterCommandAttribute(string description) =>
+    public AdapterCommandAttribute(string description)
+    {
         Description = description;
+    }
 
     /// <summary>
     /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
     /// </summary>
     /// <param name="description">Assigns the description for this adapter command.</param>
     /// <param name="allowedRoles">Assigns the roles which are allowed to invoke this adapter command.</param>
-    public AdapterCommandAttribute(string description, params string[] allowedRoles) : this(description) =>
+    public AdapterCommandAttribute(string description, params string[] allowedRoles) : this(description)
+    {
         m_allowedRoles = allowedRoles;
+    }
 
     #endregion
 
@@ -75,8 +79,7 @@ public sealed class AdapterCommandAttribute : Attribute
     /// <summary>
     /// Gets the roles which are allowed to invoke this adapter command.
     /// </summary>
-    public string[] AllowedRoles =>
-        m_allowedRoles ?? new[] { "Administrator" };
+    public string[] AllowedRoles => m_allowedRoles ?? new[] { "Administrator" };
 
     #endregion
 }

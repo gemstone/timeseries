@@ -111,7 +111,6 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// </summary>
     [ConnectionStringParameter]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     [DefaultValue(null)]
     public override MeasurementKey[] InputMeasurementKeys
     {
@@ -128,7 +127,6 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// </summary>
     [ConnectionStringParameter]
     [Description("Defines primary keys of output measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("GSF.Timeseries.UI.WPF.dll", "GSF.Timeseries.UI.Editors.MeasurementEditor")]
     [DefaultValue(null)]
     public override IMeasurement[] OutputMeasurements
     {

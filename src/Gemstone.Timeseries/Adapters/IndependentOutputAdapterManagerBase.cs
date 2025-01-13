@@ -66,7 +66,6 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     /// </summary>
     [ConnectionStringParameter]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [CustomConfigurationEditor("GSF.TimeSeries.UI.WPF.dll", "Gemstone.Timeseries.UI.Editors.MeasurementEditor")]
     [DefaultValue(null)]
     public override MeasurementKey[] InputMeasurementKeys
     {

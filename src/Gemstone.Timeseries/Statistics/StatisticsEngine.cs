@@ -36,13 +36,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Timers;
 using Gemstone.Collections.CollectionExtensions;
-using Gemstone.Configuration;
 using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
-using Gemstone.Data.DataSetExtensions;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
-using Gemstone.Expressions;
 using Gemstone.IO;
 using Gemstone.IO.Parsing;
 using Gemstone.StringExtensions;
@@ -64,6 +61,9 @@ namespace Gemstone.Timeseries.Statistics;
 /// Represents the engine that computes statistics within applications of the TimeSeriesFramework.
 /// </summary>
 [Description("Statistics: defines the engine that computes all statistics within the system.")]
+[UIResource("AdapterUI", $".{nameof(Timeseries)}.{nameof(StatisticsEngine)}.entry.js")]
+[UIResource("AdapterUI", $".{nameof(Timeseries)}.{nameof(StatisticsEngine)}.main.js")]
+[UIResource("AdapterUI", $".{nameof(Timeseries)}.{nameof(StatisticsEngine)}.chunk.js")]
 public class StatisticsEngine : FacileActionAdapterBase
 {
     #region [ Members ]
@@ -138,8 +138,10 @@ public class StatisticsEngine : FacileActionAdapterBase
 
         #region [ Constructors ]
 
-        public DBUpdateHelper(AdoDataConnection database) =>
+        public DBUpdateHelper(AdoDataConnection database)
+        {
             m_database = database;
+        }
 
         #endregion
 
@@ -379,7 +381,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     public StatisticsEngine()
     {
         m_statisticsLock = new object();
-        m_statistics = new List<Statistic>();
+        m_statistics = [];
         m_reloadStatisticsTimer = new Timer();
         m_statisticCalculationTimer = new Timer();
 
@@ -646,7 +648,7 @@ public class StatisticsEngine : FacileActionAdapterBase
 
                 // Build a list of signal references for this source
                 // based on the statistics in this category
-                List<string> signalReferences = new();
+                List<string> signalReferences = [];
 
                 helper.Source = source;
 
@@ -667,10 +669,13 @@ public class StatisticsEngine : FacileActionAdapterBase
                     continue;
 
                 // Get a collection of signal indexes already have statistic measurements
-                HashSet<int> existingIndexes = new(statisticMeasurements
-                    .Select(measurement => measurement[nameof(SignalReference)].ToNonNullString())
-                    .Select(str => new SignalReference(str))
-                    .Select(signalReference => signalReference.Index));
+                HashSet<int> existingIndexes =
+                [
+                    ..statisticMeasurements
+                        .Select(measurement => measurement[nameof(SignalReference)].ToNonNullString())
+                        .Select(str => new SignalReference(str))
+                        .Select(signalReference => signalReference.Index)
+                ];
 
                 // Create statistic measurements for statistics that do not have any
                 foreach (DataRow statistic in statistics)
@@ -818,7 +823,7 @@ public class StatisticsEngine : FacileActionAdapterBase
             if (!sourceLookup.TryGetValue(row.Field<string>(nameof(SignalReference)), out StatisticSource source))
                 continue;
 
-            List<DataRow> statisticMeasurements = activeMeasurementsLookup.GetOrAdd(source, _ => new List<DataRow>());
+            List<DataRow> statisticMeasurements = activeMeasurementsLookup.GetOrAdd(source, _ => []);
             statisticMeasurements.Add(row);
             statisticMeasurementCount++;
         }
@@ -837,7 +842,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     {
         try
         {
-            List<IMeasurement> calculatedStatistics = new();
+            List<IMeasurement> calculatedStatistics = [];
             StatisticSource[] sources;
             Statistic[] statistics;
 
@@ -971,6 +976,7 @@ public class StatisticsEngine : FacileActionAdapterBase
         return null;
     }
 
+    // TODO: Replace this will a log from configuration file, Node table is going away
     private string GetSystemName()
     {
         if (DataSource is null)
@@ -1011,12 +1017,16 @@ public class StatisticsEngine : FacileActionAdapterBase
             RestartReloadStatisticsTimer();
     }
 
-    private void ReloadStatisticsTimer_Elapsed(object? sender, ElapsedEventArgs elapsedEventArgs) =>
+    private void ReloadStatisticsTimer_Elapsed(object? sender, ElapsedEventArgs elapsedEventArgs)
+    {
         ReloadStatistics();
+    }
 
     // If multiple timer events overlap, try-run will make sure only one is running at once
-    private void StatisticCalculationTimer_Elapsed(object? sender, ElapsedEventArgs e) =>
+    private void StatisticCalculationTimer_Elapsed(object? sender, ElapsedEventArgs e)
+    {
         m_calculateStatisticsOperation.TryRun();
+    }
 
     private void OnBeforeCalculate()
     {
@@ -1043,7 +1053,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// </summary>
     static StatisticsEngine()
     {
-        s_statisticSources = new List<StatisticSource>();
+        s_statisticSources = [];
         s_forwardToSnmp = SystemSettings.ForwardStatisticsToSnmp;
     }
 
@@ -1056,8 +1066,10 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// <param name="sourceCategory">The category of the statistics.</param>
     /// <param name="sourceAcronym">The acronym used in signal references.</param>
     /// <param name="statisticMeasurementNameFormat">Format string used to name statistic measurements for this source.</param>
-    public static void Register(IAdapter adapter, string sourceCategory, string sourceAcronym, string statisticMeasurementNameFormat = "{}") =>
+    public static void Register(IAdapter adapter, string sourceCategory, string sourceAcronym, string statisticMeasurementNameFormat = "{}")
+    {
         Register(adapter, adapter.Name, sourceCategory, sourceAcronym, statisticMeasurementNameFormat);
+    }
 
     /// <summary>
     /// Registers the given object with the statistics engine as a source of statistics.
@@ -1237,7 +1249,7 @@ public class StatisticsEngine : FacileActionAdapterBase
 
     private static void ValidateSourceReferences()
     {
-        List<int> expiredSources = new();
+        List<int> expiredSources = [];
 
         lock (s_statisticSources)
         {
@@ -1252,9 +1264,9 @@ public class StatisticsEngine : FacileActionAdapterBase
         }
     }
 
-    private static Settings SettingsInstance => Gemstone.Configuration.Settings.Instance;
+    private static ConfigSettings SettingsInstance => ConfigSettings.Instance;
 
-    private static dynamic SystemSettings => Gemstone.Configuration.Settings.Default.System;
+    private static dynamic SystemSettings => ConfigSettings.Default.System;
 
     #endregion
 }

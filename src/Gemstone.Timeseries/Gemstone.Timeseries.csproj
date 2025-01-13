@@ -3,7 +3,7 @@
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;netstandard2.1;</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <RootNamespace>Gemstone.Timeseries</RootNamespace>
     <PackageId>Gemstone.Timeseries</PackageId>
     <Authors>Grid Protection Alliance</Authors>
@@ -20,7 +20,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>GPA;Gemstone;library;timeseries</PackageTags>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>latest</LangVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Nullable>enable</Nullable>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -58,6 +58,7 @@
   <ItemGroup>
      <ProjectReference Include="..\..\..\common\src\Gemstone\Gemstone.Common.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Common" Version="1.0.128" Condition="'$(Configuration)'!='Development'" />
+     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
 
      <ProjectReference Include="..\..\..\communication\src\Gemstone.Communication\Gemstone.Communication.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Communication" Version="1.0.128" Condition="'$(Configuration)'!='Development'" />

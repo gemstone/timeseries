@@ -495,9 +495,9 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
             }
 
             // Create child adapter for provided inputs to the parent bulk collection-based adapter
-            for (int i = 0; i < inputMeasurementKeys.Length; i += inputsPerAdapter)
+            for (int i = 0, adapterIndex = 0; i < inputMeasurementKeys.Length; i += inputsPerAdapter, adapterIndex++)
             {
-                CurrentAdapterIndex = adapters.Count;
+                CurrentAdapterIndex = adapterIndex;
                 inputsPerAdapter = PerAdapterInputCount;
 
                 Guid[] inputs = new Guid[inputsPerAdapter];

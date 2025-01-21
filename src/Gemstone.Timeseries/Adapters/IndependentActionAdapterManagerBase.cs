@@ -74,7 +74,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     // Fields
     private readonly LongSynchronizedOperation m_parseConnectionString;
     private readonly LongSynchronizedOperation m_initializeChildAdapters;
-    private readonly List<MeasurementKey[]> m_inputMeasurementKeysQueue;
+    private MeasurementKey[]? m_inputMeasurementKeysForInitialization;
     private bool m_disposed;
 
     #endregion
@@ -98,8 +98,6 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
         {
             IsBackground = true
         };
-
-        m_inputMeasurementKeysQueue = new List<MeasurementKey[]>(2);
     }
 
     #endregion
@@ -422,32 +420,21 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// </remarks>
     protected virtual void InitializeChildAdapterManagement(MeasurementKey[] inputMeasurementKeys)
     {
-        lock (m_inputMeasurementKeysQueue)
-        {
-            if (m_inputMeasurementKeysQueue.Count < 2)
-                m_inputMeasurementKeysQueue.Add(inputMeasurementKeys);
-            else
-                m_inputMeasurementKeysQueue[1] = inputMeasurementKeys;
-
-            m_initializeChildAdapters.RunAsync();
-        }
+        Interlocked.Exchange(ref m_inputMeasurementKeysForInitialization, inputMeasurementKeys);
+        m_initializeChildAdapters.RunAsync();
     }
 
     private void InitializeChildAdapters()
     {
-        MeasurementKey[] inputMeasurementKeys;
-
-        lock (m_inputMeasurementKeysQueue)
-        {
-            if (m_inputMeasurementKeysQueue.Count == 0)
-                return;
-
-            inputMeasurementKeys = m_inputMeasurementKeysQueue[0];
-            m_inputMeasurementKeysQueue.RemoveAt(0);
-        }
-
         try
         {
+            MeasurementKey[]? inputMeasurementKeys = Interlocked.Exchange(ref m_inputMeasurementKeysForInitialization, null);
+
+            // Indicates an extremely unlikely race condition occurred,
+            // but this is expected so don't issue a warning
+            if (inputMeasurementKeys is null)
+                return;
+
             // If no inputs are defined, skip setup
             if (inputMeasurementKeys.Length == 0)
             {

@@ -604,6 +604,10 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     {
         this.HandleParseConnectionString();
 
+        InputMeasurementKeys = InputMeasurementKeys
+            .Where(key => this.SignalIDExists(key.SignalID))
+            .ToArray();
+
         if (FramesPerSecond < 1)
             FramesPerSecond = DefaultFramesPerSecond;
 

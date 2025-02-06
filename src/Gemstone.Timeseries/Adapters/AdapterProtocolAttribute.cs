@@ -72,6 +72,11 @@ namespace Gemstone.Timeseries.Adapters
         public string Category { get; }
 
         /// <summary>
+        /// Gets flag that determines if the adapter protocol supports a connection test.
+        /// </summary>
+        public bool SupportsConnectionTest { get; }
+
+        /// <summary>
         /// Gets the load order of the adapter protocol.
         /// </summary>
         public int LoadOrder { get; }
@@ -83,8 +88,9 @@ namespace Gemstone.Timeseries.Adapters
         /// <param name="name">Name of the adapter protocol.</param>
         /// <param name="type">Type of the adapter protocol.</param>
         /// <param name="category">Category of the adapter protocol.</param>
+        /// <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
         /// <param name="loadOrder">Load order of the adapter protocol.</param>
-        public AdapterProtocolAttribute(string acronym, string name, ProtocolType type, string category = "Device", int loadOrder = 0)
+        public AdapterProtocolAttribute(string acronym, string name, ProtocolType type, string category = "Device", bool supportsConnectionTest = true, int loadOrder = 0)
         {
         #if NET
             ArgumentException.ThrowIfNullOrWhiteSpace(acronym);
@@ -95,6 +101,7 @@ namespace Gemstone.Timeseries.Adapters
             Name = name;
             Type = type;
             Category = category;
+            SupportsConnectionTest = supportsConnectionTest;
             LoadOrder = loadOrder;
         }
     }

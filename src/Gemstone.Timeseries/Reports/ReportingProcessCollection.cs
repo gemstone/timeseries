@@ -98,7 +98,7 @@ public class ReportingProcessCollection : Collection<IReportingProcess>, IProvid
     /// </summary>
     /// <param name="newReportProcessHandler">New report process handler to call when new <see cref="IReportingProcess"/> implementations are loaded.</param>
     /// <param name="exceptionHandler">Exception handler, if any, to call when type creation fails; otherwise, if <c>null</c> any exceptions will be thrown.</param>
-    public void LoadImplementations(Action<IReportingProcess> newReportProcessHandler, Action<Exception> exceptionHandler = null)
+    public void LoadImplementations(Action<IReportingProcess> newReportProcessHandler, Action<Exception>? exceptionHandler = null)
     {
         // Manually load known reporting processes as an optimization
         Add(new CompletenessReportingProcess());
@@ -109,45 +109,45 @@ public class ReportingProcessCollection : Collection<IReportingProcess>, IProvid
 
         // Load any user defined reporting processes on a background thread
         new Thread(() =>
+        {
+            try
             {
-                try
+                foreach (Type reportingProcessType in typeof(IReportingProcess).LoadImplementations())
                 {
-                    foreach (Type reportingProcessType in typeof(IReportingProcess).LoadImplementations())
+                    if (reportingProcessType == typeof(CompletenessReportingProcess) || reportingProcessType == typeof(CorrectnessReportingProcess))
+                        continue;
+
+                    IReportingProcess? reportingProcess = null;
+
+                    try
                     {
-                        if (reportingProcessType == typeof(CompletenessReportingProcess) || reportingProcessType == typeof(CorrectnessReportingProcess))
-                            continue;
-
-                        IReportingProcess reportingProcess = null;
-
-                        try
-                        {
-                            // Try to load the reporting process implementation
-                            reportingProcess = Activator.CreateInstance(reportingProcessType) as IReportingProcess;
-                        }
-                        catch (Exception ex)
-                        {
-                            if (exceptionHandler is not null)
-                                exceptionHandler(ex);
-                            else
-                                throw;
-                        }
-
-                        if (reportingProcess is null)
-                            continue;
-
-                        Add(reportingProcess);
-                        newReportProcessHandler(reportingProcess);
+                        // Try to load the reporting process implementation
+                        reportingProcess = Activator.CreateInstance(reportingProcessType) as IReportingProcess;
                     }
+                    catch (Exception ex)
+                    {
+                        if (exceptionHandler is not null)
+                            exceptionHandler(ex);
+                        else
+                            throw;
+                    }
+
+                    if (reportingProcess is null)
+                        continue;
+
+                    Add(reportingProcess);
+                    newReportProcessHandler(reportingProcess);
                 }
-                catch (Exception ex)
-                {
-                    Logger.SwallowException(ex);
-                }
-            })
-            {
-                IsBackground = true
             }
-            .Start();
+            catch (Exception ex)
+            {
+                Logger.SwallowException(ex);
+            }
+        })
+        {
+            IsBackground = true
+        }
+        .Start();
     }
 
     /// <summary>
@@ -158,8 +158,11 @@ public class ReportingProcessCollection : Collection<IReportingProcess>, IProvid
     /// The <see cref="IReportingProcess"/> for the specified <paramref name="reportType"/> name, if found;
     /// otherwise, <c>null</c> if not found.
     /// </returns>
-    public IReportingProcess FindReportType(string reportType) =>
-        this.FirstOrDefault(reportingProcess => reportType.Equals(reportingProcess.ReportType, StringComparison.OrdinalIgnoreCase));
+    public IReportingProcess? FindReportType(string reportType)
+    {
+        return this.FirstOrDefault(reportingProcess =>
+            reportType.Equals(reportingProcess.ReportType, StringComparison.OrdinalIgnoreCase));
+    }
 
     ///// <summary>
     ///// Inserts an element into the <see cref="Collection{T}"/> at the specified index.

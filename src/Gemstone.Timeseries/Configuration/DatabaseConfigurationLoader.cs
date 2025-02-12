@@ -41,12 +41,11 @@ namespace Gemstone.Timeseries.Configuration;
 /// Defines a method signature for a bootstrap data source operation.
 /// </summary>
 /// <param name="database">Connection to database.</param>
-/// <param name="nodeIDQueryString">Formatted node ID Guid query string.</param>
 /// <param name="trackingVersion">Latest version of the configuration to which data operations were previously applied.</param>
 /// <param name="arguments">Optional data operation arguments.</param>
 /// <param name="statusMessage">Reference to host status message function.</param>
 /// <param name="processException">Reference to host process exception function.</param>
-public delegate void DataOperationFunction(AdoDataConnection database, string nodeIDQueryString, ulong trackingVersion, string arguments, Action<string> statusMessage, Action<Exception> processException);
+public delegate void DataOperationFunction(AdoDataConnection database, ulong trackingVersion, string arguments, Action<string> statusMessage, Action<Exception> processException);
 
 /// <summary>
 /// Represents a configuration loader that gets its configuration from a database connection.
@@ -74,11 +73,6 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
     /// .NET types to use when opening connections to the database.
     /// </summary>
     public string DataProviderString { get; set; } = default!;
-
-    /// <summary>
-    /// Gets or sets the string to use in queries when filtering results by node ID.
-    /// </summary>
-    public string NodeIDQueryString { get; set; } = default!;
 
     /// <summary>
     /// Gets the flag that indicates whether augmentation is supported by this configuration loader.
@@ -385,7 +379,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
         {
             string assemblyName = "", typeName = "", methodName = "";
 
-            foreach (DataRow row in database.Connection.RetrieveData($"SELECT * FROM DataOperation WHERE (NodeID IS NULL OR NodeID={NodeIDQueryString}) AND Enabled <> 0 ORDER BY LoadOrder").Rows)
+            foreach (DataRow row in database.Connection.RetrieveData($"SELECT * FROM DataOperation WHERE Enabled <> 0 ORDER BY LoadOrder").Rows)
             {
                 try
                 {
@@ -412,7 +406,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
                     MethodInfo method = type.GetMethod(methodName, BindingFlags.IgnoreCase | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.InvokeMethod)!;
 
                     // Execute data operation via loaded assembly method
-                    ((DataOperationFunction)Delegate.CreateDelegate(typeof(DataOperationFunction), method))(database, NodeIDQueryString, trackingVersion, arguments, status => OnStatusMessage(MessageLevel.Info, status), ex => OnProcessException(MessageLevel.Warning, ex));
+                    ((DataOperationFunction)Delegate.CreateDelegate(typeof(DataOperationFunction), method))(database, trackingVersion, arguments, status => OnStatusMessage(MessageLevel.Info, status), ex => OnProcessException(MessageLevel.Warning, ex));
                 }
                 catch (Exception ex)
                 {
@@ -430,7 +424,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
         {
             // Load configuration entity data filtered by node ID
             Ticks operationStartTime = DateTime.UtcNow.Ticks;
-            DataTable source = database.Connection.RetrieveData($"SELECT * FROM {entityRow["SourceName"]} WHERE NodeID={NodeIDQueryString}");
+            DataTable source = database.Connection.RetrieveData($"SELECT * FROM {entityRow["SourceName"]}");
             Time operationElapsedTime = (DateTime.UtcNow.Ticks - operationStartTime).ToSeconds();
 
             // Update table name as defined in configuration entity
@@ -556,7 +550,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
 
         Execute(database =>
         {
-            string query = $"SELECT * FROM {tableName} WHERE {primaryKeyColumn} IN (SELECT PrimaryKeyValue FROM TrackedChange WHERE TableName = '{tableName}' AND ID > {currentVersion}) AND NodeID = {NodeIDQueryString}";
+            string query = $"SELECT * FROM {tableName} WHERE {primaryKeyColumn} IN (SELECT PrimaryKeyValue FROM TrackedChange WHERE TableName = '{tableName}' AND ID > {currentVersion})";
             changes = database.Connection.RetrieveData(query);
         });
 

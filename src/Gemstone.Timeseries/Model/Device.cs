@@ -38,8 +38,8 @@ namespace Gemstone.Timeseries.Model;
 [PrimaryLabel(nameof(Acronym))]
 public class Device
 {
-    [DefaultValueExpression("Global.NodeID")]
-    public Guid NodeID { get; set; }
+    //[DefaultValueExpression("Global.NodeID")]
+    //public Guid NodeID { get; set; }
 
     [Label("Local Device ID")]
     [PrimaryKey(true)]

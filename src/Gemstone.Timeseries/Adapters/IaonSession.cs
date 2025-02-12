@@ -28,7 +28,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Text;
 using Gemstone.Collections.CollectionExtensions;
@@ -118,7 +117,6 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     public event EventHandler? Disposed;
 
     // Fields
-    private Guid m_nodeID;
     private readonly RoutingTables m_routingTables;
     private readonly AllAdaptersCollection m_allAdapters;
     private readonly FilterAdapterCollection m_filterAdapters;
@@ -262,15 +260,6 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="Guid"/> node ID  for this <see cref="IaonSession"/>.
-    /// </summary>
-    public virtual Guid NodeID
-    {
-        get => m_nodeID;
-        set => m_nodeID = value;
-    }
-
-    /// <summary>
     /// Gets name assigned to this <see cref="IaonSession"/>, if any.
     /// </summary>
     public virtual string Name
@@ -407,7 +396,7 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     /// </summary>
     /// <param name="collection">Name of collection over which to check support (e.g., "InputAdapters"); or <c>null</c> for all collections.</param>
     /// <returns>Flag that determines if temporal processing is supported in this <see cref="IaonSession"/>.</returns>
-    public virtual bool TemporalProcessingSupportExists(string collection = null)
+    public virtual bool TemporalProcessingSupportExists(string? collection = null)
     {
         try
         {
@@ -468,7 +457,7 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     /// <param name="sender">Object source raising the event.</param>
     /// <param name="status">New status message.</param>
     /// <param name="type"><see cref="UpdateType"/> of status message.</param>
-    protected virtual void OnStatusMessage(object? sender, string status, UpdateType type = UpdateType.Information)
+    protected virtual void OnStatusMessage(object? sender, string? status, UpdateType type = UpdateType.Information)
     {
         if (StatusMessage is null)
             return;
@@ -478,7 +467,7 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
         if (type == UpdateType.Information && status is not null && status.Length > 3 && status.StartsWith("0x") && Enum.TryParse(status[2].ToString(), out type))
             status = status.Substring(3);
 
-        StatusMessage(sender, new EventArgs<string, UpdateType>(status, type));
+        StatusMessage(sender, new EventArgs<string, UpdateType>(status!, type));
     }
 
     /// <summary>
@@ -715,7 +704,7 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
             {
                 // It is only expected that output adapters will be mapped to this handler, but in case
                 // another adapter type uses this handler we will still display a message
-                OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the adapter queue - but sender \"{2}\" is not an IOutputAdapter, so no evasive action can be exercised.", UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements, sender.GetType().Name);
+                OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the adapter queue - but sender \"{2}\" is not an IOutputAdapter, so no evasive action can be exercised.", UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements, sender!.GetType().Name);
             }
         }
         else if (unprocessedMeasurements > m_measurementWarningThreshold)
@@ -737,7 +726,7 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     /// <param name="e">Event arguments for event that contains references to the new measurements.</param>
     public virtual void NewMeasurementsHandler(object? sender, EventArgs<ICollection<IMeasurement>> e)
     {
-        m_filterAdapters?.HandleNewMeasurements(e.Argument);
+        m_filterAdapters.HandleNewMeasurements(e.Argument);
     }
 
     /// <summary>
@@ -827,7 +816,7 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
                             temporalConfiguration.Tables.Add(table.Clone());
 
                             // Check for adapters with temporal support in this adapter collection
-                            DataRow[] temporalAdapters = temporalSupport.Select($"Source = '{tableName}'") ?? Array.Empty<DataRow>();
+                            DataRow[] temporalAdapters = temporalSupport.Select($"Source = '{tableName}'");
 
                             // If any adapters support temporal processing, add them to the temporal configuration
                             if (temporalAdapters.Length > 0)

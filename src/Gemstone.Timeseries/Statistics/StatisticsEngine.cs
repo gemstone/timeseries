@@ -127,7 +127,6 @@ public class StatisticsEngine : FacileActionAdapterBase
         private string? m_signalReference;
         private string? m_description;
 
-        private Guid? m_nodeID;
         private string? m_nodeOwner;
         private string? m_company;
 
@@ -188,8 +187,6 @@ public class StatisticsEngine : FacileActionAdapterBase
 
         public int Index => Convert.ToInt32(m_statistic!["SignalIndex"]);
 
-        private Guid NodeID => m_nodeID ?? (Guid)(m_nodeID = SystemSettings.NodeID);
-
         private string Company => m_company ??= GetCompany();
 
         private string NodeOwner => m_nodeOwner ??= GetNodeOwner();
@@ -236,8 +233,8 @@ public class StatisticsEngine : FacileActionAdapterBase
 
         private int GetHistorianID()
         {
-            const string StatHistorianIDFormat = "SELECT ID FROM Historian WHERE Acronym = 'STAT' AND NodeID = {0}";
-            return ExecuteScalar<int>(StatHistorianIDFormat, m_database.Guid(NodeID));
+            const string StatHistorianIDFormat = "SELECT ID FROM Historian WHERE Acronym = 'STAT'";
+            return ExecuteScalar<int>(StatHistorianIDFormat);
         }
 
         private object GetDeviceID() =>
@@ -271,29 +268,47 @@ public class StatisticsEngine : FacileActionAdapterBase
 
         private string GetNodeOwner()
         {
-            const string NodeCompanyIDFormat = "SELECT CompanyID FROM Node WHERE ID = {0}";
-            const string CompanyAcronymFormat = "SELECT MapAcronym FROM Company WHERE ID = {0}";
+            const string CompanyAcronymFormat = "SELECT MapAcronym FROM Company WHERE Acronym = {0}";
 
-            string companyAcronym;
+            string companyAcronym = readCompanyAcronymFromConfig();
 
             try
             {
-                int nodeCompanyID = ExecuteScalar<int>(NodeCompanyIDFormat, m_database.Guid(NodeID));
-                companyAcronym = ExecuteScalar<string>(CompanyAcronymFormat, nodeCompanyID);
+                companyAcronym = ExecuteScalar<string>(CompanyAcronymFormat, companyAcronym);
             }
-            catch
+            catch (Exception ex)
             {
-                companyAcronym = SystemSettings.CompanyAcronym.TruncateRight(3);
+                Logger.SwallowException(ex);
             }
 
             return companyAcronym;
+
+            static string readCompanyAcronymFromConfig()
+            {
+                try
+                {
+                    dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
+
+                    string companyAcronym = section["CompanyAcronym", "GPA", "The acronym representing the company who owns the host system."];
+
+                    if (string.IsNullOrWhiteSpace(companyAcronym))
+                        companyAcronym = "GPA";
+
+                    return companyAcronym;
+                }
+                catch (Exception ex)
+                {
+                    Logger.SwallowException(ex, "Failed to load company acronym from settings");
+                    return "GPA";
+                }
+            }
         }
 
         private Dictionary<string, DataRow> GetDeviceLookup()
         {
-            const string DeviceLookupFormat = "SELECT ID, Acronym, CompanyID FROM Device WHERE NodeID = {0}";
+            const string DeviceLookupFormat = "SELECT ID, Acronym, CompanyID FROM Device";
 
-            return RetrieveData(DeviceLookupFormat, m_database.Guid(NodeID)).Select()
+            return RetrieveData(DeviceLookupFormat).Select()
                 .ToDictionary(row => row[nameof(Acronym)].ToNonNullString());
         }
 
@@ -976,24 +991,24 @@ public class StatisticsEngine : FacileActionAdapterBase
         return null;
     }
 
-    // TODO: Replace this will a log from configuration file, Node table is going away
     private string GetSystemName()
     {
-        if (DataSource is null)
-            return "DEFAULT";
-
-        if (DataSource.Tables.Contains("NodeInfo"))
+        try
         {
-            return DataSource.Tables["NodeInfo"].Rows[0][nameof(Name)]
-                .ToNonNullString()
-                .RemoveCharacters(c => !char.IsLetterOrDigit(c))
-                .Replace(' ', '_')
-                .ToUpper();
+            dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
+
+            string systemName = section["SystemName", "", "Name of system for this instance of the openHistorian that will be prefixed to system level tags, when defined. Value should follow tag naming conventions, e.g., no spaces and all upper case."];
+
+            if (string.IsNullOrWhiteSpace(systemName))
+                systemName = "";
+
+            return systemName;
         }
-
-        using AdoDataConnection database = new(SettingsInstance!);
-
-        return database.Connection.ExecuteScalar($"SELECT Name FROM Node WHERE ID = '{database.Guid(SystemSettings.NodeID)}'").ToNonNullString().ToUpper();
+        catch (Exception ex)
+        {
+            Logger.SwallowException(ex, "Failed to load system name from settings");
+            return "";
+        }
     }
 
     private void RestartReloadStatisticsTimer()

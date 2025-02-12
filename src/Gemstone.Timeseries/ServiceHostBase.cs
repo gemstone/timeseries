@@ -177,18 +177,6 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     /// </summary>
     public FilterAdapterCollection? FilterAdapters => m_iaonSession?.FilterAdapters;
 
-    // TODO: Remove Node ID from schema and implementation
-
-    /// <summary>
-    /// Gets the current node ID.
-    /// </summary>
-    public Guid NodeID => m_iaonSession?.NodeID ?? Guid.Empty;
-
-    /// <summary>
-    /// Gets the current node ID formatted for use in a SQL query string based on <see cref="ServiceHostBase.ConfigurationType"/>.
-    /// </summary>
-    public string NodeIDQueryString { get; private set; } = default!;
-
     /// <summary>
     /// Gets the currently loaded system configuration <see cref="DataSet"/>.
     /// </summary>
@@ -283,7 +271,6 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
 
         // Initialize Iaon session
         m_iaonSession = new IaonSession();
-        m_iaonSession.NodeID = section.NodeID ?? Guid.Empty;
         m_iaonSession.StatusMessage += StatusMessageHandler;
         m_iaonSession.ProcessException += ProcessExceptionHandler;
         m_iaonSession.ConfigurationChanged += ConfigurationChangedHandler;
@@ -358,14 +345,10 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             LogException(ex);
         }
 
-        // Define guid with query string delimiters according to database needs
-        if (string.IsNullOrWhiteSpace(NodeIDQueryString))
-            NodeIDQueryString = $"'{m_iaonSession.NodeID}'";
-
         // Set up the configuration loader
         m_configurationLoader = ConfigurationType switch
         {
-            ConfigurationType.Database => new DatabaseConfigurationLoader { ConnectionString = section.ConnectionString, DataProviderString = section.DataProviderString, NodeIDQueryString = NodeIDQueryString },
+            ConfigurationType.Database => new DatabaseConfigurationLoader { ConnectionString = section.ConnectionString, DataProviderString = section.DataProviderString },
             ConfigurationType.WebService => new WebServiceConfigurationLoader { URI = section.ConnectionString },
             ConfigurationType.BinaryFile => new BinaryFileConfigurationLoader { FilePath = section.ConnectionString },
             ConfigurationType.XmlFile => new XMLConfigurationLoader { FilePath = section.ConnectionString },

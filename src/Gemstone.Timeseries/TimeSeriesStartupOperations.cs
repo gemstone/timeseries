@@ -52,51 +52,26 @@ public static class TimeseriesStartupOperations
     /// <summary>
     /// Delegates control to the data operations that are to be performed at startup.
     /// </summary>
-    private static void PerformTimeseriesStartupOperations(AdoDataConnection database, string nodeIDQueryString, ulong trackingVersion, string arguments, Action<string> statusMessage, Action<Exception> processException)
+    private static void PerformTimeseriesStartupOperations(AdoDataConnection database, ulong trackingVersion, string arguments, Action<string> statusMessage, Action<Exception> processException)
     {
         // Set up messaging to the service
         //s_statusMessage = statusMessage;
         //s_processException = processException;
 
         // Run data operations
-        ValidateDefaultNode(database, nodeIDQueryString);
-        ValidateAdapterCollections(database, nodeIDQueryString);
-        ValidateActiveMeasurements(database, nodeIDQueryString);
-        ValidateAccountsAndGroups(database, nodeIDQueryString);
-        ValidateDataPublishers(database, nodeIDQueryString, arguments);
-        ValidateStatistics(database, nodeIDQueryString);
-        ValidateAlarming(database, nodeIDQueryString);
-    }
-
-    /// <summary>
-    /// Data operation to validate and ensure there is a node in the database.
-    /// </summary>
-    private static void ValidateDefaultNode(AdoDataConnection database, string nodeIDQueryString)
-    {
-        // Queries
-        const string NodeCountFormat = "SELECT COUNT(*) FROM Node";
-
-        const string NodeInsertFormat = "INSERT INTO Node(Name, CompanyID, Description, Settings, MenuType, MenuData, Master, LoadOrder, Enabled) " +
-                                        "VALUES('Default', NULL, 'Default node', 'RemoteStatusServerConnectionString={server=localhost:8500};datapublisherport=6165;RealTimeStatisticServiceUrl=http://localhost:6052/historian', " +
-                                        "'File', 'Menu.xml', 1, 0, 1)";
-
-        const string NodeUpdateFormat = "UPDATE Node SET ID = {0}";
-
-        // Determine whether the node exists in the database and create it if it doesn't.
-        int nodeCount = Convert.ToInt32(database.Connection.ExecuteScalar(NodeCountFormat));
-
-        if (nodeCount != 0)
-            return;
-
-        database.Connection.ExecuteNonQuery(NodeInsertFormat);
-        database.Connection.ExecuteNonQuery(string.Format(NodeUpdateFormat, nodeIDQueryString));
+        ValidateAdapterCollections(database);
+        ValidateActiveMeasurements(database);
+        ValidateAccountsAndGroups(database);
+        ValidateDataPublishers(database, arguments);
+        ValidateStatistics(database);
+        ValidateAlarming(database);
     }
 
     /// <summary>
     /// Data operation to validate and ensure there is a record in the
     /// ConfigurationEntity table for each of the adapter collections.
     /// </summary>
-    private static void ValidateAdapterCollections(AdoDataConnection database, string nodeIDQueryString)
+    private static void ValidateAdapterCollections(AdoDataConnection database)
     {
         const string ConfigEntityCountFormat = "SELECT COUNT(*) FROM ConfigurationEntity WHERE RuntimeName = {0}";
         const string ConfigEntityInsertFormat = "INSERT INTO ConfigurationEntity(SourceName, RuntimeName, Description, LoadOrder, Enabled) VALUES({0}, {1}, {2}, {3}, 1)";
@@ -141,7 +116,7 @@ public static class TimeseriesStartupOperations
     /// Data operation to validate and ensure there is a record
     /// in the ConfigurationEntity table for ActiveMeasurements.
     /// </summary>
-    private static void ValidateActiveMeasurements(AdoDataConnection database, string nodeIDQueryString)
+    private static void ValidateActiveMeasurements(AdoDataConnection database)
     {
         const string MeasurementConfigEntityCountFormat = "SELECT COUNT(*) FROM ConfigurationEntity WHERE RuntimeName = 'ActiveMeasurements'";
         const string MeasurementConfigEntityInsertFormat = "INSERT INTO ConfigurationEntity(SourceName, RuntimeName, Description, LoadOrder, Enabled) VALUES('ActiveMeasurement', 'ActiveMeasurements', 'Defines active system measurements for a TSF node', 4, 1)";
@@ -156,7 +131,7 @@ public static class TimeseriesStartupOperations
     /// Data operation to validate accounts and groups to ensure
     /// that account names and group names are converted to SIDs.
     /// </summary>
-    private static void ValidateAccountsAndGroups(AdoDataConnection database, string nodeIDQueryString)
+    private static void ValidateAccountsAndGroups(AdoDataConnection database)
     {
         const string SelectUserAccountQuery = "SELECT ID, Name, UseADAuthentication FROM UserAccount";
         const string SelectSecurityGroupQuery = "SELECT ID, Name FROM SecurityGroup";
@@ -226,11 +201,11 @@ public static class TimeseriesStartupOperations
     /// Data operation to validate and ensure there is a record in the
     /// CustomActionAdapter table for the external and TLS data publishers.
     /// </summary>
-    private static void ValidateDataPublishers(AdoDataConnection database, string nodeIDQueryString, string arguments)
+    private static void ValidateDataPublishers(AdoDataConnection database, string arguments)
     {
-        const string DataPublisherCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName='{0}!DATAPUBLISHER' AND NodeID = {1}";
-        const string GEPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(NodeID, AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES({0}, '{1}!DATAPUBLISHER', 'GSF.Timeseries.dll', 'GSF.Timeseries.Transport.DataPublisher', 'securityMode={2}; allowSynchronizedSubscription=false; useBaseTimeOffsets=true; {3}', {4})";
-        const string STTPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(NodeID, AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES({0}, '{1}!DATAPUBLISHER', 'sttp.gsf.dll', 'sttp.DataPublisher', 'securityMode={2}; {3}', {4})";
+        const string DataPublisherCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName='{0}!DATAPUBLISHER'";
+        const string GEPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES({0}, '{1}!DATAPUBLISHER', 'GSF.Timeseries.dll', 'GSF.Timeseries.Transport.DataPublisher', 'securityMode={2}; allowSynchronizedSubscription=false; useBaseTimeOffsets=true; {3}', {4})";
+        const string STTPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES({0}, '{1}!DATAPUBLISHER', 'sttp.gsf.dll', 'sttp.DataPublisher', 'securityMode={2}; {3}', {4})";
 
         bool internalDataPublisherEnabled = true;
         bool externalDataPublisherEnabled = true;
@@ -258,40 +233,40 @@ public static class TimeseriesStartupOperations
                 sttpsDataPublisherEnabled = value.ParseBoolean();
         }
 
-        int internalDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "INTERNAL", nodeIDQueryString)));
-        int externalDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "EXTERNAL", nodeIDQueryString)));
-        int tlsDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "TLS", nodeIDQueryString)));
-        int sttpDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "STTP", nodeIDQueryString)));
-        int sttpsDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "STTPS", nodeIDQueryString)));
+        int internalDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "INTERNAL")));
+        int externalDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "EXTERNAL")));
+        int tlsDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "TLS")));
+        int sttpDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "STTP")));
+        int sttpsDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "STTPS")));
 
         if (internalDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(GEPDataPublisherInsertFormat, nodeIDQueryString, "INTERNAL", "None", "cacheMeasurementKeys={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}", internalDataPublisherEnabled ? 1 : 0));
+            database.Connection.ExecuteNonQuery(string.Format(GEPDataPublisherInsertFormat, "INTERNAL", "None", "cacheMeasurementKeys={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}", internalDataPublisherEnabled ? 1 : 0));
 
         if (externalDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(GEPDataPublisherInsertFormat, nodeIDQueryString, "EXTERNAL", "Gateway", "", externalDataPublisherEnabled ? 1 : 0));
+            database.Connection.ExecuteNonQuery(string.Format(GEPDataPublisherInsertFormat, "EXTERNAL", "Gateway", "", externalDataPublisherEnabled ? 1 : 0));
 
         if (tlsDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(GEPDataPublisherInsertFormat, nodeIDQueryString, "TLS", "TLS", "", tlsDataPublisherEnabled ? 1 : 0));
+            database.Connection.ExecuteNonQuery(string.Format(GEPDataPublisherInsertFormat, "TLS", "TLS", "", tlsDataPublisherEnabled ? 1 : 0));
 
         if (sttpDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, nodeIDQueryString, "STTP", "None", "cachedMeasurementExpression={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}", sttpDataPublisherEnabled ? 1 : 0));
+            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTP", "None", "cachedMeasurementExpression={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}", sttpDataPublisherEnabled ? 1 : 0));
 
         if (sttpsDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, nodeIDQueryString, "STTPS", "TLS", "", sttpsDataPublisherEnabled ? 1 : 0));
+            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTPS", "TLS", "", sttpsDataPublisherEnabled ? 1 : 0));
     }
 
     /// <summary>
     /// Data operation to validate and ensure that certain records that
     /// are required for statistics calculations exist in the database.
     /// </summary>
-    private static void ValidateStatistics(AdoDataConnection database, string nodeIDQueryString)
+    private static void ValidateStatistics(AdoDataConnection database)
     {
         // SELECT queries
         const string StatConfigEntityCountFormat = "SELECT COUNT(*) FROM ConfigurationEntity WHERE RuntimeName = 'Statistics'";
         const string StatSignalTypeCountFormat = "SELECT COUNT(*) FROM SignalType WHERE Acronym = 'STAT'";
 
-        const string StatHistorianCountFormat = "SELECT COUNT(*) FROM Historian WHERE Acronym = 'STAT' AND NodeID = {0}";
-        const string StatEngineCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName = 'STATISTIC!SERVICES' AND NodeID = {0}";
+        const string StatHistorianCountFormat = "SELECT COUNT(*) FROM Historian WHERE Acronym = 'STAT'";
+        const string StatEngineCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName = 'STATISTIC!SERVICES'";
         const string SystemStatCountFormat = "SELECT COUNT(*) FROM Statistic WHERE Source = 'System' AND AssemblyName = 'GSF.Timeseries.dll'";
         const string DeviceStatCountFormat = "SELECT COUNT(*) FROM Statistic WHERE Source = 'Device' AND AssemblyName = 'GSF.Timeseries.dll'";
         const string SubscriberStatCountFormat = "SELECT COUNT(*) FROM Statistic WHERE Source = 'Subscriber' AND AssemblyName = 'GSF.Timeseries.dll'";
@@ -302,8 +277,8 @@ public static class TimeseriesStartupOperations
         const string StatConfigEntityInsertFormat = "INSERT INTO ConfigurationEntity(SourceName, RuntimeName, Description, LoadOrder, Enabled) VALUES('RuntimeStatistic', 'Statistics', 'Defines statistics that are monitored for the system, devices, and output streams', 11, 1)";
         const string StatSignalTypeInsertFormat = "INSERT INTO SignalType(Name, Acronym, Suffix, Abbreviation, Source, EngineeringUnits) VALUES('Statistic', 'STAT', 'ST', 'P', 'Any', '')";
 
-        const string StatHistorianInsertFormat = "INSERT INTO Historian(NodeID, Acronym, Name, AssemblyName, TypeName, ConnectionString, IsLocal, Description, LoadOrder, Enabled) VALUES({0}, 'STAT', 'Statistics Archive', 'TestingAdapters.dll', 'TestingAdapters.VirtualOutputAdapter', '', 1, 'Local historian used to archive system statistics', 9999, 1)";
-        const string StatEngineInsertFormat = "INSERT INTO CustomActionAdapter(NodeID, AdapterName, AssemblyName, TypeName, LoadOrder, Enabled) VALUES({0}, 'STATISTIC!SERVICES', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.StatisticsEngine', 0, 1)";
+        const string StatHistorianInsertFormat = "INSERT INTO Historian(Acronym, Name, AssemblyName, TypeName, ConnectionString, IsLocal, Description, LoadOrder, Enabled) VALUES('STAT', 'Statistics Archive', 'TestingAdapters.dll', 'TestingAdapters.VirtualOutputAdapter', '', 1, 'Local historian used to archive system statistics', 9999, 1)";
+        const string StatEngineInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, LoadOrder, Enabled) VALUES('STATISTIC!SERVICES', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.StatisticsEngine', 0, 1)";
         const string SystemStatInsertFormat = "INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('System', {0}, '{1}', '{2}', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.PerformanceStatistics', 'GetSystemStatistic_{3}', '', 1, '{4}', '{5}', 0, {0})";
         const string DeviceStatInsertFormat = "INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('Device', {0}, '{1}', '{2}', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.DeviceStatistics', 'GetDeviceStatistic_{3}', '', 1, '{4}', '{5}', 0, {0})";
         const string SubscriberStatInsertFormat = "INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('Subscriber', {0}, '{1}', '{2}', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.GatewayStatistics', 'GetSubscriberStatistic_{3}', '', 1, '{4}', '{5}', {6}, {0})";
@@ -695,8 +670,8 @@ public static class TimeseriesStartupOperations
         int statConfigEntityCount = Convert.ToInt32(database.Connection.ExecuteScalar(StatConfigEntityCountFormat));
         int statSignalTypeCount = Convert.ToInt32(database.Connection.ExecuteScalar(StatSignalTypeCountFormat));
 
-        int statHistorianCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(StatHistorianCountFormat, nodeIDQueryString)));
-        int statEngineCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(StatEngineCountFormat, nodeIDQueryString)));
+        int statHistorianCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(StatHistorianCountFormat)));
+        int statEngineCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(StatEngineCountFormat)));
         int systemStatCount = Convert.ToInt32(database.Connection.ExecuteScalar(SystemStatCountFormat));
         int deviceStatCount = Convert.ToInt32(database.Connection.ExecuteScalar(DeviceStatCountFormat));
         int subscriberStatCount = Convert.ToInt32(database.Connection.ExecuteScalar(SubscriberStatCountFormat));
@@ -721,11 +696,11 @@ public static class TimeseriesStartupOperations
 
         // Ensure that statistics historian exists
         if (statHistorianCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(StatHistorianInsertFormat, nodeIDQueryString));
+            database.Connection.ExecuteNonQuery(string.Format(StatHistorianInsertFormat));
 
         // Ensure that statistics engine exists
         if (statEngineCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(StatEngineInsertFormat, nodeIDQueryString));
+            database.Connection.ExecuteNonQuery(string.Format(StatEngineInsertFormat));
 
         // Ensure that system statistics exist
         if (systemStatCount < SystemStatNames.Length)
@@ -815,16 +790,16 @@ public static class TimeseriesStartupOperations
     /// Data operation to validate and ensure that certain records
     /// that are required for alarming exist in the database.
     /// </summary>
-    private static void ValidateAlarming(AdoDataConnection connection, string nodeIDQueryString)
+    private static void ValidateAlarming(AdoDataConnection connection)
     {
         // SELECT queries
         const string AlarmCountFormat = "SELECT COUNT(*) FROM Alarm";
-        const string AlarmAdapterCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName = 'ALARM!SERVICES' AND NodeID = {0}";
+        const string AlarmAdapterCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName = 'ALARM!SERVICES'";
         const string AlarmConfigEntityCountFormat = "SELECT COUNT(*) FROM ConfigurationEntity WHERE RuntimeName = 'Alarms'";
         const string AlarmSignalTypeCountFormat = "SELECT COUNT(*) FROM SignalType WHERE Name = 'Alarm'";
 
         // INSERT queries
-        const string AlarmAdapterInsertFormat = "INSERT INTO CustomActionAdapter(NodeID, AdapterName, AssemblyName, TypeName, ConnectionString, LoadOrder, Enabled) VALUES({0}, 'ALARM!SERVICES', 'DataQualityMonitoring.dll', 'DataQualityMonitoring.AlarmAdapter', 'useAlarmLog=false', 0, 1)";
+        const string AlarmAdapterInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, LoadOrder, Enabled) VALUES('ALARM!SERVICES', 'DataQualityMonitoring.dll', 'DataQualityMonitoring.AlarmAdapter', 'useAlarmLog=false', 0, 1)";
         const string AlarmConfigEntityInsertFormat = "INSERT INTO ConfigurationEntity(SourceName, RuntimeName, Description, LoadOrder, Enabled) VALUES('Alarm', 'Alarms', 'Defines alarms that monitor the values of measurements', 17, 1)";
         const string AlarmSignalTypeInsertFormat = "INSERT INTO SignalType(Name, Acronym, Suffix, Abbreviation, Source, EngineeringUnits) VALUES('Alarm', 'ALRM', 'AL', 'AL', 'Any', '')";
 
@@ -845,13 +820,11 @@ public static class TimeseriesStartupOperations
         if (!alarmTableExists)
             return;
 
-        Guid nodeID = Guid.Parse(nodeIDQueryString.Trim('\''));
-
         // Ensure that the alarm adapter is defined.
-        int alarmAdapterCount = connection.ExecuteScalar<int>(AlarmAdapterCountFormat, nodeID);
+        int alarmAdapterCount = connection.ExecuteScalar<int>(AlarmAdapterCountFormat);
 
         if (alarmAdapterCount == 0)
-            connection.ExecuteNonQuery(AlarmAdapterInsertFormat, nodeID);
+            connection.ExecuteNonQuery(AlarmAdapterInsertFormat);
 
         // Ensure that the alarm record is defined in the ConfigurationEntity table.
         int alarmConfigEntityCount = connection.ExecuteScalar<int>(AlarmConfigEntityCountFormat);
@@ -865,10 +838,10 @@ public static class TimeseriesStartupOperations
         if (alarmSignalTypeCount == 0)
             connection.ExecuteNonQuery(AlarmSignalTypeInsertFormat);
 
-        ValidateAlarmStatistics(connection, nodeID, "Point");
+        ValidateAlarmStatistics(connection, "Point");
     }
 
-    private static void ValidateAlarmStatistics(AdoDataConnection connection, Guid nodeID, string source)
+    private static void ValidateAlarmStatistics(AdoDataConnection connection, string source)
     {
         const string MissingStatisticsFormat = "SELECT DISTINCT Severity FROM Alarm WHERE Severity <> 0 AND Severity NOT IN (SELECT Arguments FROM Statistic WHERE Source = {0} AND MethodName = {1})";
         const string MaxSignalIndexFormat = "SELECT COALESCE(MAX(SignalIndex), 0) FROM Statistic WHERE Source = {0}";

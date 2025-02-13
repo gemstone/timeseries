@@ -441,7 +441,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
             DataColumnCollection columns = destination.Columns;
 
             // Remove redundant node ID column
-            columns.Remove("NodeID");
+            //columns.Remove("NodeID");
 
             // Pre-cache column index translation after removal of NodeID column to speed data copy
             Dictionary<int, int> columnIndex = new();

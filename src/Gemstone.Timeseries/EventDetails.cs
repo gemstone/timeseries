@@ -31,20 +31,6 @@ namespace Gemstone.Timeseries;
 /// </summary>
 public class EventDetails
 {
-    /* Create Table EventID 
-      (
-	[ID] [int] IDENTITY(1, 1) NOT NULL ,
-	[EventGuid] [uniqueidentifier] NOT NULL,
-	[StartTime] [datetime] NOT NULL,
-	[EndTime] [datetime] NULL,
-	[MeasurementID] [uniqueidentifier] NULL,
-	[Details] [varchar](max) NOT NULL,
-	[TYPE] [varchar](50) NULL
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-GO
-        );
-    */
-
     /// <summary>
     /// Gets or stes the Primary Key used in the Database
     /// </summary>

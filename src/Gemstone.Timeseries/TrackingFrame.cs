@@ -34,7 +34,7 @@ namespace Gemstone.Timeseries;
 /// <summary>
 /// <see cref="IFrame"/> container used to track <see cref="IMeasurement"/> values for down-sampling.
 /// </summary>
-internal class TrackingFrame
+public class TrackingFrame
 {
     #region [ Members ]
 

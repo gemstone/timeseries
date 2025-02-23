@@ -40,12 +40,17 @@ namespace Gemstone.Timeseries;
 /// <summary>
 /// Represents a real-time queue of <see cref="TrackingFrame"/> instances used by the <see cref="ConcentratorBase"/> class.
 /// </summary>
-internal class FrameQueue : IDisposable
+public class FrameQueue : IDisposable
 {
     #region [ Members ]
 
     // Delegates
-    internal delegate IFrame CreateNewFrameFunction(Ticks timestamp);
+    /// <summary>
+    /// Delegate signature for a function that creates a new <see cref="IFrame"/> instance.
+    /// </summary>
+    /// <param name="timestamp"> The Timestamp of the new Frame </param>
+    /// <returns>Returns an <see cref="IFrame"/></returns>
+    public delegate IFrame CreateNewFrameFunction(Ticks timestamp);
 
     // Fields
     private CreateNewFrameFunction? m_createNewFrame;               // IFrame creation function
@@ -65,7 +70,7 @@ internal class FrameQueue : IDisposable
     /// <summary>
     /// Creates a new <see cref="FrameQueue"/>.
     /// </summary>
-    internal FrameQueue(CreateNewFrameFunction createNewFrame)
+    public FrameQueue(CreateNewFrameFunction createNewFrame)
     {
         m_createNewFrame = createNewFrame;
         m_frameList = new LinkedList<TrackingFrame>();

@@ -26,7 +26,10 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using Gemstone.Collections.CollectionExtensions;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
@@ -171,6 +174,23 @@ public enum AlarmOperation
     Flatline = 3
 }
 
+/// <summary>
+/// Represents the operation to be performed
+/// when testing values from an incoming signal.
+/// </summary>
+public enum AlarmCombination
+{
+    /// <summary>
+    /// Require ALL singnals to meet Alarm Criteria
+    /// </summary>
+    [Description("AND")]
+    AND = 1,
+    /// <summary>
+    /// Require ANY signal to meet Alarm Criteria
+    /// </summary>
+    [Description("OR")]
+    OR = 2
+}
 #endregion
 
 /// <summary>
@@ -186,14 +206,18 @@ public class Alarm : ICloneable
     private int m_id;
     private string? m_tagName;
     private Guid m_signalID;
-    private Guid? m_associatedMeasurementID;
+
+    private Guid m_associatedMeasurementID;
+
     private string? m_description;
     private AlarmSeverity m_severity;
     private AlarmOperation m_operation;
+    private AlarmCombination m_combination;
     private double? m_setPoint;
     private double? m_tolerance;
     private double? m_delay;
     private double? m_hysteresis;
+    private double m_timeout;
 
     private AlarmState m_state;
     private Ticks m_timeRaised;
@@ -202,19 +226,24 @@ public class Alarm : ICloneable
     private Ticks m_lastNegative;
 
     [NonSerialized]
-    private double m_lastValue;
+    private Dictionary<Guid,double> m_lastValue;
 
     [NonSerialized]
-    private Ticks m_lastChanged;
+    private Dictionary<Guid,Ticks> m_lastChanged;
 
     [NonSerialized]
-    private IMeasurement? m_cause;
+    private IFrame? m_cause;
 
     [NonSerialized]
-    private Func<IMeasurement, bool>? m_raiseTest;
+    private Func<IFrame, bool>? m_raiseTest;
 
     [NonSerialized]
-    private Func<IMeasurement, bool>? m_clearTest;
+    private Func<IFrame, bool>? m_clearTest;
+
+
+    [NonSerialized]
+    private Func<IFrame, Func<IMeasurement, bool>, bool>? m_combineCleared;
+    private Func<IFrame, Func<IMeasurement, bool>, bool>? m_combineRaised;
 
     #endregion
 
@@ -232,8 +261,13 @@ public class Alarm : ICloneable
     /// Creates a new instance of the <see cref="Alarm"/> class.
     /// </summary>
     /// <param name="operation">The operation to be performed when testing values from the incoming signal.</param>
-    public Alarm(AlarmOperation operation) => 
+    public Alarm(AlarmOperation operation) 
+    {
         Operation = operation;
+        Combination = AlarmCombination.AND;
+        m_lastChanged = new Dictionary<Guid, Ticks>();
+        m_lastValue = new Dictionary<Guid, double>();
+    }
 
     #endregion
 
@@ -249,6 +283,15 @@ public class Alarm : ICloneable
     }
 
     /// <summary>
+    /// Gets or sets the Timeout in seconds at which the alarm stops if no data comes in.
+    /// </summary>
+    public double Timeout
+    {
+        get => m_timeout;
+        set => m_timeout = value;
+    }
+
+    /// <summary>
     /// Gets or sets the tag name of the alarm.
     /// </summary>
     public string? TagName
@@ -259,7 +302,7 @@ public class Alarm : ICloneable
 
     /// <summary>
     /// Gets or sets the identification number of the
-    /// signal whose value is monitored by the alarm.
+    /// the measurements generated for alarm events.
     /// </summary>
     public Guid SignalID
     {
@@ -269,12 +312,12 @@ public class Alarm : ICloneable
 
     /// <summary>
     /// Gets or sets the identification number of
-    /// the measurements generated for alarm events.
+    /// the measurements used For the Alarm.
     /// </summary>
-    public Guid? AssociatedMeasurementID
+    public string InputMeasurementKeys
     {
-        get => m_associatedMeasurementID;
-        set => m_associatedMeasurementID = value;
+        get => m_associatedMeasurementID.ToString();
+        set => m_associatedMeasurementID = Guid.Parse(value);
     }
 
     /// <summary>
@@ -308,6 +351,20 @@ public class Alarm : ICloneable
     {
         get => m_severity;
         set => m_severity = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the combination logic of the alarm.
+    /// </summary>
+    public AlarmCombination Combination
+    {
+        get => m_combination;
+        set
+        {
+            m_combination = value;
+            m_combineCleared = GetClearCombination();
+            m_combineRaised = GetRaisedCombination();
+        }
     }
 
     /// <summary>
@@ -402,10 +459,10 @@ public class Alarm : ICloneable
     }
 
     /// <summary>
-    /// Gets the most recent measurement
+    /// Gets the most recent frame
     /// that caused the alarm to be raised.
     /// </summary>
-    public IMeasurement? Cause
+    public IFrame? Cause
     {
         get => m_cause;
         private set
@@ -422,21 +479,21 @@ public class Alarm : ICloneable
     #region [ Methods ]
 
     /// <summary>
-    /// Tests the value of the given measurement to determine
+    /// Tests the value of the given frame to determine
     /// whether the alarm should be raised or cleared.
     /// </summary>
-    /// <param name="measurement">The measurement whose value is to be tested.</param>
+    /// <param name="frame">The frame whose value is to be tested.</param>
     /// <returns>true if the alarm's state changed; false otherwise</returns>
-    public bool Test(IMeasurement measurement)
+    public bool Test(IFrame frame)
     {
         switch (m_state)
         {
-            case AlarmState.Raised when m_clearTest?.Invoke(measurement) ?? false:
+            case AlarmState.Raised when m_clearTest?.Invoke(frame) ?? false:
                 m_state = AlarmState.Cleared;
                 return true;
-            case AlarmState.Cleared when m_raiseTest?.Invoke(measurement) ?? false:
+            case AlarmState.Cleared when m_raiseTest?.Invoke(frame) ?? false:
                 m_state = AlarmState.Raised;
-                Cause = measurement;
+                Cause = frame;
                 return true;
             default:
                 return false;
@@ -464,7 +521,7 @@ public class Alarm : ICloneable
         MemberwiseClone();
         
     // Returns the function used to determine when the alarm is raised.
-    private Func<IMeasurement, bool> GetRaiseTest() =>
+    private Func<IFrame, bool> GetRaiseTest() =>
         m_operation switch
         {
             AlarmOperation.Equal => RaiseIfEqual,
@@ -478,7 +535,7 @@ public class Alarm : ICloneable
         };
 
     // Returns the function used to determine when the alarm is cleared.
-    private Func<IMeasurement, bool> GetClearTest() =>
+    private Func<IFrame, bool> GetClearTest() =>
         m_operation switch
         {
             AlarmOperation.Equal => ClearIfNotEqual,
@@ -491,117 +548,170 @@ public class Alarm : ICloneable
             _ => throw new ArgumentOutOfRangeException()
         };
 
+    // Returns the function used to combine measurements when clearing.
+    // Not that this is different than for raising. e.g. If AND is used ANY clearing would result in a CLEAR.
+    private Func<IFrame, Func<IMeasurement, bool>, bool> GetClearCombination() =>
+        m_combination switch
+        {
+            AlarmCombination.AND => (IFrame frame, Func<IMeasurement, bool> func) => frame.Measurements.Any((kvp) => func.Invoke(kvp.Value)),
+            AlarmCombination.OR => (IFrame frame, Func<IMeasurement, bool> func) => frame.Measurements.All((kvp) => func.Invoke(kvp.Value)),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+    // Returns the function used to combine measurements.
+    private Func<IFrame, Func<IMeasurement, bool>, bool> GetRaisedCombination() =>
+        m_combination switch
+        {
+            AlarmCombination.AND => (IFrame frame, Func<IMeasurement, bool> func) => frame.Measurements.All((kvp) => func.Invoke(kvp.Value)),
+            AlarmCombination.OR => (IFrame frame, Func<IMeasurement, bool> func) => frame.Measurements.Any((kvp) => func.Invoke(kvp.Value)),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     // Indicates whether the given measurement is
     // equal to the set point within the tolerance.
-    private bool RaiseIfEqual(IMeasurement measurement)
+    private bool RaiseIfEqual(IFrame frame)
     {
-        bool isEqual = measurement.Value <= m_setPoint + m_tolerance &&
-                       measurement.Value >= m_setPoint - m_tolerance;
+        bool isEqual = m_combineRaised.Invoke(frame,
+            (measurement) => measurement.Value <= m_setPoint + m_tolerance &&
+                       measurement.Value >= m_setPoint - m_tolerance);
 
-        return CheckDelay(measurement, isEqual);
+        return CheckDelay(frame, isEqual);
     }
 
     // Indicates whether the given measurement is outside
     // the range defined by the set point and tolerance.
-    private bool RaiseIfNotEqual(IMeasurement measurement)
+    private bool RaiseIfNotEqual(IFrame frame)
     {
-        bool isNotEqual = measurement.Value < m_setPoint - m_tolerance ||
-                          measurement.Value > m_setPoint + m_tolerance;
+        bool isNotEqual = m_combineRaised.Invoke(frame,
+            (measurement) => measurement.Value < m_setPoint - m_tolerance ||
+                          measurement.Value > m_setPoint + m_tolerance);
 
-        return CheckDelay(measurement, isNotEqual);
+        return CheckDelay(frame, isNotEqual);
     }
 
     // Indicates whether the given measurement
     // is greater than or equal to the set point.
-    private bool RaiseIfGreaterOrEqual(IMeasurement measurement) => 
-        CheckDelay(measurement, measurement.Value >= m_setPoint);
+    private bool RaiseIfGreaterOrEqual(IFrame frame) => 
+        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value >= m_setPoint));
 
     // Indicates whether the given measurement
     // is less than or equal to the set point.
-    private bool RaiseIfLessOrEqual(IMeasurement measurement) => 
-        CheckDelay(measurement, measurement.Value <= m_setPoint);
+    private bool RaiseIfLessOrEqual(IFrame frame) => 
+        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) =>  measurement.Value <= m_setPoint));
 
     // Indicates whether the given measurement
     // is greater than the set point.
-    private bool RaiseIfGreaterThan(IMeasurement measurement) => 
-        CheckDelay(measurement, measurement.Value > m_setPoint);
+    private bool RaiseIfGreaterThan(IFrame frame) => 
+        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value > m_setPoint));
 
     // Indicates whether the given measurement
     // is less than the set point.
-    private bool RaiseIfLessThan(IMeasurement measurement) => 
-        CheckDelay(measurement, measurement.Value < m_setPoint);
+    private bool RaiseIfLessThan(IFrame frame) => 
+        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value < m_setPoint));
 
     // Indicates whether the given measurement has maintained the same
     // value for at least a number of seconds defined by the delay.
-    private bool RaiseIfFlatline(IMeasurement measurement)
+    private bool RaiseIfFlatline(IFrame frame)
     {
-        if (measurement.Value != m_lastValue)
+        foreach (IMeasurement measurement in frame.Measurements.Values)
         {
-            m_lastChanged = measurement.Timestamp;
-            m_lastValue = measurement.Value;
+            double lastValue;
+
+            if (!m_lastValue.TryGetValue(measurement.ID, out lastValue))
+                lastValue = default(double);
+
+            if (measurement.Value != lastValue)
+            {
+                m_lastChanged.AddOrUpdate(measurement.ID, measurement.Timestamp);
+                m_lastValue.AddOrUpdate(measurement.ID, measurement.AdjustedValue);
+            }
+
         }
 
-        long dist = Ticks.FromSeconds(Delay.GetValueOrDefault());
-        long diff = measurement.Timestamp - m_lastChanged;
+        return m_combineRaised.Invoke(frame, (measurement) =>
+        {
+           
+            Gemstone.Ticks lastChange;
 
-        return diff >= dist;
+            //Avoid Alarm going off on first comparison
+            // This should never happen anyway
+            if (!m_lastChanged.TryGetValue(measurement.ID, out lastChange))
+                lastChange = measurement.Timestamp;
+
+            long dist = Ticks.FromSeconds(Delay.GetValueOrDefault());
+            long diff = measurement.Timestamp - lastChange;
+
+            return diff >= dist;
+        });
     }
 
     // Indicates whether the given measurement is not
     // equal to the set point within the tolerance.
-    private bool ClearIfNotEqual(IMeasurement measurement) =>
+    private bool ClearIfNotEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         measurement.Value < m_setPoint - m_tolerance ||
-        measurement.Value > m_setPoint + m_tolerance;
+        measurement.Value > m_setPoint + m_tolerance);
 
     // Indicates whether the given measurement is not outside
     // the range defined by the set point and tolerance.
-    private bool ClearIfNotNotEqual(IMeasurement measurement) =>
+    private bool ClearIfNotNotEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         measurement.Value <= m_setPoint + m_tolerance &&
-        measurement.Value >= m_setPoint - m_tolerance;
+        measurement.Value >= m_setPoint - m_tolerance);
 
     // Indicates whether the given measurement is not greater
     // than or equal to the set point, offset by the hysteresis.
-    private bool ClearIfNotGreaterOrEqual(IMeasurement measurement) => 
-        measurement.Value < m_setPoint - m_hysteresis;
+    private bool ClearIfNotGreaterOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
+        measurement.Value < m_setPoint - m_hysteresis);
 
     // Indicates whether the given measurement is not less
     // than or equal to the set point, offset by the hysteresis.
-    private bool ClearIfNotLessOrEqual(IMeasurement measurement) => 
-        measurement.Value > m_setPoint + m_hysteresis;
+    private bool ClearIfNotLessOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
+        measurement.Value > m_setPoint + m_hysteresis);
 
     // Indicates whether the given measurement is not greater
     // than the set point, offset by the hysteresis.
-    private bool ClearIfNotGreaterThan(IMeasurement measurement) => 
-        measurement.Value <= m_setPoint - m_hysteresis;
+    private bool ClearIfNotGreaterThan(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
+        measurement.Value <= m_setPoint - m_hysteresis);
 
     // Indicates whether the given measurement is not less
     // than the set point, offset by the hysteresis.
-    private bool ClearIfNotLessThan(IMeasurement measurement) => 
-        measurement.Value >= m_setPoint + m_hysteresis;
+    private bool ClearIfNotLessThan(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
+        measurement.Value >= m_setPoint + m_hysteresis);
 
     // Indicates whether the given measurement's value has changed.
-    private bool ClearIfNotFlatline(IMeasurement measurement)
+    private bool ClearIfNotFlatline(IFrame frame)
     {
-        if (measurement.Value != m_lastValue)
+        foreach (IMeasurement measurement in frame.Measurements.Values)
         {
-            m_lastChanged = measurement.Timestamp;
-            m_lastValue = measurement.Value;
+            double lastValue;
 
-            return true;
+            if (!m_lastValue.TryGetValue(measurement.ID, out lastValue))
+                lastValue = measurement.AdjustedValue;
+
+            if (measurement.Value != lastValue)
+            {
+                m_lastChanged.AddOrUpdate(measurement.ID, measurement.Timestamp);
+                m_lastValue.AddOrUpdate(measurement.ID, measurement.AdjustedValue);
+            }
         }
+        return m_combineCleared(frame, (measurement) =>
+        {
+            Gemstone.Ticks lastChange;
 
-        return false;
+            if (!m_lastChanged.TryGetValue(measurement.ID, out lastChange))
+                lastChange = measurement.Timestamp;
+
+            return lastChange != measurement.Timestamp;
+        });
     }
 
     // Keeps track of the signal's timestamps to determine whether a given
     // measurement is eligible to raise the alarm based on the delay.
-    private bool CheckDelay(IMeasurement measurement, bool raiseCondition)
+    private bool CheckDelay(IFrame frame, bool raiseCondition)
     {
         if (raiseCondition)
         {
             // Get the amount of time since the last
             // time the signal failed the raise test
-            Ticks dist = measurement.Timestamp - m_lastNegative;
+            Ticks dist = frame.Timestamp - m_lastNegative;
 
             // If the amount of time is larger than
             // the delay threshold, raise the alarm
@@ -612,7 +722,7 @@ public class Alarm : ICloneable
         {
             // Keep track of the last time
             // the signal failed the raise test
-            m_lastNegative = measurement.Timestamp;
+            m_lastNegative = frame.Timestamp;
         }
 
         return false;

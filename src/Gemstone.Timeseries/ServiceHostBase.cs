@@ -3834,7 +3834,6 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         string cachePath = string.Format("{0}{1}ConfigurationCache{1}", servicePath, Path.DirectorySeparatorChar);
 
         // System settings
-        section.NodeID = (Guid.Empty, "Defines the configured NodeID for the system"); // TODO: Remove this
         section.SystemName = ("", "Defines the system name for the application instance");
         section.ConfigurationType = (ConfigurationType.Database, "Specifies type of configuration: Database, WebService, BinaryFile or XmlFile");
         section.ConnectionString = ($"Data Source=localhost\\SQLEXPRESS; Initial Catalog={ServiceName}; Integrated Security=SSPI; Connect Timeout=5", "Configuration database connection string");

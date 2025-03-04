@@ -276,6 +276,7 @@ public class Alarm : ICloneable
     /// <summary>
     /// Gets or sets the identification number of the alarm.
     /// </summary>
+    [DefaultValue(-1)]
     public int ID
     {
         get => m_id;

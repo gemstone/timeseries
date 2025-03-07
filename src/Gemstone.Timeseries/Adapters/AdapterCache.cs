@@ -470,7 +470,7 @@ public static class AdapterCache
     /// <see cref="EditorBrowsableState.Always"/> if no attribute is found.
     /// </summary>
     /// <param name="type">Type for which the <see cref="EditorBrowsableState"/> is found.</param>
-    /// <returns><see cref="EditorBrowsableState"/> for the given type.</returns>
+    /// <returns><see cref="EditorBrowsableState"/> for the given type; defaults to 'Always'.</returns>
     public static EditorBrowsableState GetEditorBrowsableState(this MemberInfo type)
     {
         return type.GetCustomAttribute<EditorBrowsableAttribute>()?.State ?? EditorBrowsableState.Always;
@@ -523,8 +523,8 @@ public static class AdapterCache
     // Gets all adapters filtered by editor browsable state.
     internal static IEnumerable<AdapterInfo> GetAdapters(this Dictionary<Type, AdapterInfo> allAdapters, Func<EditorBrowsableState, bool>? stateFilter = null)
     {
-        // Default state filter to exclude hidden adapters
-        stateFilter ??= state => state != EditorBrowsableState.Never;
+        // Default state filter to exclude hidden adapters, i.e., browsable state of Never or Advanced
+        stateFilter ??= state => state is EditorBrowsableState.Always;
 
         return allAdapters.Values.Where(item => stateFilter(item.BrowsableState));
     }

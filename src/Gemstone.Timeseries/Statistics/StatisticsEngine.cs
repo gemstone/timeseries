@@ -997,7 +997,7 @@ public class StatisticsEngine : FacileActionAdapterBase
         {
             dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
 
-            string systemName = section["SystemName", "", "Name of system for this instance of the openHistorian that will be prefixed to system level tags, when defined. Value should follow tag naming conventions, e.g., no spaces and all upper case."];
+            string systemName = section["SystemName", "", "Name of this system instance that will be prefixed to system level tags, when defined. Value should follow tag naming conventions, e.g., no spaces and all upper case."];
 
             if (string.IsNullOrWhiteSpace(systemName))
                 systemName = "";

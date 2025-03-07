@@ -239,7 +239,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <summary>
     /// Gets or sets <see cref="DataSet"/> based data source available to this <see cref="ActionAdapterBase"/>.
     /// </summary>
-    public virtual DataSet DataSource { get; set; }
+    public virtual DataSet? DataSource { get; set; }
 
     /// <summary>
     /// Gets or sets maximum time system will wait during <see cref="Start"/> for initialization.

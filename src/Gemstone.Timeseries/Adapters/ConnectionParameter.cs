@@ -21,6 +21,7 @@
 //
 //******************************************************************************************************
 
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Expressions.Model;
 using Gemstone.Reflection.MemberInfoExtensions;
 using Gemstone.StringExtensions;
@@ -143,6 +144,11 @@ public class ConnectionParameter
     public string Value { get; set; } = default!;
 
     /// <summary>
+    /// Gets or sets the label of the parameter.
+    /// </summary>
+    public string Label { get; set; } = default!;
+
+    /// <summary>
     /// Gets a <see cref="ConnectionParameter"/> instance from a <see cref="PropertyInfo"/>.
     /// </summary>
     public static ConnectionParameter GetConnectionParameter(PropertyInfo info)
@@ -154,12 +160,18 @@ public class ConnectionParameter
             Description = getDescription(info),
             DataType = getDataType(info),
             DefaultValue = getDefaultValue(info)?.ToString() ?? "",
-            AvailableValues = getAvailableValues(info)
+            AvailableValues = getAvailableValues(info),
+            Label = getLabel(info)
         };
 
         static string getCategory(PropertyInfo value)
         {
             return value.TryGetAttribute(out CategoryAttribute? attribute) ? attribute.Category : "General";
+        }
+
+        static string getLabel(PropertyInfo value)
+        {
+            return value.TryGetAttribute(out LabelAttribute? attribute) ? attribute.Label : value.Name;
         }
 
         static string getDescription(PropertyInfo value)

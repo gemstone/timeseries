@@ -39,6 +39,7 @@ public class Phasor
     [PrimaryKey(true)]
     public int ID { get; set; }
 
+    [ParentKey(typeof(Device))]
     public int DeviceID { get; set; }
 
     [Required]
@@ -49,11 +50,13 @@ public class Phasor
 
     public char Phase { get; set; }
 
+    public int? PrimaryVoltageID { get; set; }
+
+    public int SourceIndex { get; set; }
+
     public int BaseKV { get; set; }
 
     public int? DestinationPhasorID { get; set; }
-
-    public int SourceIndex { get; set; }
 
     [DefaultValueExpression("DateTime.UtcNow")]
     public DateTime CreatedOn { get; set; }

@@ -105,4 +105,5 @@ public class Measurement
     [DefaultValueExpression("this.CreatedBy", EvaluationOrder = 1)]
     [UpdateValueExpression("UserInfo.CurrentUserID")]
     public string UpdatedBy { get; set; }
+
 }

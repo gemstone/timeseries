@@ -95,6 +95,9 @@ public class Device
     [Label("Connection String")]
     public string ConnectionString { get; set; }
 
+    [DefaultValue("")]
+    public string Description { get; set; } = "";
+
     [StringLength(200)]
     public string TimeZone { get; set; }
 
@@ -132,11 +135,16 @@ public class Device
     public bool ConnectOnDemand { get; set; }
 
     [Label("Contacts")]
+    [DefaultValue("")]
     public string ContactList { get; set; }
 
     public int? MeasuredLines { get; set; }
 
+    public bool Internal { get; set; }
+
     public int LoadOrder { get; set; }
+
+    public bool Subscribed { get; set; }
 
     public bool Enabled { get; set; }
 
@@ -169,4 +177,40 @@ public class Device
             registry.RegisterSymbol("Global", new GlobalSettings());
 
     }
+
+    [Label("Point ID")]
+    [PrimaryKey(true)]
+    public int PointID { get; set; }
+
+    [Label("Unique Signal ID")]
+    [DefaultValueExpression("Guid.NewGuid()")]
+    public Guid SignalID { get; set; }
+
+    [ParentKey(typeof(Device))]
+    public int? DeviceID { get; set; }
+
+    [Label("Tag Name")]
+    [Required]
+    [StringLength(200)]
+    public string PointTag { get; set; } = "";
+
+    [Label("Alternate Tag Name")]
+    public string AlternateTag { get; set; } = "";
+
+    [Label("Signal Type")]
+    public int SignalTypeID { get; set; }
+
+    [Label("Phasor Source Index")]
+    public int? PhasorSourceIndex { get; set; }
+
+    [Label("Signal Reference")]
+    [Required]
+    [StringLength(200)]
+    public string SignalReference { get; set; } = "";
+
+    [DefaultValue(0.0D)]
+    public double Adder { get; set; }
+
+    [DefaultValue(1.0D)]
+    public double Multiplier { get; set; }
 }

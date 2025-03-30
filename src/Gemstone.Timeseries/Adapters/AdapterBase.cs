@@ -36,6 +36,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
@@ -293,6 +294,7 @@ public abstract class AdapterBase : IAdapter
     [ConnectionStringParameter]
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
+    [Label("Input Measurement Keys")]
     public virtual MeasurementKey[]? InputMeasurementKeys
     {
         get => m_inputMeasurementKeys;
@@ -318,6 +320,7 @@ public abstract class AdapterBase : IAdapter
     [ConnectionStringParameter]
     [DefaultValue(null)]
     [Description("Defines primary keys of output measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
+    [Label("Output Measurements")]
     public virtual IMeasurement[]? OutputMeasurements
     {
         get => m_outputMeasurements;

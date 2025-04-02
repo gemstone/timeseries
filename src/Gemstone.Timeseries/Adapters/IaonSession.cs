@@ -205,7 +205,10 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     /// <summary>
     /// Releases the unmanaged resources before the <see cref="IaonSession"/> object is reclaimed by <see cref="GC"/>.
     /// </summary>
-    ~IaonSession() => Dispose(false);
+    ~IaonSession()
+    {
+        Dispose(false);
+    }
 
     #endregion
 
@@ -465,7 +468,7 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
         // When using default informational update type, see if an update type code was embedded in the status message - this allows for compatibility for event
         // handlers that are normally unaware of the update type
         if (type == UpdateType.Information && status is not null && status.Length > 3 && status.StartsWith("0x") && Enum.TryParse(status[2].ToString(), out type))
-            status = status.Substring(3);
+            status = status[3..];
 
         StatusMessage(sender, new EventArgs<string, UpdateType>(status!, type));
     }
@@ -491,60 +494,76 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     /// </summary>
     /// <param name="sender">Object source raising the event.</param>
     /// <param name="ex">Processing <see cref="Exception"/>.</param>
-    protected virtual void OnProcessException(object? sender, Exception ex) =>
+    protected virtual void OnProcessException(object? sender, Exception ex)
+    {
         ProcessException?.SafeInvoke(sender, new EventArgs<Exception>(ex));
+    }
 
     /// <summary>
     /// Raises <see cref="InputMeasurementKeysUpdated"/> event.
     /// </summary>
     /// <param name="sender">Object source raising the event.</param>
-    protected virtual void OnInputMeasurementKeysUpdated(object? sender) =>
+    protected virtual void OnInputMeasurementKeysUpdated(object? sender)
+    {
         InputMeasurementKeysUpdated?.SafeInvoke(sender, EventArgs.Empty);
+    }
 
     /// <summary>
     /// Raises <see cref="OutputMeasurementsUpdated"/> event.
     /// </summary>
     /// <param name="sender">Object source raising the event.</param>
-    protected virtual void OnOutputMeasurementsUpdated(object? sender) =>
+    protected virtual void OnOutputMeasurementsUpdated(object? sender)
+    {
         OutputMeasurementsUpdated?.SafeInvoke(sender, EventArgs.Empty);
+    }
 
     /// <summary>
     /// Raises <see cref="ConfigurationChanged"/> event.
     /// </summary>
     /// <param name="sender">Object source raising the event.</param>
-    protected virtual void OnConfigurationChanged(object? sender) =>
+    protected virtual void OnConfigurationChanged(object? sender)
+    {
         ConfigurationChanged?.SafeInvoke(sender, EventArgs.Empty);
+    }
 
     /// <summary>
     /// Raises the <see cref="UnpublishedSamples"/> event.
     /// </summary>
     /// <param name="sender">Object source raising the event.</param>
     /// <param name="seconds">Total number of unpublished seconds of data.</param>
-    protected virtual void OnUnpublishedSamples(object? sender, int seconds) =>
+    protected virtual void OnUnpublishedSamples(object? sender, int seconds)
+    {
         UnpublishedSamples?.SafeInvoke(sender, new EventArgs<int>(seconds));
+    }
 
     /// <summary>
     /// Raises the <see cref="UnprocessedMeasurements"/> event.
     /// </summary>
     /// <param name="sender">Object source raising the event.</param>
     /// <param name="unprocessedMeasurements">Total measurements in the queue that have not been processed.</param>
-    protected virtual void OnUnprocessedMeasurements(object? sender, int unprocessedMeasurements) =>
+    protected virtual void OnUnprocessedMeasurements(object? sender, int unprocessedMeasurements)
+    {
         UnprocessedMeasurements?.SafeInvoke(sender, new EventArgs<int>(unprocessedMeasurements));
+    }
 
     /// <summary>
     /// Raises the <see cref="ProcessingComplete"/> event.
     /// </summary>
     /// <param name="sender">Object source raising the event.</param>
     /// <param name="e"><see cref="EventArgs"/>, if any.</param>
-    protected virtual void OnProcessingComplete(object? sender, EventArgs? e = null) =>
+    protected virtual void OnProcessingComplete(object? sender, EventArgs? e = null)
+    {
         ProcessingComplete?.SafeInvoke(sender, e ?? EventArgs.Empty);
+    }
 
     /// <summary>
     /// Raises the <see cref="Disposed"/> event.
     /// </summary>
     /// <param name="sender">Object source raising the event.</param>
-    protected virtual void OnDisposed(object? sender) =>
+    protected virtual void OnDisposed(object? sender)
+    {
         Disposed?.SafeInvoke(sender, EventArgs.Empty);
+    }
 
     /// <summary>
     /// Event handler for reporting status messages.
@@ -603,9 +622,11 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     /// </summary>
     /// <param name="sender">Sending object.</param>
     /// <param name="e">Event arguments, if any.</param>
-    public virtual void ConfigurationChangedHandler(object? sender, EventArgs e) =>
+    public virtual void ConfigurationChangedHandler(object? sender, EventArgs e)
+    {
         // Bubble message up to any event subscribers
         OnConfigurationChanged(sender);
+    }
 
     /// <summary>
     /// Event handler for monitoring unpublished samples.
@@ -709,10 +730,11 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
         }
         else if (unprocessedMeasurements > m_measurementWarningThreshold)
         {
-            if (unprocessedMeasurements >= m_measurementDumpingThreshold - m_measurementWarningThreshold)
-                OnStatusMessage(sender, "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the output queue.", UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
-            else
-                OnStatusMessage(sender, "[{0}] There are {1:N0} unprocessed measurements in the output queue.", UpdateType.Warning, GetDerivedName(sender), unprocessedMeasurements);
+            OnStatusMessage(sender,
+                unprocessedMeasurements >= m_measurementDumpingThreshold - m_measurementWarningThreshold ? 
+                    "[{0}] CRITICAL: There are {1:N0} unprocessed measurements in the output queue." : 
+                    "[{0}] There are {1:N0} unprocessed measurements in the output queue.", UpdateType.Warning,
+                GetDerivedName(sender), unprocessedMeasurements);
         }
 
         // Bubble message up to any event subscribers
@@ -764,12 +786,16 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     }
 
     // Bubble routing table messages out through Iaon session
-    private void m_routingTables_StatusMessage(object? sender, EventArgs<string> e) =>
+    private void m_routingTables_StatusMessage(object? sender, EventArgs<string> e)
+    {
         OnStatusMessage(this, e.Argument);
+    }
 
     // Bubble routing table exceptions out through Iaon session
-    private void m_routingTables_ProcessException(object? sender, EventArgs<Exception> e) =>
+    private void m_routingTables_ProcessException(object? sender, EventArgs<Exception> e)
+    {
         ProcessExceptionHandler(sender, e);
+    }
 
     #endregion
 
@@ -857,6 +883,7 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
             }
         }
     }
+
     /// <inheritdoc cref="IDefineSettings.DefineSettings" />
     public static void DefineSettings(Settings settings, string settingsCategory = Settings.SystemSettingsCategory)
     {

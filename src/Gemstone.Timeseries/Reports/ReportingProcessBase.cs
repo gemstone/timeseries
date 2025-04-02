@@ -489,7 +489,7 @@ public abstract class ReportingProcessBase : IReportingProcess
             // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
             foreach (ManagementObject obj in processList)
             {
-                object[] argList = { string.Empty, string.Empty };
+                object[] argList = [string.Empty, string.Empty];
                 int returnVal = Convert.ToInt32(obj.InvokeMethod("GetOwner", argList));
 
                 if (returnVal == 0)

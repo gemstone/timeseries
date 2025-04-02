@@ -1086,7 +1086,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// </para>
     /// </remarks>
     [AdapterCommand("Defines a temporal processing constraint for each adapter in the collection.", "Administrator", "Editor", "Viewer")]
-    public virtual void SetTemporalConstraint(string startTime, string stopTime, string constraintParameters)
+    public virtual void SetTemporalConstraint(string? startTime, string? stopTime, string? constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?
             DateTime.MinValue :
@@ -1144,11 +1144,11 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// generated. In general, there should only be a few dozen distinct event names per class. Exceeding this
     /// threshold will cause the EventName to be replaced with a general warning that a usage issue has occurred.
     /// </remarks>
-    protected internal virtual void OnProcessException(MessageLevel level, Exception exception, string eventName = null, MessageFlags flags = MessageFlags.None)
+    protected internal virtual void OnProcessException(MessageLevel level, Exception exception, string? eventName = null, MessageFlags flags = MessageFlags.None)
     {
         try
         {
-            Log.Publish(level, flags, eventName, exception?.Message, null, exception);
+            Log.Publish(level, flags, eventName, exception.Message, null, exception);
 
             using (Logger.SuppressLogMessages())
                 ProcessException?.SafeInvoke(this, new EventArgs<Exception>(exception));

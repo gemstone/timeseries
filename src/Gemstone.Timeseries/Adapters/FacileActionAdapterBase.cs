@@ -31,7 +31,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
-using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
@@ -119,8 +118,8 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     public event EventHandler<EventArgs<IEnumerable<IMeasurement>>>? DiscardingMeasurements;
 
     // Fields
-    private List<string> m_inputSourceIDs;
-    private List<string> m_outputSourceIDs;
+    private List<string>? m_inputSourceIDs;
+    private List<string>? m_outputSourceIDs;
     private readonly ImmediateMeasurements m_latestMeasurements; // Absolute latest received measurement values
     private long m_realTimeTicks;                                // Timestamp of real-time or the most recently received measurement
 
@@ -144,8 +143,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
-    [Label("Input Measurement Keys")]
-    public override MeasurementKey[] InputMeasurementKeys
+    public override MeasurementKey[]? InputMeasurementKeys
     {
         get => base.InputMeasurementKeys;
         set
@@ -165,7 +163,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> apply no filter.
     /// </remarks>
-    public virtual string[] InputSourceIDs
+    public virtual string[]? InputSourceIDs
     {
         get => m_inputSourceIDs?.ToArray();
         set
@@ -192,7 +190,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> apply no filter.
     /// </remarks>
-    public virtual string[] OutputSourceIDs
+    public virtual string[]? OutputSourceIDs
     {
         get => m_outputSourceIDs?.ToArray();
         set
@@ -215,19 +213,19 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// <summary>
     /// Gets or sets input measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    public virtual MeasurementKey[] RequestedInputMeasurementKeys { get; set; }
+    public virtual MeasurementKey[]? RequestedInputMeasurementKeys { get; set; }
 
     /// <summary>
     /// Gets or sets output measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    public virtual MeasurementKey[] RequestedOutputMeasurementKeys { get; set; }
+    public virtual MeasurementKey[]? RequestedOutputMeasurementKeys { get; set; }
 
     /// <summary>
     /// Gets or sets flag indicating if action adapter should respect auto-start requests based on input demands.
     /// </summary>
     /// <remarks>
     /// Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-    /// adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start input demands,
+    /// adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start input demands,
     /// as an example, this would be <c>false</c> for an action adapter that calculated measurement, but <c>true</c> for an action adapter used to archive inputs.
     /// </remarks>
     public virtual bool RespectInputDemands { get; set; } = DefaultRespectInputDemands;
@@ -237,7 +235,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// </summary>
     /// <remarks>
     /// Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-    /// adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start output demands,
+    /// adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start output demands,
     /// as an example, this would be <c>true</c> for an action adapter that calculated measurement, but <c>false</c> for an action adapter used to archive inputs.
     /// </remarks>
     public virtual bool RespectOutputDemands { get; set; } = DefaultRespectOutputDemands;
@@ -251,11 +249,10 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultFramesPerSecond)]
     [Description("Defines the number of frames per second expected by the adapter.")]
-    [Label("Frames Per Second")]
     public virtual int FramesPerSecond { get; set; } = DefaultFramesPerSecond;
 
     /// <summary>
-    /// Gets or sets the allowed past time deviation tolerance, in seconds (can be sub-second).
+    /// Gets or sets the allowed past-time deviation tolerance, in seconds (can be sub-second).
     /// </summary>
     /// <remarks>
     /// <para>Defines the time sensitivity to past measurement timestamps.</para>
@@ -266,7 +263,6 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultLagTime)]
     [Description("Defines the allowed past time deviation tolerance, in seconds (can be sub-second).")]
-    [Label("Lag Time")]
     public double LagTime
     {
         get => LatestMeasurements.LagTime;
@@ -285,7 +281,6 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultLeadTime)]
     [Description("Defines the allowed future time deviation tolerance, in seconds (can be sub-second).")]
-    [Label("Lead Time")]
     public double LeadTime
     {
         get => LatestMeasurements.LeadTime;
@@ -306,7 +301,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     public virtual ImmediateMeasurements LatestMeasurements => m_latestMeasurements;
 
     /// <summary>
-    /// Gets or sets flag that determines whether or not to use the local clock time as real time.
+    /// Gets or sets flag that determines whether to use the local clock time as real time.
     /// </summary>
     /// <remarks>
     /// Use your local system clock as real time only if the time is locally GPS-synchronized,
@@ -316,7 +311,6 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultUseLocalClockAsRealTime)]
     [Description("Defines flag that determines whether or not to use the local clock time as real time.")]
-    [Label("Use Local Clock As Real Time")]
     public virtual bool UseLocalClockAsRealTime { get; set; } = DefaultUseLocalClockAsRealTime;
 
     /// <summary>
@@ -328,7 +322,6 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultFallBackOnLocalClock)]
     [Description("Defines flag that determines whether to fall back on local clock time as real time when time is unreasonable. Only applicable when UseLocalClockAsRealTime is false.")]
-    [Label("Fall Back On Local Clock")]
     public virtual bool FallBackOnLocalClock { get; set; } = DefaultFallBackOnLocalClock;
 
     /// <summary>
@@ -362,7 +355,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
             StringBuilder status = new();
 
             status.Append(base.Status);
-            status.AppendLine($"        Defined frame rate: {FramesPerSecond} frames/sec");
+            status.AppendLine($"        Defined frame rate: {FramesPerSecond:N0} frames/sec");
             status.AppendLine($"      Measurement tracking: {(TrackLatestMeasurements ? nameof(Enabled) : "Disabled")}");
             status.AppendLine($"  Respecting input demands: {RespectInputDemands}");
             status.AppendLine($" Respecting output demands: {RespectOutputDemands}");
@@ -387,7 +380,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
 
         Dictionary<string, string> settings = Settings;
 
-        if (settings.TryGetValue(nameof(FramesPerSecond), out string setting))
+        if (settings.TryGetValue(nameof(FramesPerSecond), out string? setting))
             FramesPerSecond = int.Parse(setting);
 
         if (settings.TryGetValue(nameof(UseLocalClockAsRealTime), out setting))

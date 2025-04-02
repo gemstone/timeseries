@@ -79,7 +79,7 @@ public sealed class AdapterCommandAttribute : Attribute
     /// <summary>
     /// Gets the roles which are allowed to invoke this adapter command.
     /// </summary>
-    public string[] AllowedRoles => m_allowedRoles ?? new[] { "Administrator" };
+    public string[] AllowedRoles => m_allowedRoles ?? ["Administrator"];
 
     #endregion
 }

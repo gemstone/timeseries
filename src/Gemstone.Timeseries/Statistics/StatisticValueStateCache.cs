@@ -94,7 +94,7 @@ public class StatisticValueStateCache
                 // Attach to Disposed event of source, if defined
                 EventInfo disposedEvent = source.GetType().GetEvent("Disposed");
 
-                disposedEvent?.GetAddMethod().Invoke(source, new object[] { new EventHandler(StatisticSourceDisposed) });
+                disposedEvent?.GetAddMethod().Invoke(source, [new EventHandler(StatisticSourceDisposed)]);
             }
         }
 

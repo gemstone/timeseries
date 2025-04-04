@@ -76,7 +76,7 @@ public class Device
     public int? HistorianID { get; set; }
 
     [Label("Access ID")]
-    public int AccessID { get; set; }
+    public ushort AccessID { get; set; }
 
     [Label("Vendor Device")]
     public int? VendorDeviceID { get; set; }

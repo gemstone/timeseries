@@ -52,11 +52,11 @@ public class Phasor
 
     public int? PrimaryVoltageID { get; set; }
 
+    public int? SecondaryVoltageID { get; set; }
+
     public int SourceIndex { get; set; }
 
     public int BaseKV { get; set; }
-
-    public int? DestinationPhasorID { get; set; }
 
     [DefaultValueExpression("DateTime.UtcNow")]
     public DateTime CreatedOn { get; set; }

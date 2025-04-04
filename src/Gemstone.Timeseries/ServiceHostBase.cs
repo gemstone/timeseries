@@ -1375,6 +1375,14 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         m_reloadConfigQueue?.Add(Tuple.Create(nameof(System), (Action<bool>)(_ => { })));
     }
 
+    /// <summary>
+    /// Reloads the system configuration.
+    /// </summary>
+    public void ReloadConfig()
+    {
+        m_reloadConfigQueue?.Add(Tuple.Create("User", (Action<bool>)(_ => { })));
+    }
+
     ///// <summary>
     ///// Event handler for processing exceptions encountered while writing entries to any log file.
     ///// </summary>

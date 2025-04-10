@@ -24,7 +24,7 @@
 using System;
 using Gemstone.Data.Model;
 
-namespace Gemstone.Timeseries;
+namespace Gemstone.Timeseries.Model;
 
 /// <summary>
 /// Represents the details for an event.
@@ -32,7 +32,7 @@ namespace Gemstone.Timeseries;
 public class EventDetails
 {
     /// <summary>
-    /// Gets or stes the Primary Key used in the Database
+    /// Gets or sets the ID, used as the primary key, for the event details.
     /// </summary>
     [PrimaryKey(true)]
     public int ID { get; set; }
@@ -40,15 +40,30 @@ public class EventDetails
     /// <summary>
     /// Gets or sets Guid-based event ID.
     /// </summary>
-    public Guid EventGuid { get; set; }
+    public Guid EventID { get; set; }
+
+    /// <summary>
+    /// Gets or sets the start time of the event.
+    /// </summary>
     public DateTime StartTime { get; set; }
 
+    /// <summary>
+    /// Gets or sets the end time of the event.
+    /// </summary>
     public DateTime? EndTime { get; set; }
 
+    /// <summary>
+    /// Gets or sets the SignalID of the measurement associated with the event.
+    /// </summary>
     public Guid MeasurementID { get; set; }
 
-    public string Details { get; set; }
+    /// <summary>
+    /// Gets or sets the description details of the event.
+    /// </summary>
+    public string Details { get; set; } = "";
 
-    public string Type { get; set; }
-
+    /// <summary>
+    /// Gets or sets the event type.
+    /// </summary>
+    public string Type { get; set; } = "";
 }

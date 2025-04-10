@@ -38,28 +38,31 @@ public class Measurement
 {
     [Label("Point ID")]
     [PrimaryKey(true)]
-    //[Searchable]
     public int PointID { get; set; }
 
     [Label("Unique Signal ID")]
-    //[Searchable]
     [DefaultValueExpression("Guid.NewGuid()")]
     public Guid SignalID { get; set; }
 
     public int? HistorianID { get; set; }
 
+    [ParentKey(typeof(Device))]
     public int? DeviceID { get; set; }
 
     [Label("Tag Name")]
     [Required]
     [StringLength(200)]
     [AcronymValidation]
-    //[Searchable]
-    public string PointTag { get; set; }
+    public string PointTag { get; set; } = "";
 
     [Label("Alternate Tag Name")]
-    //[Searchable]
-    public string AlternateTag { get; set; }
+    public string AlternateTag { get; set; } = "";
+
+    [Label("Alternate Tag Name 2")]
+    public string AlternateTag2 { get; set; } = "";
+
+    [Label("Alternate Tag Name 3")]
+    public string AlternateTag3 { get; set; } = "";
 
     [Label("Signal Type")]
     public int SignalTypeID { get; set; }
@@ -70,7 +73,7 @@ public class Measurement
     [Label("Signal Reference")]
     [Required]
     [StringLength(200)]
-    public string SignalReference { get; set; }
+    public string SignalReference { get; set; } = "";
 
     [DefaultValue(0.0D)]
     public double Adder { get; set; }
@@ -78,12 +81,17 @@ public class Measurement
     [DefaultValue(1.0D)]
     public double Multiplier { get; set; }
 
-    public string Description { get; set; }
+    public string Description { get; set; } = "";
+
+    public string Label { get; set; } = "";
 
     [DefaultValue(true)]
     public bool Internal { get; set; }
 
     public bool Subscribed { get; set; }
+
+    [DefaultValue(true)]
+    public bool Manual { get; set; }
 
     [DefaultValue(true)]
     public bool Enabled { get; set; }
@@ -94,7 +102,7 @@ public class Measurement
     [Required]
     [StringLength(200)]
     [DefaultValueExpression("UserInfo.CurrentUserID")]
-    public string CreatedBy { get; set; }
+    public string CreatedBy { get; set; } = "";
 
     [DefaultValueExpression("this.CreatedOn", EvaluationOrder = 1)]
     [UpdateValueExpression("DateTime.UtcNow")]
@@ -104,6 +112,5 @@ public class Measurement
     [StringLength(200)]
     [DefaultValueExpression("this.CreatedBy", EvaluationOrder = 1)]
     [UpdateValueExpression("UserInfo.CurrentUserID")]
-    public string UpdatedBy { get; set; }
-
+    public string UpdatedBy { get; set; } = "";
 }

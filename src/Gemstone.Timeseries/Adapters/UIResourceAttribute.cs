@@ -35,7 +35,7 @@ namespace Gemstone.Timeseries.Adapters
     /// Marks a class with user interface resources used to display or configure an <see cref="IAdapter"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public sealed class UIResourceAttribute : Attribute
+    public class UIResourceAttribute : Attribute
     {
         /// <summary>
         /// Gets the assembly name where the UI resource is located.

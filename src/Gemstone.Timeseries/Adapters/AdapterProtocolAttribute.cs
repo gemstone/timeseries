@@ -92,10 +92,10 @@ namespace Gemstone.Timeseries.Adapters
         /// <param name="loadOrder">Load order of the adapter protocol.</param>
         public AdapterProtocolAttribute(string acronym, string name, ProtocolType type, string category = "Device", bool supportsConnectionTest = true, int loadOrder = 0)
         {
-        #if NET
+#if NET
             ArgumentException.ThrowIfNullOrWhiteSpace(acronym);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        #endif
+#endif
 
             Acronym = acronym;
             Name = name;
@@ -105,4 +105,38 @@ namespace Gemstone.Timeseries.Adapters
             LoadOrder = loadOrder;
         }
     }
+
+
+    /// <summary>
+    /// UI-enabled variant of the adapter protocol attribute.
+    /// This attribute inherits from UIResourceAttribute so that it carries UI resource information 
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public class UIAdapterProtocolAttribute : UIResourceAttribute
+    {
+        /// <summary>
+        /// Gets the acronym for the adapter protocol.
+        /// </summary>
+        public string Acronym { get; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="UIAdapterProtocolAttribute"/> class.
+        /// </summary>
+        /// <param name="acronym">Acronym for the adapter protocol.</param>
+        /// <param name="assemblyName">Name of the assembly where the UI resource is located.</param>
+        /// <param name="resourceName">Name of the UI resource (fully qualified embedded resource name).</param>
+        /// <param name="resourceID">
+        /// Optional usage target of the resource.
+        /// If omitted or empty, a default value is computed based on the resource name.
+        /// </param>
+        public UIAdapterProtocolAttribute(string acronym, string assemblyName, string resourceName) : base(assemblyName, resourceName)
+        {
+#if NET
+            ArgumentException.ThrowIfNullOrWhiteSpace(acronym);
+#endif
+
+            Acronym = acronym;
+        }
+    }
+
 }

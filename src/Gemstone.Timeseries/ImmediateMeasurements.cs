@@ -45,7 +45,7 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     private ConcentratorBase? m_parent;
     private ConcurrentDictionary<MeasurementKey, TemporalMeasurement> m_measurements;
     private ConcurrentDictionary<string, List<MeasurementKey>> m_taggedMeasurements;
-    private Func<Ticks>? m_realTimeFunction;
+    private Func<Ticks> m_realTimeFunction;
     private double m_lagTime;   // Allowed past time deviation tolerance, in seconds
     private double m_leadTime;  // Allowed future time deviation tolerance, in seconds
     private bool m_disposed;
@@ -105,7 +105,7 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     /// </summary>
     /// <param name="id">A <see cref="Guid"/> representing the measurement ID.</param>
     /// <returns>A <see cref="Double"/> representing the adjusted measurement value.</returns>
-    public double this[MeasurementKey id] => Measurement(id).GetAdjustedValue(m_realTimeFunction!());
+    public double this[MeasurementKey id] => Measurement(id).GetAdjustedValue(m_realTimeFunction());
 
     /// <summary>Returns collection of measurement ID's.</summary>
     public ICollection<MeasurementKey> MeasurementIDs => m_measurements.Keys;
@@ -282,7 +282,7 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
         TemporalMeasurement measurement = Measurement(newMeasurement);
 
         // Set new value updating state flags if value was updated...
-        if (!measurement.SetValue(newMeasurement.Timestamp, newMeasurement.Value, newMeasurement.StateFlags))
+        if (!measurement.SetValue(m_realTimeFunction(), newMeasurement.Timestamp, newMeasurement.Value, newMeasurement.StateFlags))
             return;
 
         measurement.Metadata = newMeasurement.Metadata;

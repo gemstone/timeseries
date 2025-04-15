@@ -208,11 +208,12 @@ public class TemporalMeasurement : Measurement
     /// <remarks>
     /// <para>Operation will only store a value that is newer than the cached value.</para>
     /// </remarks>
+    /// <param name="currentTime">Timestamp, in ticks, used to constrain <see cref="TemporalMeasurement"/> (typically set to real-time, i.e. "now").</param>
     /// <param name="timestamp">New timestamp, in ticks, for <see cref="TemporalMeasurement"/>.</param>
     /// <param name="value">New value for <see cref="TemporalMeasurement"/>, only stored if <paramref name="timestamp"/> are newer than current <see cref="Ticks"/>.</param>
     /// <param name="flags">New flags for <see cref="TemporalMeasurement"/>.</param>
     /// <returns><c>true</c> if value was updated; otherwise <c>false</c>.</returns>
-    public bool SetValue(Ticks timestamp, double value, MeasurementStateFlags flags)
+    public bool SetValue(Ticks currentTime, Ticks timestamp, double value, MeasurementStateFlags flags)
     {
         // We only store a value that is newer than the current value
         if (timestamp <= Timestamp)

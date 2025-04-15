@@ -207,7 +207,7 @@ public class Alarm : ICloneable
     private string? m_tagName;
     private Guid m_signalID;
 
-    private Guid m_associatedMeasurementID;
+    private sting m_associatedMeasurements;
 
     private string? m_description;
     private AlarmSeverity m_severity;
@@ -312,13 +312,13 @@ public class Alarm : ICloneable
     }
 
     /// <summary>
-    /// Gets or sets the identification number of
-    /// the measurements used For the Alarm.
+    /// Gets or sets the identification
+    /// the measurements used to trigger the Alarm.
     /// </summary>
     public string InputMeasurementKeys
     {
-        get => m_associatedMeasurementID.ToString();
-        set => m_associatedMeasurementID = Guid.Parse(value);
+        get => m_associatedMeasurements;
+        set => m_associatedMeasurements = value;
     }
 
     /// <summary>

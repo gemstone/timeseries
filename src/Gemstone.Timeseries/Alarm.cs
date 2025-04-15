@@ -207,7 +207,7 @@ public class Alarm : ICloneable
     private string? m_tagName;
     private Guid m_signalID;
 
-    private sting m_associatedMeasurements;
+    private string m_associatedMeasurements;
 
     private string? m_description;
     private AlarmSeverity m_severity;

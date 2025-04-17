@@ -447,7 +447,7 @@ public class Alarm : ICloneable
     /// <summary>
     /// Gets or sets the current state of the alarm (raised or cleared).
     /// </summary>
-    [NonRecordField, NonSerialized]
+    [NonRecordField]
     public AlarmState State
     {
         get => m_state;
@@ -458,7 +458,7 @@ public class Alarm : ICloneable
     /// Gets or sets the timestamp of the most recent
     /// measurement that caused the alarm to be raised.
     /// </summary>
-    [NonRecordField, NonSerialized]
+    [NonRecordField]
     public Ticks TimeRaised
     {
         get => m_timeRaised;
@@ -469,7 +469,7 @@ public class Alarm : ICloneable
     /// Gets the most recent frame
     /// that caused the alarm to be raised.
     /// </summary>
-    [NonRecordField, NonSerialized]
+    [NonRecordField]
     public IFrame? Cause
     {
         get => m_cause;

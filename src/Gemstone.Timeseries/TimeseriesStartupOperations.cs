@@ -204,8 +204,7 @@ public static class TimeseriesStartupOperations
     private static void ValidateDataPublishers(AdoDataConnection database, string arguments)
     {
         const string DataPublisherCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName='{0}!DATAPUBLISHER'";
-        const string GEPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES({0}, '{1}!DATAPUBLISHER', 'GSF.Timeseries.dll', 'GSF.Timeseries.Transport.DataPublisher', 'securityMode={2}; allowSynchronizedSubscription=false; useBaseTimeOffsets=true; {3}', {4})";
-        const string STTPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES({0}, '{1}!DATAPUBLISHER', 'sttp.gsf.dll', 'sttp.DataPublisher', 'securityMode={2}; {3}', {4})";
+        const string STTPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES({0}, '{0}!DATAPUBLISHER', 'sttp.gsf.dll', 'sttp.DataPublisher', 'securityMode={1}; {2}', {3})";
 
         bool internalDataPublisherEnabled = true;
         bool externalDataPublisherEnabled = true;
@@ -233,20 +232,8 @@ public static class TimeseriesStartupOperations
                 sttpsDataPublisherEnabled = value.ParseBoolean();
         }
 
-        int internalDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "INTERNAL")));
-        int externalDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "EXTERNAL")));
-        int tlsDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "TLS")));
         int sttpDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "STTP")));
         int sttpsDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "STTPS")));
-
-        if (internalDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(GEPDataPublisherInsertFormat, "INTERNAL", "None", "cacheMeasurementKeys={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}", internalDataPublisherEnabled ? 1 : 0));
-
-        if (externalDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(GEPDataPublisherInsertFormat, "EXTERNAL", "Gateway", "", externalDataPublisherEnabled ? 1 : 0));
-
-        if (tlsDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(GEPDataPublisherInsertFormat, "TLS", "TLS", "", tlsDataPublisherEnabled ? 1 : 0));
 
         if (sttpDataPublisherCount == 0)
             database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTP", "None", "cachedMeasurementExpression={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}", sttpDataPublisherEnabled ? 1 : 0));

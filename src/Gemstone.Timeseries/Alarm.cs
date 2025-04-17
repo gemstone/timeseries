@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Gemstone.Collections.CollectionExtensions;
+using Gemstone.Data.Model;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
@@ -220,6 +221,8 @@ public class Alarm : ICloneable
     private double m_timeout;
 
     private AlarmState m_state;
+
+    [NonSerialized]
     private Ticks m_timeRaised;
 
     [NonSerialized]
@@ -240,9 +243,10 @@ public class Alarm : ICloneable
     [NonSerialized]
     private Func<IFrame, bool>? m_clearTest;
 
-
     [NonSerialized]
     private Func<IFrame, Func<IMeasurement, bool>, bool>? m_combineCleared;
+
+    [NonSerialized]
     private Func<IFrame, Func<IMeasurement, bool>, bool>? m_combineRaised;
 
     #endregion
@@ -276,7 +280,7 @@ public class Alarm : ICloneable
     /// <summary>
     /// Gets or sets the identification number of the alarm.
     /// </summary>
-    [DefaultValue(-1)]
+    [PrimaryKey(true)]
     public int ID
     {
         get => m_id;
@@ -443,6 +447,7 @@ public class Alarm : ICloneable
     /// <summary>
     /// Gets or sets the current state of the alarm (raised or cleared).
     /// </summary>
+    [NonRecordField, NonSerialized]
     public AlarmState State
     {
         get => m_state;
@@ -453,6 +458,7 @@ public class Alarm : ICloneable
     /// Gets or sets the timestamp of the most recent
     /// measurement that caused the alarm to be raised.
     /// </summary>
+    [NonRecordField, NonSerialized]
     public Ticks TimeRaised
     {
         get => m_timeRaised;
@@ -463,6 +469,7 @@ public class Alarm : ICloneable
     /// Gets the most recent frame
     /// that caused the alarm to be raised.
     /// </summary>
+    [NonRecordField, NonSerialized]
     public IFrame? Cause
     {
         get => m_cause;

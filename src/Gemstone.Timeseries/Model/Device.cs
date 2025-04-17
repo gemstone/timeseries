@@ -69,20 +69,17 @@ public class Device
 
     [Required]
     [Label("Company")]
-    [DefaultValueExpression("Connection.ExecuteScalar(typeof(int), (object)null, 'SELECT ID FROM Company WHERE Acronym = {0}', Global.CompanyAcronym)", Cached = true)]
+    [DefaultValueExpression("Connection.ExecuteScalar(typeof(int?), 0, \"SELECT ID FROM Company WHERE Acronym = {0}\", Global.CompanyAcronym)", Cached = true)]
     public int? CompanyID { get; set; }
 
     [Label(nameof(Historian))]
     public int? HistorianID { get; set; }
 
     [Label("Access ID")]
-    public ushort AccessID { get; set; }
+    public int AccessID { get; set; }
 
     [Label("Vendor Device")]
     public int? VendorDeviceID { get; set; }
-
-    [Label("Protocol")]
-    public int? ProtocolID { get; set; }
 
     public decimal? Longitude { get; set; }
 
@@ -101,44 +98,11 @@ public class Device
     [StringLength(200)]
     public string TimeZone { get; set; }
 
-    [Label("Frames Per Second")]
-    [DefaultValue(30)]
-    public int? FramesPerSecond { get; set; }
-
     public long TimeAdjustmentTicks { get; set; }
-
-    [DefaultValue(5.0D)]
-    public double DataLossInterval { get; set; }
-
-    [DefaultValue(10)]
-    public int AllowedParsingExceptions { get; set; }
-
-    [DefaultValue(5.0D)]
-    public double ParsingExceptionWindow { get; set; }
-
-    [DefaultValue(5.0D)]
-    public double DelayedConnectionInterval { get; set; }
-
-    [DefaultValue(true)]
-    public bool AllowUseOfCachedConfiguration { get; set; }
-
-    [DefaultValue(true)]
-    public bool AutoStartDataParsingSequence { get; set; }
-
-    public bool SkipDisableRealTimeData { get; set; }
-
-    [DefaultValue(100000)]
-    public int MeasurementReportingInterval { get; set; }
-
-    [Label("Connect On Demand")]
-    [DefaultValue(true)]
-    public bool ConnectOnDemand { get; set; }
 
     [Label("Contacts")]
     [DefaultValue("")]
     public string ContactList { get; set; }
-
-    public int? MeasuredLines { get; set; }
 
     public bool Internal { get; set; }
 

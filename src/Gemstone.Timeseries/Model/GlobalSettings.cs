@@ -24,13 +24,40 @@
 //******************************************************************************************************
 
 using System;
-using Gemstone.Configuration;
+using Gemstone.Diagnostics;
+using ConfigSettings = Gemstone.Configuration.Settings;
 
 namespace Gemstone.Timeseries.Model;
 
-internal class GlobalSettings
+public class GlobalSettings
 {
     //public Guid NodeID => Settings.Default.System.NodeID;
 
-    public string CompanyAcronym => Settings.Default.System.CompanyAcronym;
+    private static string? s_companyAcronym;
+
+    private static string ReadCompanyAcronymFromConfig()
+    {
+        try
+        {
+            dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
+
+            string companyAcronym = section["CompanyAcronym", "GPA", "The acronym representing the company who owns the host system."];
+
+            if (string.IsNullOrWhiteSpace(companyAcronym))
+                companyAcronym = "GPA";
+
+            return companyAcronym;
+        }
+        catch (Exception ex)
+        {
+            Logger.SwallowException(ex, "Failed to load company acronym from settings");
+            return "GPA";
+        }
+    }
+
+
+    /// <summary>
+    /// Gets the company acronym for the host system.
+    /// </summary>
+    public string CompanyAcronym => s_companyAcronym ??= ReadCompanyAcronymFromConfig();
 }

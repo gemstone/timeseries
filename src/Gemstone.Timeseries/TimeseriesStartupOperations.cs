@@ -31,6 +31,7 @@ using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
 using Gemstone.Identity;
 using Gemstone.StringExtensions;
+using Gemstone.Timeseries.Statistics;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE0060
@@ -254,22 +255,22 @@ public static class TimeseriesStartupOperations
 
         const string StatHistorianCountFormat = "SELECT COUNT(*) FROM Historian WHERE Acronym = 'STAT'";
         const string StatEngineCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName = 'STATISTIC!SERVICES'";
-        const string SystemStatCountFormat = "SELECT COUNT(*) FROM Statistic WHERE Source = 'System' AND AssemblyName = 'GSF.Timeseries.dll'";
-        const string DeviceStatCountFormat = "SELECT COUNT(*) FROM Statistic WHERE Source = 'Device' AND AssemblyName = 'GSF.Timeseries.dll'";
-        const string SubscriberStatCountFormat = "SELECT COUNT(*) FROM Statistic WHERE Source = 'Subscriber' AND AssemblyName = 'GSF.Timeseries.dll'";
-        const string PublisherStatCountFormat = "SELECT COUNT(*) FROM Statistic WHERE Source = 'Publisher' AND AssemblyName = 'GSF.Timeseries.dll'";
-        const string ProcessStatCountFormat = "SELECT COUNT(*) FROM Statistic WHERE Source = 'Process' AND AssemblyName = 'FileAdapters.dll'";
+        const string SystemStatCountFormat = $"SELECT COUNT(*) FROM Statistic WHERE Source = 'System' AND AssemblyName = '{nameof(Gemstone)}.{nameof(Timeseries)}.dll'";
+        const string DeviceStatCountFormat = $"SELECT COUNT(*) FROM Statistic WHERE Source = 'Device' AND AssemblyName = '{nameof(Gemstone)}.{nameof(Timeseries)}.dll'";
+        const string SubscriberStatCountFormat = $"SELECT COUNT(*) FROM Statistic WHERE Source = 'Subscriber' AND AssemblyName = '{nameof(Gemstone)}.{nameof(Timeseries)}.dll'";
+        const string PublisherStatCountFormat = $"SELECT COUNT(*) FROM Statistic WHERE Source = 'Publisher' AND AssemblyName = '{nameof(Gemstone)}.{nameof(Timeseries)}.dll'";
+        const string ProcessStatCountFormat = $"SELECT COUNT(*) FROM Statistic WHERE Source = 'Process' AND AssemblyName = 'FileAdapters.dll'";
 
         // INSERT queries
         const string StatConfigEntityInsertFormat = "INSERT INTO ConfigurationEntity(SourceName, RuntimeName, Description, LoadOrder, Enabled) VALUES('RuntimeStatistic', 'Statistics', 'Defines statistics that are monitored for the system, devices, and output streams', 11, 1)";
         const string StatSignalTypeInsertFormat = "INSERT INTO SignalType(Name, Acronym, Suffix, Abbreviation, Source, EngineeringUnits) VALUES('Statistic', 'STAT', 'ST', 'P', 'Any', '')";
 
         const string StatHistorianInsertFormat = "INSERT INTO Historian(Acronym, Name, AssemblyName, TypeName, ConnectionString, IsLocal, Description, LoadOrder, Enabled) VALUES('STAT', 'Statistics Archive', 'TestingAdapters.dll', 'TestingAdapters.VirtualOutputAdapter', '', 1, 'Local historian used to archive system statistics', 9999, 1)";
-        const string StatEngineInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, LoadOrder, Enabled) VALUES('STATISTIC!SERVICES', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.StatisticsEngine', 0, 1)";
-        const string SystemStatInsertFormat = "INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('System', {0}, '{1}', '{2}', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.PerformanceStatistics', 'GetSystemStatistic_{3}', '', 1, '{4}', '{5}', 0, {0})";
-        const string DeviceStatInsertFormat = "INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('Device', {0}, '{1}', '{2}', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.DeviceStatistics', 'GetDeviceStatistic_{3}', '', 1, '{4}', '{5}', 0, {0})";
-        const string SubscriberStatInsertFormat = "INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('Subscriber', {0}, '{1}', '{2}', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.GatewayStatistics', 'GetSubscriberStatistic_{3}', '', 1, '{4}', '{5}', {6}, {0})";
-        const string PublisherStatInsertFormat = "INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('Publisher', {0}, '{1}', '{2}', 'GSF.Timeseries.dll', 'GSF.Timeseries.Statistics.GatewayStatistics', 'GetPublisherStatistic_{3}', '', 1, '{4}', '{5}', {6}, {0})";
+        const string StatEngineInsertFormat = $"INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, LoadOrder, Enabled) VALUES('STATISTIC!SERVICES', '{nameof(Gemstone)}.{nameof(Timeseries)}.dll', '{nameof(Gemstone)}.{nameof(Timeseries)}.{nameof(Statistics)}.{nameof(StatisticsEngine)}', 0, 1)";
+        const string SystemStatInsertFormat = $"INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('System', {{0}}, '{{1}}', '{{2}}', '{nameof(Gemstone)}.{nameof(Timeseries)}.dll', '{nameof(Gemstone)}.{nameof(Timeseries)}.{nameof(Statistics)}.{nameof(PerformanceStatistics)}', 'GetSystemStatistic_{{3}}', '', 1, '{{4}}', '{{5}}', 0, {{0}})";
+        const string DeviceStatInsertFormat = $"INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('Device', {{0}}, '{{1}}', '{{2}}', '{nameof(Gemstone)}.{nameof(Timeseries)}.dll', '{nameof(Gemstone)}.{nameof(Timeseries)}.{nameof(Statistics)}.{nameof(DeviceStatistics)}', 'GetDeviceStatistic_{{3}}', '', 1, '{{4}}', '{{5}}', 0, {{0}})";
+        const string SubscriberStatInsertFormat = $"INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('Subscriber', {{0}}, '{{1}}', '{{2}}', '{nameof(Gemstone)}.{nameof(Timeseries)}.dll', '{nameof(Gemstone)}.{nameof(Timeseries)}.{nameof(Statistics)}.{nameof(GatewayStatistics)}', 'GetSubscriberStatistic_{{3}}', '', 1, '{{4}}', '{{5}}', 0, {{0}})";
+        const string PublisherStatInsertFormat = $"INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('Publisher', {{0}}, '{{1}}', '{{2}}', '{nameof(Gemstone)}.{nameof(Timeseries)}.dll', '{nameof(Gemstone)}.{nameof(Timeseries)}.{nameof(Statistics)}.{nameof(GatewayStatistics)}', 'GetPublisherStatistic_{{3}}', '', 1, '{{4}}', '{{5}}', 0, {{0}})";
         const string ProcessStatInsertFormat = "INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES('Process', {0}, '{1}', '{2}', 'FileAdapters.dll', 'FileAdapters.ProcessLauncher', 'GetProcessStatistic_{3}', '', 1, 'System.Double', '{{0:N3}}', 0, {0})";
 
         // DELETE queries

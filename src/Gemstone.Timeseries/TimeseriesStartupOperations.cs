@@ -204,7 +204,7 @@ public static class TimeseriesStartupOperations
     private static void ValidateDataPublishers(AdoDataConnection database, string arguments)
     {
         const string DataPublisherCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName='{0}!DATAPUBLISHER'";
-        const string STTPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES({0}, '{0}!DATAPUBLISHER', 'sttp.gsf.dll', 'sttp.DataPublisher', 'securityMode={1}; {2}', {3})";
+        const string STTPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES('{0}!DATAPUBLISHER', 'sttp.gsf.dll', 'sttp.DataPublisher', 'securityMode={1}; {2}', {3})";
 
         bool internalDataPublisherEnabled = true;
         bool externalDataPublisherEnabled = true;

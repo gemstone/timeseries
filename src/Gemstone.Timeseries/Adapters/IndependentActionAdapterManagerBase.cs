@@ -474,7 +474,6 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
 
                 device.Acronym = deviceAcronym;
                 device.Name = deviceAcronym;
-                device.ProtocolID = protocolID;
                 device.Enabled = true;
 
                 deviceTable.AddNewOrUpdateRecord(device);

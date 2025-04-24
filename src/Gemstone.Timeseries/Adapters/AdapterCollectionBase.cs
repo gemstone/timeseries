@@ -796,6 +796,26 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             string connectionString = adapterRow[nameof(ConnectionString)].ToNonNullString();
             uint id = uint.Parse(adapterRow[nameof(ID)].ToNonNullString("0"));
 
+            if (string.IsNullOrWhiteSpace(assemblyName) || string.IsNullOrWhiteSpace(typeName))
+            {
+                // If either assembly name or type name is empty, try to pull protocol name from the
+                // connection string and load values from the adapter cache
+                Dictionary<string, string> settings = connectionString.ParseKeyValuePairs();
+
+                if (settings.TryGetValue("phasorProtocol", out string? phasorProtocol) && !string.IsNullOrWhiteSpace(phasorProtocol))
+                {
+                    foreach (AdapterProtocolInfo adapterProtocol in AdapterCache.AdapterProtocols.Values)
+                    {
+                        if (adapterProtocol.Attributes.Any(attribute => string.Equals(phasorProtocol, attribute.Acronym, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            assemblyName = adapterProtocol.Info.AssemblyName;
+                            typeName = adapterProtocol.Info.TypeName;
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(typeName))
                 throw new InvalidOperationException("No adapter type was defined");
 
@@ -803,7 +823,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
                 throw new InvalidOperationException("Specified adapter assembly does not exist");
 
             Assembly assembly = Assembly.LoadFrom(assemblyName);
-            adapter = (T)Activator.CreateInstance(assembly.GetType(typeName));
+            adapter = (T)Activator.CreateInstance(assembly.GetType(typeName)!)!;
 
             // Assign critical adapter properties
             adapter.Name = name;
@@ -812,7 +832,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             adapter.DataSource = DataSource;
 
             // Assign adapter initialization timeout   
-            adapter.InitializationTimeout = adapter.Settings.TryGetValue(nameof(InitializationTimeout), out string setting) ?
+            adapter.InitializationTimeout = adapter.Settings.TryGetValue(nameof(InitializationTimeout), out string? setting) ?
                 int.Parse(setting) :
                 InitializationTimeout;
 
@@ -824,7 +844,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             OnProcessException(MessageLevel.Warning, new InvalidOperationException($"Failed to load adapter \"{name}\" [{typeName}] from \"{assemblyName}\": {ex.Message}", ex));
         }
 
-        adapter = default;
+        adapter = null!;
         return false;
     }
 

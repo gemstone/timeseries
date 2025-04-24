@@ -229,10 +229,10 @@ public class Alarm : ICloneable
     private Ticks m_lastNegative;
 
     [NonSerialized]
-    private Dictionary<Guid,double> m_lastValue;
+    private Dictionary<Guid, double> m_lastValue;
 
     [NonSerialized]
-    private Dictionary<Guid,Ticks> m_lastChanged;
+    private Dictionary<Guid, Ticks> m_lastChanged;
 
     [NonSerialized]
     private IFrame? m_cause;
@@ -265,7 +265,7 @@ public class Alarm : ICloneable
     /// Creates a new instance of the <see cref="Alarm"/> class.
     /// </summary>
     /// <param name="operation">The operation to be performed when testing values from the incoming signal.</param>
-    public Alarm(AlarmOperation operation) 
+    public Alarm(AlarmOperation operation)
     {
         Operation = operation;
         Combination = AlarmCombination.AND;
@@ -445,6 +445,11 @@ public class Alarm : ICloneable
     }
 
     /// <summary>
+    /// Gets or sets flag to indicate that a measurement should be created for this alarm.
+    /// </summary>
+    public bool CreateAssociatedMeasurement { get; set; }
+
+    /// <summary>
     /// Gets or sets the current state of the alarm (raised or cleared).
     /// </summary>
     [NonRecordField]
@@ -515,7 +520,7 @@ public class Alarm : ICloneable
     /// A new alarm that is a copy of this instance.
     /// </returns>
     /// <filterpriority>2</filterpriority>
-    public Alarm Clone() => 
+    public Alarm Clone() =>
         (Alarm)MemberwiseClone();
 
     /// <summary>
@@ -525,9 +530,9 @@ public class Alarm : ICloneable
     /// A new object that is a copy of this instance.
     /// </returns>
     /// <filterpriority>2</filterpriority>
-    object ICloneable.Clone() => 
+    object ICloneable.Clone() =>
         MemberwiseClone();
-        
+
     // Returns the function used to determine when the alarm is raised.
     private Func<IFrame, bool> GetRaiseTest() =>
         m_operation switch
@@ -598,22 +603,22 @@ public class Alarm : ICloneable
 
     // Indicates whether the given measurement
     // is greater than or equal to the set point.
-    private bool RaiseIfGreaterOrEqual(IFrame frame) => 
+    private bool RaiseIfGreaterOrEqual(IFrame frame) =>
         CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value >= m_setPoint));
 
     // Indicates whether the given measurement
     // is less than or equal to the set point.
-    private bool RaiseIfLessOrEqual(IFrame frame) => 
-        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) =>  measurement.Value <= m_setPoint));
+    private bool RaiseIfLessOrEqual(IFrame frame) =>
+        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value <= m_setPoint));
 
     // Indicates whether the given measurement
     // is greater than the set point.
-    private bool RaiseIfGreaterThan(IFrame frame) => 
+    private bool RaiseIfGreaterThan(IFrame frame) =>
         CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value > m_setPoint));
 
     // Indicates whether the given measurement
     // is less than the set point.
-    private bool RaiseIfLessThan(IFrame frame) => 
+    private bool RaiseIfLessThan(IFrame frame) =>
         CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value < m_setPoint));
 
     // Indicates whether the given measurement has maintained the same
@@ -637,7 +642,7 @@ public class Alarm : ICloneable
 
         return m_combineRaised.Invoke(frame, (measurement) =>
         {
-           
+
             Gemstone.Ticks lastChange;
 
             //Avoid Alarm going off on first comparison

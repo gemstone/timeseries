@@ -90,12 +90,14 @@ public class Device
     public int? InterconnectionID { get; set; }
 
     [Label("Connection String")]
+    [DefaultValue("")]
     public string ConnectionString { get; set; }
 
     [DefaultValue("")]
     public string Description { get; set; } = "";
 
     [StringLength(200)]
+    [DefaultValue("UTC-0000")]
     public string TimeZone { get; set; }
 
     public long TimeAdjustmentTicks { get; set; }
@@ -104,12 +106,11 @@ public class Device
     [DefaultValue("")]
     public string ContactList { get; set; }
 
-    public bool Internal { get; set; }
-
     public int LoadOrder { get; set; }
 
     public bool Subscribed { get; set; }
 
+    [DefaultValue(true)]
     public bool Enabled { get; set; }
 
     [DefaultValueExpression("DateTime.UtcNow")]

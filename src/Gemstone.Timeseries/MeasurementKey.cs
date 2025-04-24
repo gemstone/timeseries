@@ -331,7 +331,7 @@ public class MeasurementKey
     /// If creation succeeds, a new measurement key with matching signal ID, source, and ID.
     /// Otherwise, <see cref="Undefined"/>.
     /// </returns>
-    public static MeasurementKey LookUpOrCreate(Guid signalID, string value) => 
+    public static MeasurementKey LookUpOrCreate(Guid signalID, string? value) => 
         TrySplit(value, out string source, out ulong id) ? 
             LookUpOrCreate(signalID, source, id) : 
             LookUpOrCreate(signalID, Undefined.Source, Undefined.ID);
@@ -483,7 +483,7 @@ public class MeasurementKey
     /// Attempts to split the given string representation
     /// of a measurement key into a source and ID pair.
     /// </summary>
-    private static bool TrySplit(string value, out string source, out ulong id)
+    private static bool TrySplit(string? value, out string source, out ulong id)
     {
         if (!string.IsNullOrEmpty(value))
         {

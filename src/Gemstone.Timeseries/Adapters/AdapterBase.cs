@@ -1292,7 +1292,7 @@ public abstract class AdapterBase : IAdapter
     /// Security warning: allowing SELECT statements, i.e., setting <paramref name="allowSelect"/> to <c>true</c>, should only be allowed in cases where SQL
     /// injection would not be an issue (e.g., in places where a user can already access the database and would have nothing to gain via an injection attack).
     /// </remarks>
-    public static MeasurementKey[] ParseOutputMeasurementKeys(DataSet dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements") =>
+    public static MeasurementKey[] ParseOutputMeasurementKeys(DataSet? dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements") =>
         ParseOutputMeasurements(dataSource, allowSelect, value, measurementTable).MeasurementKeys().ToArray();
 
     /// <summary>
@@ -1307,7 +1307,7 @@ public abstract class AdapterBase : IAdapter
     /// Security warning: allowing SELECT statements, i.e., setting <paramref name="allowSelect"/> to <c>true</c>, should only be allowed in cases where SQL
     /// injection would not be an issue (e.g., in places where a user can already access the database and would have nothing to gain via an injection attack).
     /// </remarks>
-    public static IMeasurement[] ParseOutputMeasurements(DataSet dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements")
+    public static IMeasurement[] ParseOutputMeasurements(DataSet? dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements")
     {
         List<IMeasurement> measurements = new();
         Measurement measurement;

@@ -1136,7 +1136,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// generated. In general, there should only be a few dozen distinct event names per class. Exceeding this
     /// threshold will cause the EventName to be replaced with a general warning that a usage issue has occurred.
     /// </remarks>
-    protected internal virtual void OnStatusMessage(MessageLevel level, string status, string eventName = null, MessageFlags flags = MessageFlags.None)
+    protected internal virtual void OnStatusMessage(MessageLevel level, string status, string? eventName = null, MessageFlags flags = MessageFlags.None)
     {
         try
         {

@@ -104,7 +104,6 @@ namespace Gemstone.Timeseries.Adapters
         }
     }
 
-
     /// <summary>
     /// UI-enabled variant of the adapter protocol attribute.
     /// This attribute inherits from UIResourceAttribute so that it carries UI resource information 

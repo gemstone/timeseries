@@ -52,6 +52,7 @@ using Gemstone.Timeseries.Configuration;
 using Gemstone.Timeseries.Reports;
 using Gemstone.Timeseries.Statistics;
 using Gemstone.Units;
+using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
@@ -1381,6 +1382,35 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     public void ReloadConfig()
     {
         m_reloadConfigQueue?.Add(Tuple.Create("User", (Action<bool>)(_ => { })));
+    }
+
+    /// <summary>
+    /// Initializes the adapter with the specified acronym.
+    /// </summary>
+    /// <param name="acronym">Acronym to initialize.</param>
+    public void Initialize(string acronym)
+    {
+        if (m_reloadConfigQueue is null)
+            throw new NullReferenceException("System is not initialized");
+
+        m_reloadConfigQueue.Add(Tuple.Create(nameof(System), new Action<bool>(success =>
+        {
+            if (!success)
+            {
+                LogException(new InvalidOperationException("Failed to load system configuration."));
+                return;
+            }
+
+            AllAdaptersCollection? adapters = AllAdapters;
+
+            if (adapters is null || m_reloadConfigQueue is null)
+                throw new NullReferenceException("No adapters are currently defined");
+
+            if (!adapters.TryGetAnyAdapterByName(acronym, out IAdapter? adapter, out _))
+                throw new InvalidOperationException($"Failed to find adapter with acronym \"{acronym}\"");
+
+            adapter?.Initialize();
+        })));
     }
 
     ///// <summary>

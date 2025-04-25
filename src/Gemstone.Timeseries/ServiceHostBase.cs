@@ -1402,11 +1402,17 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
 
             AllAdaptersCollection? adapters = AllAdapters;
 
-            if (adapters is null || m_reloadConfigQueue is null)
-                throw new NullReferenceException("No adapters are currently defined");
+            if (adapters is null)
+            {
+                LogException(new NullReferenceException("No adapters are currently defined"));
+                return;
+            }
 
             if (!adapters.TryGetAnyAdapterByName(acronym, out IAdapter? adapter, out _))
-                throw new InvalidOperationException($"Failed to find adapter with acronym \"{acronym}\"");
+            {
+                LogException(new InvalidOperationException($"Failed to find adapter with acronym \"{acronym}\""));
+                return;
+            }
 
             adapter?.Initialize();
         })));

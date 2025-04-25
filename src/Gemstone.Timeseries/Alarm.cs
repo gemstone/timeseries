@@ -447,6 +447,7 @@ public class Alarm : ICloneable
     /// <summary>
     /// Gets or sets flag to indicate that a measurement should be created for this alarm.
     /// </summary>
+    [NonRecordFieldAttribute]
     public bool CreateAssociatedMeasurement { get; set; }
 
     /// <summary>

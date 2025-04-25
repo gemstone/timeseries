@@ -787,7 +787,7 @@ public static class TimeseriesStartupOperations
         const string AlarmSignalTypeCountFormat = "SELECT COUNT(*) FROM SignalType WHERE Name = 'Alarm'";
 
         // INSERT queries
-        const string AlarmAdapterInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, LoadOrder, Enabled) VALUES('ALARM!SERVICES', 'openHistorian.Adapters.dll', 'DataQualityMonitoring.AlarmEngine.AlarmEngine', '', 1, 1)";
+        const string AlarmAdapterInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, LoadOrder, Enabled) VALUES('ALARM!SERVICES', 'openHistorian.Adapters.dll', 'DataQualityMonitoring.AlarmEngine', '', 1, 1)";
         const string AlarmConfigEntityInsertFormat = "INSERT INTO ConfigurationEntity(SourceName, RuntimeName, Description, LoadOrder, Enabled) VALUES('Alarm', 'Alarms', 'Defines alarms that monitor the values of measurements', 17, 1)";
         const string AlarmSignalTypeInsertFormat = "INSERT INTO SignalType(Name, Acronym, Suffix, Abbreviation, Source, EngineeringUnits) VALUES('Alarm', 'ALRM', 'AL', 'AL', 'Any', '')";
 

@@ -32,7 +32,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,10 +51,10 @@ using Gemstone.Timeseries.Configuration;
 using Gemstone.Timeseries.Reports;
 using Gemstone.Timeseries.Statistics;
 using Gemstone.Units;
-using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
+using IAdapter = Gemstone.Timeseries.Adapters.IAdapter;
 
 namespace Gemstone.Timeseries;
 

@@ -445,9 +445,19 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
 
             // Pre-cache column index translation after removal of NodeID column to speed data copy
             Dictionary<int, int> columnIndex = new();
+            HashSet<int> reinterpetColomn = [];
 
             foreach (DataColumn column in columns)
+            {
                 columnIndex[column.Ordinal] = source.Columns[column.ColumnName]!.Ordinal;
+
+                // HACK: Convert byte[] columns to int columns - fixes derived column type issues in SQLite
+                if (column.DataType != typeof(byte[]))
+                    continue;
+
+                reinterpetColomn.Add(column.Ordinal);
+                column.DataType = typeof(int);
+            }
 
             // Manually copy-in each row into table
             foreach (DataRow sourceRow in source.Rows)
@@ -456,7 +466,27 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
 
                 // Copy each column of data in the current row
                 for (int x = 0; x < columns.Count; x++)
-                    newRow[x] = sourceRow[columnIndex[x]];
+                {
+                    if (reinterpetColomn.Contains(x))
+                    {
+                        newRow[x] = sourceRow[columnIndex[x]] switch
+                        {
+                            null or DBNull => DBNull.Value,
+                            byte[] bytes => bytes.Length switch
+                            {
+                                2 => EndianOrder.LittleEndian.ToInt16(bytes, 0),
+                                4 => EndianOrder.LittleEndian.ToInt32(bytes, 0),
+                                8 => EndianOrder.LittleEndian.ToInt64(bytes, 0),
+                                _ => bytes
+                            },
+                            _ => newRow[x]
+                        };
+                    }
+                    else
+                    {
+                        newRow[x] = sourceRow[columnIndex[x]];
+                    }
+                }
 
                 // Add new row to destination table
                 destination.Rows.Add(newRow);

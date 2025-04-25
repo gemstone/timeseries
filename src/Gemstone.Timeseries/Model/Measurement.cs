@@ -93,7 +93,7 @@ public class Measurement
 
     public bool Subscribed { get; set; }
 
-    [DefaultValue(true)]
+    [DefaultValue(false)]
     public bool Manual { get; set; }
 
     [DefaultValue(true)]

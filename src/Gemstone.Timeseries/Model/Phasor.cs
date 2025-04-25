@@ -26,6 +26,7 @@
 #pragma warning disable 1591
 
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Data.Model;
@@ -48,6 +49,7 @@ public class Phasor
 
     public char Type { get; set; }
 
+    [DefaultValue('+')]
     public char Phase { get; set; }
 
     public int? PrimaryVoltageID { get; set; }

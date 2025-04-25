@@ -456,7 +456,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
                     continue;
 
                 reinterpetColomn.Add(column.Ordinal);
-                column.DataType = typeof(int);
+                column.DataType = typeof(long);
             }
 
             // Manually copy-in each row into table

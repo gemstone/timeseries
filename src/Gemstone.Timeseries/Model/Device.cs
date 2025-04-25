@@ -81,9 +81,9 @@ public class Device
     [Label("Vendor Device")]
     public int? VendorDeviceID { get; set; }
 
-    public decimal? Longitude { get; set; }
+    public decimal Longitude { get; set; }
 
-    public decimal? Latitude { get; set; }
+    public decimal Latitude { get; set; }
 
     [Label("Interconnection")]
     [InitialValueScript("1")]

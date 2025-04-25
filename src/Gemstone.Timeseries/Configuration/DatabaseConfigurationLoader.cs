@@ -445,7 +445,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
 
             // Pre-cache column index translation after removal of NodeID column to speed data copy
             Dictionary<int, int> columnIndex = new();
-            HashSet<int> reinterpetColomn = [];
+            HashSet<int> reinterpretColumn = [];
 
             foreach (DataColumn column in columns)
             {
@@ -455,7 +455,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
                 if (column.DataType != typeof(byte[]))
                     continue;
 
-                reinterpetColomn.Add(column.Ordinal);
+                reinterpretColumn.Add(column.Ordinal);
                 column.DataType = typeof(long);
             }
 
@@ -467,7 +467,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
                 // Copy each column of data in the current row
                 for (int x = 0; x < columns.Count; x++)
                 {
-                    if (reinterpetColomn.Contains(x))
+                    if (reinterpretColumn.Contains(x))
                     {
                         newRow[x] = sourceRow[columnIndex[x]] switch
                         {

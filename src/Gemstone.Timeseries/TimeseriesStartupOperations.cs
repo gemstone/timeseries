@@ -205,7 +205,7 @@ public static class TimeseriesStartupOperations
     private static void ValidateDataPublishers(AdoDataConnection database, string arguments)
     {
         const string DataPublisherCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName='{0}!DATAPUBLISHER'";
-        const string STTPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, Enabled) VALUES('{0}!DATAPUBLISHER', 'sttp.gsf.dll', 'sttp.DataPublisher', 'securityMode={1}; {2}', {3})";
+        const string STTPDataPublisherInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, LoadOrder, Enabled) VALUES('{0}!DATAPUBLISHER', 'sttp.gsf.dll', 'sttp.DataPublisher', 'securityMode={1}; {2}', {3}, {4})";
 
         bool internalDataPublisherEnabled = true;
         bool externalDataPublisherEnabled = true;
@@ -237,10 +237,10 @@ public static class TimeseriesStartupOperations
         int sttpsDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "STTPS")));
 
         if (sttpDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTP", "None", "cachedMeasurementExpression={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}", sttpDataPublisherEnabled ? 1 : 0));
+            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTP", "None", "cachedMeasurementExpression={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}", 2, sttpDataPublisherEnabled ? 1 : 0));
 
         if (sttpsDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTPS", "TLS", "", sttpsDataPublisherEnabled ? 1 : 0));
+            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTPS", "TLS", "", 3, sttpsDataPublisherEnabled ? 1 : 0));
     }
 
     /// <summary>
@@ -787,7 +787,7 @@ public static class TimeseriesStartupOperations
         const string AlarmSignalTypeCountFormat = "SELECT COUNT(*) FROM SignalType WHERE Name = 'Alarm'";
 
         // INSERT queries
-        const string AlarmAdapterInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, LoadOrder, Enabled) VALUES('ALARM!SERVICES', 'openHistorian.Adapters.dll', 'DataQualityMonitoring.AlarmEngine.AlarmEngine', '', 0, 1)";
+        const string AlarmAdapterInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, LoadOrder, Enabled) VALUES('ALARM!SERVICES', 'openHistorian.Adapters.dll', 'DataQualityMonitoring.AlarmEngine.AlarmEngine', '', 1, 1)";
         const string AlarmConfigEntityInsertFormat = "INSERT INTO ConfigurationEntity(SourceName, RuntimeName, Description, LoadOrder, Enabled) VALUES('Alarm', 'Alarms', 'Defines alarms that monitor the values of measurements', 17, 1)";
         const string AlarmSignalTypeInsertFormat = "INSERT INTO SignalType(Name, Acronym, Suffix, Abbreviation, Source, EngineeringUnits) VALUES('Alarm', 'ALRM', 'AL', 'AL', 'Any', '')";
 

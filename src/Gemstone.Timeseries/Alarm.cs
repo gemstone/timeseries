@@ -488,6 +488,11 @@ public class Alarm : ICloneable
         }
     }
 
+    /// <summary>
+    /// Gets and Sets Enabled flag
+    /// </summary>
+    public bool Enabled { get; set; }
+
     #endregion
 
     #region [ Methods ]

@@ -684,7 +684,7 @@ public static class TimeseriesStartupOperations
 
         // Ensure that statistics historian exists
         if (statHistorianCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(StatHistorianInsertFormat));
+            database.Connection.ExecuteNonQuery(StatHistorianInsertFormat);
 
         // Ensure that statistics engine exists
         if (statEngineCount == 0)

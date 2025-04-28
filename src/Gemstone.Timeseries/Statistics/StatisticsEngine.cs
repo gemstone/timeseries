@@ -528,7 +528,7 @@ public class StatisticsEngine : FacileActionAdapterBase
             if (m_lastStatisticCalculationTime == default)
                 m_lastStatisticCalculationTime = measurement.Timestamp;
 
-            base.QueueMeasurementsForProcessing(new[] { measurement });
+            base.QueueMeasurementsForProcessing([measurement]);
 
             if (UseLocalClockAsRealTime || !TrackLatestMeasurements)
                 continue;
@@ -920,7 +920,7 @@ public class StatisticsEngine : FacileActionAdapterBase
             OnProcessException(MessageLevel.Info, new Exception(errorMessage, ex));
         }
 
-        return Enumerable.Empty<IMeasurement>();
+        return [];
     }
 
     private IMeasurement? CalculateStatistic(Statistic[] statistics, DateTime serverTime, StatisticSource source, DataRow measurement)

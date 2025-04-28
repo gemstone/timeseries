@@ -481,8 +481,8 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
             }
 
             HashSet<string> activeAdapterNames = new(StringComparer.Ordinal);
-            List<TAdapter> adapters = new();
-            HashSet<Guid> signalIDs = new();
+            List<TAdapter> adapters = [];
+            HashSet<Guid> signalIDs = [];
 
             // Create settings dictionary for connection string to use with primary child adapters
             Dictionary<string, string> settings = new(StringComparer.OrdinalIgnoreCase);

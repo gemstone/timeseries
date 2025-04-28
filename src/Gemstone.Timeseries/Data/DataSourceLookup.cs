@@ -38,7 +38,7 @@ public static class DataSourceLookups
 {
     private static readonly LogPublisher s_log = Logger.CreatePublisher(typeof(DataSourceLookups), MessageClass.Framework);
 
-    private static readonly List<WeakReference<DataSourceLookupCache>> s_dataSetLookups = new();
+    private static readonly List<WeakReference<DataSourceLookupCache>> s_dataSetLookups = [];
 
     /// <summary>
     /// Gets/Creates the lookup cache for the provided dataset.
@@ -139,7 +139,7 @@ public static class DataSourceLookups
             throw new ArgumentNullException(nameof(dataSource));
 
         if (keys is null || keys.Length == 0)
-            return Array.Empty<SignalType>();
+            return [];
 
         SignalType[] signalTypes = new SignalType[keys.Length];
 
@@ -162,7 +162,7 @@ public static class DataSourceLookups
             throw new ArgumentNullException(nameof(dataSource));
 
         if (measurements is null || measurements.Length == 0)
-            return Array.Empty<SignalType>();
+            return [];
 
         SignalType[] signalTypes = new SignalType[measurements.Length];
 

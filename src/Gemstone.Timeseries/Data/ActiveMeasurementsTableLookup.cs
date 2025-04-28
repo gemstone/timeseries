@@ -41,7 +41,7 @@ public class ActiveMeasurementsTableLookup
 
     internal ActiveMeasurementsTableLookup(DataSet dataSet)
     {
-        m_emptySet = new List<DataRow>();
+        m_emptySet = [];
         m_lookupByDeviceID = new Dictionary<uint, List<DataRow>>();
         m_lookupByDeviceNameNoStats = new Dictionary<string, List<DataRow>>(StringComparer.CurrentCultureIgnoreCase);
 
@@ -60,7 +60,7 @@ public class ActiveMeasurementsTableLookup
             {
                 if (!m_lookupByDeviceID.TryGetValue(id.Value, out rowList))
                 {
-                    rowList = new List<DataRow>();
+                    rowList = [];
                     m_lookupByDeviceID[id.Value] = rowList;
                 }
 
@@ -77,7 +77,7 @@ public class ActiveMeasurementsTableLookup
 
             if (!m_lookupByDeviceNameNoStats.TryGetValue(device, out rowList))
             {
-                rowList = new List<DataRow>();
+                rowList = [];
                 m_lookupByDeviceNameNoStats[device] = rowList;
             }
 

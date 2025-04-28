@@ -61,7 +61,7 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
             m_task = new ScheduledTask();
             m_task.Running += m_task_Running;
             m_pendingMeasurements = new ConcurrentQueue<List<IMeasurement>>();
-            MeasurementsToRoute = new List<IMeasurement>();
+            MeasurementsToRoute = [];
         }
 
         public void RoutingComplete()
@@ -70,7 +70,7 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
                 return;
 
             m_pendingMeasurements.Enqueue(MeasurementsToRoute);
-            MeasurementsToRoute = new List<IMeasurement>();
+            MeasurementsToRoute = [];
             m_task.Start();
         }
 
@@ -105,10 +105,10 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
 
         public GlobalCache(Dictionary<IAdapter, Consumer> consumers, int version)
         {
-            NormalDestinationAdapters = new List<Consumer>();
-            RoutingPassthroughAdapters = new List<RoutingPassthroughMethod>();
+            NormalDestinationAdapters = [];
+            RoutingPassthroughAdapters = [];
             GlobalSignalLookup = new IndexedArray<List<Consumer>>();
-            BroadcastConsumers = new List<Consumer>();
+            BroadcastConsumers = [];
             GlobalDestinationLookup = consumers;
             Version = version;
 
@@ -135,7 +135,7 @@ public class RouteMappingHighLatencyLowCpu : IRouteMappingTables
 
                             if (list is null)
                             {
-                                list = new List<Consumer>();
+                                list = [];
                                 GlobalSignalLookup[key.RuntimeID] = list;
                             }
 

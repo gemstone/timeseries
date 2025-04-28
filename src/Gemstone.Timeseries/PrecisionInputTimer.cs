@@ -43,7 +43,7 @@ public sealed class PrecisionInputTimer : IDisposable
     // Fields
     private PrecisionTimer? m_timer;
     private bool m_useWaitHandleA;
-    private readonly object m_timerTickLock;
+    private readonly Lock m_timerTickLock;
     private ManualResetEventSlim? m_frameWaitHandleA;
     private ManualResetEventSlim? m_frameWaitHandleB;
     private readonly int m_frameWindowSize;
@@ -63,7 +63,7 @@ public sealed class PrecisionInputTimer : IDisposable
     internal PrecisionInputTimer(int framesPerSecond)
     {
         // Create synchronization objects
-        m_timerTickLock = new object();
+        m_timerTickLock = new Lock();
         m_frameWaitHandleA = new ManualResetEventSlim(false);
         m_frameWaitHandleB = new ManualResetEventSlim(false);
         m_useWaitHandleA = true;
@@ -204,7 +204,7 @@ public sealed class PrecisionInputTimer : IDisposable
     {
         // Slower systems or systems under stress may have trouble keeping up with a 1-ms timer, so
         // we only process this code if it's not already processing...
-        if (!Monitor.TryEnter(m_timerTickLock, 2))
+        if (!m_timerTickLock.TryEnter(2))
             return;
 
         try
@@ -295,7 +295,7 @@ public sealed class PrecisionInputTimer : IDisposable
         }
         finally
         {
-            Monitor.Exit(m_timerTickLock);
+            m_timerTickLock.Exit();
         }
     }
 

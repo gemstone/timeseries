@@ -1458,7 +1458,7 @@ public abstract class ConcentratorBase : IDisposable
     /// </summary>
     /// <param name="measurement"><see cref="IMeasurement"/> to sort.</param>
     public virtual void SortMeasurement(IMeasurement measurement) => 
-        SortMeasurements(new[] { measurement });
+        SortMeasurements([measurement]);
 
     /// <summary>
     /// Sorts each <see cref="IMeasurement"/> placing each data point in its proper <see cref="IFrame"/>.
@@ -1630,7 +1630,7 @@ public abstract class ConcentratorBase : IDisposable
                 Interlocked.Increment(ref m_discardedMeasurements);
 
                 // Make sure discarded measurement collection exists
-                discardedMeasurements ??= new List<IMeasurement>();
+                discardedMeasurements ??= [];
 
                 // Add discarded measurement to local collection
                 discardedMeasurements.Add(measurement);

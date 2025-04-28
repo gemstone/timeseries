@@ -118,7 +118,7 @@ public static class IMeasurementExtensions
     /// <returns><see cref="MeasurementKey"/> values of the <see cref="IMeasurement"/> enumeration.</returns>
     public static MeasurementKey[] MeasurementKeys(this IEnumerable<IMeasurement> measurements) => 
         measurements is null ? 
-            Array.Empty<MeasurementKey>() : 
+            [] : 
             measurements.Select(m => m.Key).ToArray();
 
     /// <summary>

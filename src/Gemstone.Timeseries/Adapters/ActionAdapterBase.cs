@@ -117,7 +117,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
         GenHashCode();
 
         // Set incoming measurements to none by default
-        m_inputMeasurementKeys = Array.Empty<MeasurementKey>();
+        m_inputMeasurementKeys = [];
 
         // For most implementations millisecond resolution will be sufficient
         TimeResolution = Ticks.PerMillisecond;
@@ -679,7 +679,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
 
         InputMeasurementKeys = settings.TryGetValue(nameof(InputMeasurementKeys), out setting) ?
             AdapterBase.ParseInputMeasurementKeys(DataSource, true, setting) :
-            Array.Empty<MeasurementKey>();
+            [];
 
         if (settings.TryGetValue(nameof(OutputMeasurements), out setting))
             OutputMeasurements = AdapterBase.ParseOutputMeasurements(DataSource, true, setting);

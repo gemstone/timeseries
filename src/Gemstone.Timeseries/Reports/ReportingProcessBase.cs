@@ -228,7 +228,7 @@ public abstract class ReportingProcessBase : IReportingProcess
                 .ToList();
         }
 
-        return new List<string>();
+        return [];
     }
 
     /// <summary>

@@ -421,7 +421,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// </summary>
     /// <param name="measurement">Measurement to queue for processing.</param>
     public virtual void QueueMeasurementForProcessing(IMeasurement measurement) =>
-        QueueMeasurementsForProcessing(new[] { measurement });
+        QueueMeasurementsForProcessing([measurement]);
 
     /// <summary>
     /// Queues a collection of measurements for processing.

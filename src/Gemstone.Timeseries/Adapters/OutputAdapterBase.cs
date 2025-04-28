@@ -407,7 +407,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
         // Force a recalculation of input measurement keys so that system can appropriately update routing tables
         InputMeasurementKeys = Settings.TryGetValue(nameof(InputMeasurementKeys), out string? setting) ?
             ParseInputMeasurementKeys(DataSource, true, setting) :
-            Array.Empty<MeasurementKey>();
+            [];
 
         // Self assignment of InputSourceIDs initiates parse and load of source IDs.
         #pragma warning disable CA2245
@@ -515,7 +515,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// </summary>
     /// <param name="measurement">Measurement to queue for processing.</param>
     public virtual void QueueMeasurementForProcessing(IMeasurement measurement) =>
-        QueueMeasurementsForProcessing(new[] { measurement });
+        QueueMeasurementsForProcessing([measurement]);
 
     /// <summary>
     /// Queues a collection of measurements for processing. Measurements are automatically filtered to the defined <see cref="IAdapter.InputMeasurementKeys"/>.

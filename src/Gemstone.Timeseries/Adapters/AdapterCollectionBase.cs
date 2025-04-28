@@ -286,7 +286,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             if (m_inputMeasurementKeys is not null)
                 return m_inputMeasurementKeys;
 
-            List<MeasurementKey> cumulativeKeys = new();
+            List<MeasurementKey> cumulativeKeys = [];
 
             // Otherwise return cumulative results of all child adapters
             lock (this)
@@ -323,7 +323,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
                 return m_outputMeasurements;
 
             // Otherwise return cumulative results of all child adapters
-            List<IMeasurement> cumulativeMeasurements = new();
+            List<IMeasurement> cumulativeMeasurements = [];
 
             // Otherwise return cumulative results of all child adapters
             lock (this)

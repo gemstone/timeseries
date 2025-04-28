@@ -142,7 +142,7 @@ public class TrackingFrame
                 }
 
                 // No prior measurement exists, track this initial one
-                values = new List<IMeasurement?> { measurement };
+                values = [measurement];
                 m_measurements[measurement.Key] = values;
 
                 // Keep track of total number of derived measurements
@@ -180,7 +180,7 @@ public class TrackingFrame
                 }
 
                 // No prior measurement exists, track this initial one
-                values = new List<IMeasurement?> { measurement };
+                values = [measurement];
                 m_measurements[measurement.Key] = values;
 
                 // Keep track of total number of derived measurements
@@ -229,7 +229,7 @@ public class TrackingFrame
                 }
 
                 // No prior measurement exists, track this initial one
-                values = new List<IMeasurement?> { measurement };
+                values = [measurement];
                 m_measurements[measurement.Key] = values;
 
                 // Keep track of total number of derived measurements

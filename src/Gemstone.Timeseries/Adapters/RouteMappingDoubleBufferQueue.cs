@@ -52,7 +52,7 @@ public class RouteMappingDoubleBufferQueue : IRouteMappingTables
         {
             GlobalSignalLookup = new Dictionary<Guid, List<Consumer>>();
             GlobalDestinationLookup = consumers;
-            BroadcastConsumers = new List<Consumer>();
+            BroadcastConsumers = [];
             Version = version;
 
             // Generate routes for all signals received by each consumer adapter
@@ -65,7 +65,7 @@ public class RouteMappingDoubleBufferQueue : IRouteMappingTables
                 {
                     // Create routes for each of the consumer's input signals
                     foreach (Guid signalID in consumerAdapter.InputMeasurementKeys.Select(key => key.SignalID))
-                        GlobalSignalLookup.GetOrAdd(signalID, _ => new List<Consumer>()).Add(consumer);
+                        GlobalSignalLookup.GetOrAdd(signalID, _ => []).Add(consumer);
                 }
                 else
                 {
@@ -178,7 +178,7 @@ public class RouteMappingDoubleBufferQueue : IRouteMappingTables
 
         public Producer(DoubleBufferedQueueManager<IMeasurement> manager)
         {
-            Measurements = new List<IMeasurement>();
+            Measurements = [];
             QueueProducer = manager.GetProducer();
         }
     }

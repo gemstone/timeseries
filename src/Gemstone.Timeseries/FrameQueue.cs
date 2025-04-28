@@ -73,7 +73,7 @@ public class FrameQueue : IDisposable
     public FrameQueue(CreateNewFrameFunction createNewFrame)
     {
         m_createNewFrame = createNewFrame;
-        m_frameList = new LinkedList<TrackingFrame>();
+        m_frameList = [];
         m_frameHash = new ConcurrentDictionary<long, TrackingFrame>();
         m_queueLock = new SpinLock();
     }

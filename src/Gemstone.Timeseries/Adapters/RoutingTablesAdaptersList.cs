@@ -60,10 +60,10 @@ public class RoutingTablesAdaptersList
     /// <param name="currentAdapterList">A complete list of all the adapters that exist now.</param>
     public RoutingTablesAdaptersList(HashSet<IAdapter> previousAdapterList, HashSet<IAdapter> currentAdapterList)
     {
-        NewAdapter = new List<IAdapter>();
-        ExistingAdapter = new List<IAdapter>();
-        OldAdapter = new List<IAdapter>();
-        NewAndExistingAdapters = new List<IAdapter>();
+        NewAdapter = [];
+        ExistingAdapter = [];
+        OldAdapter = [];
+        NewAndExistingAdapters = [];
 
         NewAndExistingAdapters.AddRange(currentAdapterList);
         NewAdapter.AddRange(currentAdapterList.Where(adapter => !previousAdapterList.Contains(adapter)));

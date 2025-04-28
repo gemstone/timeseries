@@ -346,7 +346,7 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     public void AddTaggedMeasurement(string tag, MeasurementKey id)
     {
         // Get tag's measurement list
-        List<MeasurementKey> measurements = m_taggedMeasurements.GetOrAdd(tag, new List<MeasurementKey>());
+        List<MeasurementKey> measurements = m_taggedMeasurements.GetOrAdd(tag, []);
 
         if (measurements.BinarySearch(id) >= 0)
             return;

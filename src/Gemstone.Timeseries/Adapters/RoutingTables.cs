@@ -87,8 +87,8 @@ public class RoutingTables : IDisposable
         Log = Logger.CreatePublisher(GetType(), MessageClass.Framework);
         Log.InitialStackMessages = Log.InitialStackMessages.Union("ComponentName", GetType().Name);
 
-        m_prevCalculatedConsumers = new HashSet<IAdapter>();
-        m_prevCalculatedProducers = new HashSet<IAdapter>();
+        m_prevCalculatedConsumers = [];
+        m_prevCalculatedProducers = [];
         m_routeMappingTables = mappingTable ?? new RouteMappingDoubleBufferQueue();
         m_routeMappingTables.Initialize(status => OnStatusMessage(MessageLevel.Info, status, "Initialization"), ex => OnProcessException(MessageLevel.Warning, ex, "Initialization"));
 

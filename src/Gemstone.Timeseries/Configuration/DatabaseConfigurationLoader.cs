@@ -211,7 +211,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
                 if (trackedChanges.Select().Select(row => Convert.ToUInt64(row["ID"])).DefaultIfEmpty(currentVersion + 1LU).Min() != currentVersion + 1LU)
                 {
                     currentVersion = ulong.MinValue;
-                    trackedTables = Array.Empty<string>();
+                    trackedTables = [];
                 }
                 else
                 {
@@ -226,7 +226,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
                 // version, there may have been an unexpected manual database change or migration. Therefore,
                 // we pretend there are no tracked tables so that all tables will be reloaded from scratch
                 currentVersion = ulong.MinValue;
-                trackedTables = Array.Empty<string>();
+                trackedTables = [];
             }
 
             foreach (DataRow entityRow in entities.Rows)
@@ -263,7 +263,7 @@ public class DatabaseConfigurationLoader : ConfigurationLoaderBase, IDisposable
                             // Get the relevant records from the entity table as well as the updated values from the database
                             Dictionary<string, int> unchangedRecordIndexes = entityTable.Rows.Cast<DataRow>().Select((row, index) => Tuple.Create(row[primaryKeyColumn].ToString(), index)).Where(tuple => primaryKeys.Contains(tuple.Item1)).ToDictionary(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.CurrentCultureIgnoreCase);
                             Dictionary<string, DataRow> changedRecords = GetChangedRecords(sourceName, primaryKeyColumn, currentVersion)!.Rows.Cast<DataRow>().ToDictionary(row => row[primaryKeyColumn].ToString(), row => row, StringComparer.CurrentCultureIgnoreCase);
-                            List<int> rowsToRemove = new();
+                            List<int> rowsToRemove = [];
 
                             // Go through the list of distinct primary key values and query
                             // the database for the latest changes to each of the modified records

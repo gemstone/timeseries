@@ -138,7 +138,7 @@ public abstract class AdapterBase : IAdapter
         GenHashCode();
 
         // Set incoming measurements to none by default
-        m_inputMeasurementKeys = Array.Empty<MeasurementKey>();
+        m_inputMeasurementKeys = [];
 
         m_initializationTimeout = DefaultInitializationTimeout;
     }
@@ -590,7 +590,7 @@ public abstract class AdapterBase : IAdapter
 
         InputMeasurementKeys = settings.TryGetValue(nameof(InputMeasurementKeys), out string? setting) ?
             ParseInputMeasurementKeys(DataSource, true, setting) :
-            Array.Empty<MeasurementKey>();
+            [];
 
         if (settings.TryGetValue(nameof(OutputMeasurements), out setting))
             OutputMeasurements = ParseOutputMeasurements(DataSource, true, setting);
@@ -1121,7 +1121,7 @@ public abstract class AdapterBase : IAdapter
             if (sourceIDKeys is null)
                 return;
 
-            List<IMeasurement> measurements = new();
+            List<IMeasurement> measurements = [];
 
             foreach (MeasurementKey key in sourceIDKeys)
             {
@@ -1175,7 +1175,7 @@ public abstract class AdapterBase : IAdapter
     /// </remarks>
     public static MeasurementKey[] ParseInputMeasurementKeys(DataSet? dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements")
     {
-        List<MeasurementKey> keys = new();
+        List<MeasurementKey> keys = [];
         MeasurementKey key;
         bool dataSourceAvailable = dataSource is not null;
 
@@ -1309,7 +1309,7 @@ public abstract class AdapterBase : IAdapter
     /// </remarks>
     public static IMeasurement[] ParseOutputMeasurements(DataSet? dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements")
     {
-        List<IMeasurement> measurements = new();
+        List<IMeasurement> measurements = [];
         Measurement measurement;
         MeasurementKey key;
         Guid id;
@@ -1416,7 +1416,7 @@ public abstract class AdapterBase : IAdapter
                             filteredRows = dataSource.Tables[measurementTable].Select($"PointTag = '{item.Trim()}'");
 
                             if (filteredRows.Length > 0)
-                                elem = Array.Empty<string>();
+                                elem = [];
                         }
 
                         if (filteredRows.Length > 0)

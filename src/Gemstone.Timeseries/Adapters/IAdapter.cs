@@ -269,7 +269,7 @@ public interface IAdapter : ISupportLifecycle, IProvideStatus
         /// <param name="adapter"><see cref="IAdapter"/> instance input measurements to convert.</param>
         /// <returns><see cref="MeasurementKey"/> values of the <see cref="IAdapter"/> input measurements.</returns>
         public static MeasurementKey[] InputMeasurementKeys(this IAdapter adapter) =>
-            adapter.InputMeasurementKeys ?? Array.Empty<MeasurementKey>();
+            adapter.InputMeasurementKeys ?? [];
 
         /// <summary>
         /// Returns the <see cref="MeasurementKey"/> values of the <see cref="IAdapter"/> output measurements.
@@ -287,7 +287,7 @@ public interface IAdapter : ISupportLifecycle, IProvideStatus
         /// <returns>Distinct list of input measurement keys for all of the provided adapters.</returns>
         public static MeasurementKey[] InputMeasurementKeys<T>(this IEnumerable<T> adapters) where T : IAdapter
         {
-            List<MeasurementKey> inputMeasurementKeys = new();
+            List<MeasurementKey> inputMeasurementKeys = [];
 
             foreach (T adapter in adapters)
             {
@@ -308,7 +308,7 @@ public interface IAdapter : ISupportLifecycle, IProvideStatus
         /// <returns>Distinct list of output measurement keys for all of the provided adapters.</returns>
         public static MeasurementKey[] OutputMeasurementKeys<T>(this IEnumerable<T> adapters) where T : IAdapter
         {
-            List<MeasurementKey> outputMeasurementKeys = new();
+            List<MeasurementKey> outputMeasurementKeys = [];
 
             foreach (T adapter in adapters)
             {

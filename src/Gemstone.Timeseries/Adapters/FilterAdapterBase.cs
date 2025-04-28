@@ -49,7 +49,7 @@ public abstract class FilterAdapterBase : AdapterBase, IFilterAdapter
     /// Creates a new instance of the <see cref="FilterAdapterBase"/> class.
     /// </summary>
     protected FilterAdapterBase() =>
-        m_inputMeasurementKeys = new HashSet<MeasurementKey>();
+        m_inputMeasurementKeys = [];
 
     #endregion
 
@@ -72,7 +72,7 @@ public abstract class FilterAdapterBase : AdapterBase, IFilterAdapter
             base.InputMeasurementKeys = value;
 
             if (!m_inputMeasurementKeys.SetEquals(value))
-                m_inputMeasurementKeys = new HashSet<MeasurementKey>(value);
+                m_inputMeasurementKeys = [..value];
         }
     }
 

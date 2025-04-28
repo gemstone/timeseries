@@ -175,7 +175,7 @@ public static class AdapterCache
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
     private static Dictionary<Type, AdapterCommandInfo>? s_adapterCommands;
     private static Dictionary<(string, string), Type>? s_assemblyTypes;
-    private static readonly object s_loadLock = new();
+    private static readonly Lock s_loadLock = new();
 
     private class StringTupleComparer(StringComparison comparison) : IEqualityComparer<(string, string)>
     {

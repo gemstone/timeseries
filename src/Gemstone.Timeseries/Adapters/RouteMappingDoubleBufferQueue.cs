@@ -85,12 +85,12 @@ public class RouteMappingDoubleBufferQueue : IRouteMappingTables
         private readonly Dictionary<Guid, List<Producer>> m_localSignalLookup;
         private readonly Dictionary<Consumer, Producer> m_localDestinationLookup;
         private readonly RouteMappingDoubleBufferQueue m_routingTables;
-        private readonly object m_localCacheLock;
+        private readonly Lock m_localCacheLock;
         private int m_version;
 
         public LocalCache(RouteMappingDoubleBufferQueue routingTables, IAdapter producerAdapter)
         {
-            m_localCacheLock = new object();
+            m_localCacheLock = new Lock();
             m_localSignalLookup = new Dictionary<Guid, List<Producer>>();
             m_localDestinationLookup = new Dictionary<Consumer, Producer>();
             m_routingTables = routingTables;

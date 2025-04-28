@@ -147,7 +147,7 @@ public class MeasurementKey
     // All edits to <see cref="s_idCache"/> as well as the ConcurrentDictionaries in s_keyCache should occur within a lock on s_syncEdits
     private static readonly ConcurrentDictionary<Guid, MeasurementKey> s_idCache = new();
     private static readonly ConcurrentDictionary<string, ConcurrentDictionary<ulong, MeasurementKey>> s_keyCache = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly object s_syncEdits = new();
+    private static readonly Lock s_syncEdits = new();
     private static int s_nextRuntimeID;
 
     /// <summary>

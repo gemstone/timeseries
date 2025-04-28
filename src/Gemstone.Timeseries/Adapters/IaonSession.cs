@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Configuration;
 using Gemstone.Diagnostics;
@@ -802,7 +803,7 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     #region [ Static ]
 
     // Static Fields
-    private static readonly object s_requestTemporalSupportLock = new();
+    private static readonly Lock s_requestTemporalSupportLock = new();
     private static DataSet? s_currentRealTimeConfiguration;
     private static DataSet? s_currentTemporalConfiguration;
 

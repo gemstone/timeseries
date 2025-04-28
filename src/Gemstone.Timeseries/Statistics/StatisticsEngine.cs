@@ -34,6 +34,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Timers;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Data;
@@ -365,7 +366,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     public static event EventHandler<EventArgs<object>>? SourceUnregistered;
 
     // Fields
-    private readonly object m_statisticsLock;
+    private readonly Lock m_statisticsLock;
     private readonly List<Statistic> m_statistics;
 
     private readonly Timer m_reloadStatisticsTimer;
@@ -394,7 +395,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// </summary>
     public StatisticsEngine()
     {
-        m_statisticsLock = new object();
+        m_statisticsLock = new Lock();
         m_statistics = [];
         m_reloadStatisticsTimer = new Timer();
         m_statisticCalculationTimer = new Timer();

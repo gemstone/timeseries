@@ -75,8 +75,8 @@ public class Measurement
     [StringLength(200)]
     public string SignalReference { get; set; } = "";
 
-    [DefaultValue(30)]
-    public int? FramesPerSecond { get; set; }
+    [DefaultValue(30.0D)]
+    public double? FramesPerSecond { get; set; }
 
     [DefaultValue(0.0D)]
     public double Adder { get; set; }

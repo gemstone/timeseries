@@ -40,7 +40,7 @@ public class EventDetails
     /// <summary>
     /// Gets or sets Guid-based event ID.
     /// </summary>
-    public Guid EventID { get; set; }
+    public Guid EventGuid { get; set; }
 
     /// <summary>
     /// Gets or sets the start time of the event.

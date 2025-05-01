@@ -66,6 +66,7 @@ public static class TimeseriesStartupOperations
         ValidateDataPublishers(database, arguments);
         ValidateStatistics(database);
         ValidateAlarming(database);
+        ValidateDeviceState(database);
     }
 
     /// <summary>
@@ -828,6 +829,44 @@ public static class TimeseriesStartupOperations
 
         ValidateAlarmStatistics(connection, "Point");
     }
+
+    /// <summary>
+    /// Data operation to validate and ensure that certain records
+    /// that are required for device state monitoring exist in the database.
+    /// </summary>
+    private static void ValidateDeviceState(AdoDataConnection connection)
+    {
+        // SELECT queries
+        const string MonitoringAdapterCountFormat = "SELECT COUNT(*) FROM CustomActionAdapter WHERE AdapterName = 'DEVICEMONITOR!SERVICES'";
+        const string StateConfigEntityCountFormat = "SELECT COUNT(*) FROM ConfigurationEntity WHERE RuntimeName = 'DeviceState'";
+        const string DeviceConfigEntityCountFormat = "SELECT COUNT(*) FROM ConfigurationEntity WHERE RuntimeName = 'Device'";
+
+        // INSERT queries
+        const string MonitoringAdapterInsertFormat = "INSERT INTO CustomActionAdapter(AdapterName, AssemblyName, TypeName, ConnectionString, LoadOrder, Enabled) VALUES('DEVICEMONITOR!SERVICES', 'GrafanaAdapters.dll', 'GrafanaAdapters.DeviceStateAdapter', 'TargetParentDevices=false', 4, 1)";
+        const string StateConfigEntityInsertFormat = "INSERT INTO ConfigurationEntity(SourceName, RuntimeName, Description, LoadOrder, Enabled) VALUES('DeviceState', 'DeviceState', 'Defines states for devices being monitored', 18, 1)";
+        const string DeviceConfigEntityInsertFormat = "INSERT INTO ConfigurationEntity(SourceName, RuntimeName, Description, LoadOrder, Enabled) VALUES('Device', 'Device', 'Defines devices being monitored', 19, 1)";
+
+
+
+        // Ensure that the device monitoring adapter is defined.
+        int monitorAdapterCount = connection.ExecuteScalar<int>(MonitoringAdapterCountFormat);
+
+        if (monitorAdapterCount == 0)
+            connection.ExecuteNonQuery(MonitoringAdapterInsertFormat);
+
+        // Ensure that the device state record is defined in the ConfigurationEntity table.
+        int stateConfigEntityCount = connection.ExecuteScalar<int>(StateConfigEntityCountFormat);
+
+        if (stateConfigEntityCount == 0)
+            connection.ExecuteNonQuery(StateConfigEntityInsertFormat);
+
+        int deviceConfigEntityCount = connection.ExecuteScalar<int>(DeviceConfigEntityCountFormat);
+
+        if (deviceConfigEntityCount == 0)
+            connection.ExecuteNonQuery(DeviceConfigEntityInsertFormat);
+    }
+
+
 
     private static void ValidateAlarmStatistics(AdoDataConnection connection, string source)
     {

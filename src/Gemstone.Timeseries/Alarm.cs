@@ -172,7 +172,19 @@ public enum AlarmOperation
     /// Latched value
     /// </summary>
     [Description("Latched")]
-    Flatline = 3
+    Flatline = 3,
+
+    /// <summary>
+    /// Bitwhise AND
+    /// </summary>
+    [Description("Bitwhise And")]
+    And = 31,
+
+    /// <summary>
+    /// Bitwhise OR
+    /// </summary>
+    [Description("Bitwhise Or")]
+    Or = 32
 }
 
 /// <summary>
@@ -184,12 +196,12 @@ public enum AlarmCombination
     /// <summary>
     /// Require ALL singnals to meet Alarm Criteria
     /// </summary>
-    [Description("AND")]
+    [Description("All")]
     AND = 1,
     /// <summary>
     /// Require ANY signal to meet Alarm Criteria
     /// </summary>
-    [Description("OR")]
+    [Description("Any")]
     OR = 2
 }
 #endregion
@@ -550,6 +562,8 @@ public class Alarm : ICloneable
             AlarmOperation.GreaterThan => RaiseIfGreaterThan,
             AlarmOperation.LessThan => RaiseIfLessThan,
             AlarmOperation.Flatline => RaiseIfFlatline,
+            AlarmOperation.And => RaiseIfAnd,
+            AlarmOperation.Or => RaiseIfOr,
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -564,6 +578,8 @@ public class Alarm : ICloneable
             AlarmOperation.GreaterThan => ClearIfNotGreaterThan,
             AlarmOperation.LessThan => ClearIfNotLessThan,
             AlarmOperation.Flatline => ClearIfNotFlatline,
+            AlarmOperation.And => ClearIfNotAnd,
+            AlarmOperation.Or => ClearIfNotOr,
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -596,6 +612,27 @@ public class Alarm : ICloneable
         return CheckDelay(frame, isEqual);
     }
 
+    // Indicates whether the given measurement is a
+    // Binary AND to the set point.
+    private bool RaiseIfAnd(IFrame frame)
+    {
+        bool isEqual = m_combineRaised.Invoke(frame,
+            (measurement) => ((ulong)measurement.Value &  (ulong)m_setPoint) == 0 );
+
+        return CheckDelay(frame, isEqual);
+    }
+
+    // Indicates whether the given measurement is a
+    // Binary OR to the set point.
+    private bool RaiseIfOr(IFrame frame)
+    {
+        bool isEqual = m_combineRaised.Invoke(frame,
+            (measurement) => ((ulong)measurement.Value | (ulong)m_setPoint) == 0);
+
+        return CheckDelay(frame, isEqual);
+    }
+
+
     // Indicates whether the given measurement is outside
     // the range defined by the set point and tolerance.
     private bool RaiseIfNotEqual(IFrame frame)
@@ -626,6 +663,11 @@ public class Alarm : ICloneable
     // is less than the set point.
     private bool RaiseIfLessThan(IFrame frame) =>
         CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value < m_setPoint));
+
+    // Indicates whether the given measurement is not greater
+    // than or equal to the set point, offset by the hysteresis.
+    private bool ClearIfNotGreaterOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
+        measurement.Value < m_setPoint - m_hysteresis);
 
     // Indicates whether the given measurement has maintained the same
     // value for at least a number of seconds defined by the delay.
@@ -675,10 +717,15 @@ public class Alarm : ICloneable
         measurement.Value <= m_setPoint + m_tolerance &&
         measurement.Value >= m_setPoint - m_tolerance);
 
-    // Indicates whether the given measurement is not greater
-    // than or equal to the set point, offset by the hysteresis.
-    private bool ClearIfNotGreaterOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
-        measurement.Value < m_setPoint - m_hysteresis);
+    // Indicates whether the given measurement is not bitwhise AND
+    // with the set point.
+    private bool ClearIfNotAnd(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
+        ((ulong)measurement.Value & (ulong)m_setPoint) > 0);
+
+    // Indicates whether the given measurement is not bitwhise OR
+    // with the set point.
+    private bool ClearIfNotOr(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
+        ((ulong)measurement.Value | (ulong)m_setPoint) > 0);
 
     // Indicates whether the given measurement is not less
     // than or equal to the set point, offset by the hysteresis.

@@ -175,15 +175,15 @@ public enum AlarmOperation
     Flatline = 3,
 
     /// <summary>
-    /// Bitwhise AND
+    /// Bitwise AND
     /// </summary>
-    [Description("Bitwhise And")]
+    [Description("Bitwise And")]
     And = 31,
 
     /// <summary>
-    /// Bitwhise OR
+    /// Bitwise OR
     /// </summary>
-    [Description("Bitwhise Or")]
+    [Description("Bitwise Or")]
     Or = 32
 }
 

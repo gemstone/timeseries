@@ -43,6 +43,7 @@ using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
 using Gemstone.IO.Parsing;
+using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries.Adapters;
@@ -541,7 +542,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// <summary>
     /// Starts the <see cref="StatisticsEngine"/> or restarts it if it is already running.
     /// </summary>
-    [AdapterCommand("Starts the statistics engine or restarts it if it is already running.", "Administrator", "Editor")]
+    [AdapterCommand("Starts the statistics engine or restarts it if it is already running.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public override void Start()
     {
         base.Start();
@@ -556,7 +557,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// <summary>
     /// Stops the <see cref="StatisticsEngine"/>.
     /// </summary>		
-    [AdapterCommand("Stops the statistics engine.", "Administrator", "Editor")]
+    [AdapterCommand("Stops the statistics engine.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public override void Stop()
     {
         base.Stop();
@@ -566,7 +567,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// <summary>
     /// Loads or reloads system statistics.
     /// </summary>
-    [AdapterCommand("Reloads system statistics.", "Administrator", "Editor")]
+    [AdapterCommand("Reloads system statistics.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public void ReloadStatistics()
     {
         // See if statistics should be processed

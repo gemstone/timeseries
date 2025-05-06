@@ -26,6 +26,7 @@
 //******************************************************************************************************
 
 using System;
+using Gemstone.Security.AccessControl;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -42,7 +43,7 @@ public sealed class AdapterCommandAttribute : Attribute
     #region [ Members ]
 
     // Fields
-    private readonly string[]? m_allowedRoles;
+    private readonly ResourceAccessLevel[]? m_allowResources;
 
     #endregion
 
@@ -61,10 +62,31 @@ public sealed class AdapterCommandAttribute : Attribute
     /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
     /// </summary>
     /// <param name="description">Assigns the description for this adapter command.</param>
-    /// <param name="allowedRoles">Assigns the roles which are allowed to invoke this adapter command.</param>
-    public AdapterCommandAttribute(string description, params string[] allowedRoles) : this(description)
+    /// <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
+    public AdapterCommandAttribute(string description, params ResourceAccessLevel[] allowedResources) : this(description)
     {
-        m_allowedRoles = allowedRoles;
+        m_allowResources = allowedResources;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
+    /// </summary>
+    /// <param name="description">Assigns the description for this adapter command.</param>
+    /// <param name="includeUI">Assigns the UIAccesible flag.</param>
+    public AdapterCommandAttribute(string description, bool includeUI) : this(description)
+    {
+        UIAcessible = includeUI;   
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
+    /// </summary>
+    /// <param name="description">Assigns the description for this adapter command.</param>
+    /// <param name="includeUI">Assigns the UIAccesible flag.</param>
+    /// <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
+    public AdapterCommandAttribute(string description, bool includeUI, params ResourceAccessLevel[] allowedResources) : this(description, allowedResources)
+    {
+        UIAcessible = includeUI;
     }
 
     #endregion
@@ -77,9 +99,13 @@ public sealed class AdapterCommandAttribute : Attribute
     public string Description { get; }
 
     /// <summary>
-    /// Gets the roles which are allowed to invoke this adapter command.
+    /// Gets the resources which are allowed to invoke this adapter command.
     /// </summary>
-    public string[] AllowedRoles => m_allowedRoles ?? ["Administrator"];
+    public ResourceAccessLevel[] AllowedResources => m_allowResources ?? [ResourceAccessLevel.Admin];
 
+    /// <summary>
+    /// Gets the flag that indicates if this should be included in the UI.
+    /// </summary>
+    public bool UIAcessible { get; } = true;
     #endregion
 }

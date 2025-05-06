@@ -34,6 +34,7 @@ using System.Text;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
+using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
 using Gemstone.Threading.Collections;
@@ -401,7 +402,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// <summary>
     /// Initiates request for metadata refresh for <see cref="OutputAdapterBase"/>, if implemented.
     /// </summary>
-    [AdapterCommand("Requests metadata refresh of output adapter.", "Administrator", "Editor")]
+    [AdapterCommand("Requests metadata refresh of output adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public void RefreshMetadata()
     {
         // Force a recalculation of input measurement keys so that system can appropriately update routing tables

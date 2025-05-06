@@ -40,6 +40,7 @@ using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
+using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
 using Gemstone.Threading.LogicalThreads;
@@ -967,7 +968,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Starts, or restarts, each <see cref="IAdapter"/> implementation in this <see cref="AdapterCollectionBase{T}"/>.
     /// </summary>
-    [AdapterCommand("Starts, or restarts, each adapter in the collection.", "Administrator", "Editor")]
+    [AdapterCommand("Starts, or restarts, each adapter in the collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public virtual void Start()
     {
         // Make sure we are stopped (e.g., disconnected) before attempting to start (e.g., connect)
@@ -1005,7 +1006,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Stops each <see cref="IAdapter"/> implementation in this <see cref="AdapterCollectionBase{T}"/>.
     /// </summary>
-    [AdapterCommand("Stops each adapter in the collection.", "Administrator", "Editor")]
+    [AdapterCommand("Stops each adapter in the collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public virtual void Stop()
     {
         if (!m_enabled)
@@ -1038,7 +1039,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Resets the statistics of this collection.
     /// </summary>
-    [AdapterCommand("Resets the statistics of this collection.", "Administrator", "Editor")]
+    [AdapterCommand("Resets the statistics of this collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public void ResetStatistics()
     {
         m_processedMeasurements = 0;
@@ -1105,7 +1106,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// </list>
     /// </para>
     /// </remarks>
-    [AdapterCommand("Defines a temporal processing constraint for each adapter in the collection.", "Administrator", "Editor", "Viewer")]
+    [AdapterCommand("Defines a temporal processing constraint for each adapter in the collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
     public virtual void SetTemporalConstraint(string? startTime, string? stopTime, string? constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?

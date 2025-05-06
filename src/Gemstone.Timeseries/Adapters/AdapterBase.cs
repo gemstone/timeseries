@@ -39,6 +39,7 @@ using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
+using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 using Gemstone.Units;
 
@@ -620,7 +621,7 @@ public abstract class AdapterBase : IAdapter
     /// <summary>
     /// Starts the <see cref="AdapterBase"/> or restarts it if it is already running.
     /// </summary>
-    [AdapterCommand("Starts the adapter or restarts it if it is already running.", "Administrator", "Editor")]
+    [AdapterCommand("Starts the adapter or restarts it if it is already running.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public virtual void Start()
     {
         if (IsDisposed)
@@ -638,7 +639,7 @@ public abstract class AdapterBase : IAdapter
     /// <summary>
     /// Stops the <see cref="AdapterBase"/>.
     /// </summary>
-    [AdapterCommand("Stops the adapter.", "Administrator", "Editor")]
+    [AdapterCommand("Stops the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public virtual void Stop()
     {
         if (IsDisposed)
@@ -652,7 +653,7 @@ public abstract class AdapterBase : IAdapter
     /// Manually sets the initialized state of the <see cref="AdapterBase"/>.
     /// </summary>
     /// <param name="initialized">Desired initialized state.</param>
-    [AdapterCommand("Manually sets the initialized state of the adapter.", "Administrator", "Editor")]
+    [AdapterCommand("Manually sets the initialized state of the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public virtual void SetInitializedState(bool initialized) =>
         Initialized = initialized;
 
@@ -712,7 +713,7 @@ public abstract class AdapterBase : IAdapter
     /// </list>
     /// </para>
     /// </remarks>
-    [AdapterCommand("Defines a temporal processing constraint for the adapter.", "Administrator", "Editor", "Viewer")]
+    [AdapterCommand("Defines a temporal processing constraint for the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
     public virtual void SetTemporalConstraint(string startTime, string stopTime, string constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?

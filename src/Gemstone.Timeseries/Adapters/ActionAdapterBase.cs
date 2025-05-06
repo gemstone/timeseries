@@ -37,6 +37,7 @@ using System.Text;
 using System.Threading;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
+using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 
 namespace Gemstone.Timeseries.Adapters;
@@ -753,7 +754,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <summary>
     /// Starts the <see cref="ActionAdapterBase"/> or restarts it if it is already running.
     /// </summary>
-    [AdapterCommand("Starts the action adapter or restarts it if it is already running.", "Administrator", "Editor")]
+    [AdapterCommand("Starts the action adapter or restarts it if it is already running.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public override void Start()
     {
         // Make sure we are stopped (e.g., disconnected) before attempting to start (e.g., connect)
@@ -766,21 +767,21 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <summary>
     /// Stops the <see cref="ActionAdapterBase"/>.
     /// </summary>
-    [AdapterCommand("Stops the action adapter.", "Administrator", "Editor")]
+    [AdapterCommand("Stops the action adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public override void Stop() =>
         base.Stop();
 
     /// <summary>
     /// Examines the concentrator frame queue state of the <see cref="ActionAdapterBase"/>.
     /// </summary>
-    [AdapterCommand("Examines concentration frame queue state.", "Administrator", "Editor", "Viewer")]
+    [AdapterCommand("Examines concentration frame queue state.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
     public void ExamineQueueState() =>
         OnStatusMessage(MessageLevel.Info, QueueState);
 
     /// <summary>
     /// Resets the statistics of the <see cref="ActionAdapterBase"/>.
     /// </summary>
-    [AdapterCommand("Resets the statistics of the action adapter.", "Administrator", "Editor")]
+    [AdapterCommand("Resets the statistics of the action adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public override void ResetStatistics()
     {
         base.ResetStatistics();
@@ -793,7 +794,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// Manually sets the initialized state of the <see cref="ActionAdapterBase"/>.
     /// </summary>
     /// <param name="initialized">Desired initialized state.</param>
-    [AdapterCommand("Manually sets the initialized state of the action adapter.", "Administrator", "Editor")]
+    [AdapterCommand("Manually sets the initialized state of the action adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     public virtual void SetInitializedState(bool initialized) =>
         Initialized = initialized;
 
@@ -879,7 +880,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </list>
     /// </para>
     /// </remarks>
-    [AdapterCommand("Defines a temporal processing constraint for the adapter.", "Administrator", "Editor", "Viewer")]
+    [AdapterCommand("Defines a temporal processing constraint for the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
     public virtual void SetTemporalConstraint(string? startTime, string? stopTime, string? constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?

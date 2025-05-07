@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Data.Model;
 
@@ -459,13 +460,14 @@ public class Alarm : ICloneable
     /// <summary>
     /// Gets or sets flag to indicate that a measurement should be created for this alarm.
     /// </summary>
-    [NonRecordFieldAttribute]
+    [NonRecordField]
     public bool CreateAssociatedMeasurement { get; set; }
 
     /// <summary>
     /// Gets or sets the current state of the alarm (raised or cleared).
     /// </summary>
     [NonRecordField]
+    [JsonIgnore]
     public AlarmState State
     {
         get => m_state;
@@ -484,10 +486,21 @@ public class Alarm : ICloneable
     }
 
     /// <summary>
+    /// Gets the timestamp of the most recent
+    /// measurement that caused the alarm to be raised,
+    /// expressed in milliseconds.
+    /// </summary>
+    public double Timestamp
+    {
+        get => TimeSpan.FromTicks(m_timeRaised).TotalMilliseconds;
+    }
+
+    /// <summary>
     /// Gets the most recent frame
     /// that caused the alarm to be raised.
     /// </summary>
     [NonRecordField]
+    [JsonIgnore]
     public IFrame? Cause
     {
         get => m_cause;

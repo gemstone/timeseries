@@ -667,7 +667,7 @@ public class Alarm : ICloneable
     // Indicates whether the given measurement is not greater
     // than or equal to the set point, offset by the hysteresis.
     private bool ClearIfNotGreaterOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
-        measurement.Value < m_setPoint - m_hysteresis);
+        measurement.Value < m_setPoint - (m_hysteresis ?? 0));
 
     // Indicates whether the given measurement has maintained the same
     // value for at least a number of seconds defined by the delay.
@@ -730,17 +730,17 @@ public class Alarm : ICloneable
     // Indicates whether the given measurement is not less
     // than or equal to the set point, offset by the hysteresis.
     private bool ClearIfNotLessOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
-        measurement.Value > m_setPoint + m_hysteresis);
+        measurement.Value > m_setPoint + (m_hysteresis ?? 0));
 
     // Indicates whether the given measurement is not greater
     // than the set point, offset by the hysteresis.
     private bool ClearIfNotGreaterThan(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
-        measurement.Value <= m_setPoint - m_hysteresis);
+        measurement.Value <= m_setPoint - (m_hysteresis ?? 0));
 
     // Indicates whether the given measurement is not less
     // than the set point, offset by the hysteresis.
     private bool ClearIfNotLessThan(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
-        measurement.Value >= m_setPoint + m_hysteresis);
+        measurement.Value >= m_setPoint + (m_hysteresis ?? 0));
 
     // Indicates whether the given measurement's value has changed.
     private bool ClearIfNotFlatline(IFrame frame)

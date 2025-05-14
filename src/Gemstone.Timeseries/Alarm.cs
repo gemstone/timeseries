@@ -236,7 +236,7 @@ public class Alarm : ICloneable
     private AlarmState m_state;
 
     [NonSerialized]
-    private Ticks m_timeRaised;
+    private Ticks? m_timeRaised;
 
     [NonSerialized]
     private Ticks m_lastNegative;
@@ -479,20 +479,10 @@ public class Alarm : ICloneable
     /// measurement that caused the alarm to be raised.
     /// </summary>
     [NonRecordField]
-    public Ticks TimeRaised
+    public Ticks? TimeRaised
     {
         get => m_timeRaised;
         set => m_timeRaised = value;
-    }
-
-    /// <summary>
-    /// Gets the timestamp of the most recent
-    /// measurement that caused the alarm to be raised,
-    /// expressed in milliseconds.
-    /// </summary>
-    public double Timestamp
-    {
-        get => TimeSpan.FromTicks(m_timeRaised).TotalMilliseconds;
     }
 
     /// <summary>

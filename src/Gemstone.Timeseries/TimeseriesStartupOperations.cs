@@ -870,7 +870,8 @@ public static class TimeseriesStartupOperations
 
     private static void ValidateAlarmStatistics(AdoDataConnection connection, string source)
     {
-        const string MissingStatisticsFormat = "SELECT DISTINCT Severity FROM Alarm WHERE Severity <> 0 AND Severity NOT IN (SELECT Arguments FROM Statistic WHERE Source = {0} AND MethodName = {1})";
+       /*
+        * const string MissingStatisticsFormat = "SELECT DISTINCT Severity FROM Alarm WHERE Severity <> 0 AND Severity NOT IN (SELECT Arguments FROM Statistic WHERE Source = {0} AND MethodName = {1})";
         const string MaxSignalIndexFormat = "SELECT COALESCE(MAX(SignalIndex), 0) FROM Statistic WHERE Source = {0}";
         const string InsertAlarmStatisticFormat = "INSERT INTO Statistic(Source, SignalIndex, Name, Description, AssemblyName, TypeName, MethodName, Arguments, Enabled, DataType, DisplayFormat, IsConnectedState, LoadOrder) VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12})";
 
@@ -891,6 +892,6 @@ public static class TimeseriesStartupOperations
             string description = $"Number of measurements received while alarm with severity {severity} was raised during the last reporting interval.";
 
             connection.ExecuteNonQuery(InsertAlarmStatisticFormat, source, signalIndex, name, description, "DataQualityMonitoring.dll", "DataQualityMonitoring.AlarmStatistics", methodName, severity, 1, "System.Int32", "{0:N0}", 0, 1001 - severity);
-        }
+        } */
     }
 }

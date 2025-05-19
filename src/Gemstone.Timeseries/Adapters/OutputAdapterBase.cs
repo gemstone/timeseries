@@ -32,6 +32,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using Gemstone.Collections.CollectionExtensions;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.Security.AccessControl;
@@ -139,6 +140,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     [ConnectionStringParameter]
     [Description("Defines whether or not to automatically place measurements back into the processing queue if an exception occurs while processing.  Defaults to false.")]
     [DefaultValue(false)]
+    [Label("Requeue On Exception")]
     public virtual bool RequeueOnException
     {
         get => InternalProcessQueue.RequeueOnException;

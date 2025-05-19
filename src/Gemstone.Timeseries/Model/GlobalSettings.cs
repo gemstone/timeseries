@@ -29,18 +29,19 @@ using ConfigSettings = Gemstone.Configuration.Settings;
 
 namespace Gemstone.Timeseries.Model;
 
+/// <summary>
+/// Defines global settings for the openHistorian system.
+/// </summary>
 public class GlobalSettings
 {
-    //public Guid NodeID => Settings.Default.System.NodeID;
-
     private static string? s_companyAcronym;
+    private static string? s_systemName;
 
     private static string ReadCompanyAcronymFromConfig()
     {
         try
         {
             dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
-
             string companyAcronym = section["CompanyAcronym", "GPA", "The acronym representing the company who owns the host system."];
 
             if (string.IsNullOrWhiteSpace(companyAcronym))
@@ -55,9 +56,37 @@ public class GlobalSettings
         }
     }
 
+    private static string ReadSystemNameFromConfig()
+    {
+        try
+        {
+            dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
+            string systemName = section["SystemName", "DEFAULT", "Name of openHistorian hosting system. Used to prefix to system level tags, when defined. Value should follow tag naming conventions, e.g., no spaces and all upper case."];
+
+            if (string.IsNullOrWhiteSpace(systemName))
+                systemName = "DEFAULT";
+            
+            return systemName;
+        }
+        catch (Exception ex)
+        {
+            Logger.SwallowException(ex, "Failed to load system name from settings");
+            return "DEFAULT";
+        }
+    }
 
     /// <summary>
     /// Gets the company acronym for the host system.
     /// </summary>
     public string CompanyAcronym => s_companyAcronym ??= ReadCompanyAcronymFromConfig();
+
+    /// <summary>
+    /// Gets the system name for the host system.
+    /// </summary>
+    public string SystemName => s_systemName ??= ReadSystemNameFromConfig();
+
+    /// <summary>
+    /// Defines default instance for global settings.
+    /// </summary>
+    public static readonly GlobalSettings Default = new();
 }

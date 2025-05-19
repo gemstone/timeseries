@@ -47,6 +47,7 @@ using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries.Adapters;
+using Gemstone.Timeseries.Model;
 using ConfigSettings = Gemstone.Configuration.Settings;
 using Timer = System.Timers.Timer;
 
@@ -503,7 +504,7 @@ public class StatisticsEngine : FacileActionAdapterBase
         Dictionary<string, string> settings = Settings;
 
         // Load the statistic reporting interval
-        m_reportingInterval = settings.TryGetValue("reportingInterval", out string setting) ? double.Parse(setting) * 1000.0 : 10000.0;
+        m_reportingInterval = settings.TryGetValue("reportingInterval", out string? setting) ? double.Parse(setting) * 1000.0 : 10000.0;
 
         if (UseLocalClockAsRealTime || !TrackLatestMeasurements)
         {
@@ -515,7 +516,7 @@ public class StatisticsEngine : FacileActionAdapterBase
         }
 
         // Register system as a statistics source
-        Register(m_performanceMonitor, GetSystemName(), nameof(System), "SYSTEM");
+        Register(m_performanceMonitor, GlobalSettings.Default.SystemName, nameof(System), "SYSTEM");
     }
 
     /// <summary>
@@ -990,26 +991,6 @@ public class StatisticsEngine : FacileActionAdapterBase
         }
 
         return null;
-    }
-
-    private string GetSystemName()
-    {
-        try
-        {
-            dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
-
-            string systemName = section["SystemName", "", "Name of this system instance that will be prefixed to system level tags, when defined. Value should follow tag naming conventions, e.g., no spaces and all upper case."];
-
-            if (string.IsNullOrWhiteSpace(systemName))
-                systemName = "";
-
-            return systemName;
-        }
-        catch (Exception ex)
-        {
-            Logger.SwallowException(ex, "Failed to load system name from settings");
-            return "";
-        }
     }
 
     private void RestartReloadStatisticsTimer()

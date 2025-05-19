@@ -27,7 +27,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Gemstone.Collections.CollectionExtensions;
+using Gemstone.Configuration;
+using Gemstone.Data;
 using Gemstone.Diagnostics;
+using Gemstone.Numeric.EE;
 
 namespace Gemstone.Timeseries;
 
@@ -39,8 +42,7 @@ namespace Gemstone.Timeseries;
 /// </remarks>
 public static class IMeasurementExtensions
 {
-    private static readonly ConcurrentDictionary<string, int> s_signalTypeIDs = new();
-    private static readonly ConcurrentDictionary<Guid, int> s_signalTypeIDCache = new();
+    private static readonly ConcurrentDictionary<Guid, int> s_signalTypeIDs = new();
 
     /// <summary>
     /// Returns <c>true</c> if <see cref="MeasurementStateFlags.BadData"/> is not set.
@@ -122,16 +124,6 @@ public static class IMeasurementExtensions
     }
 
     /// <summary>
-    /// Returns the measurement ID if defined, otherwise the run-time signal ID associated with the measurement key.
-    /// </summary>
-    /// <param name="measurement"><see cref="IMeasurement"/> instance to test.</param>
-    /// <returns>Measurement ID if defined, otherwise the run-time signal ID associated with the measurement key.</returns>
-    public static Guid RuntimeSignalID(this IMeasurement measurement)
-    {
-        return measurement.ID;
-    }
-
-    /// <summary>
     /// Returns the <see cref="MeasurementKey"/> values of a <see cref="IMeasurement"/> enumeration.
     /// </summary>
     /// <param name="measurements"><see cref="IMeasurement"/> enumeration to convert.</param>
@@ -142,16 +134,48 @@ public static class IMeasurementExtensions
     }
 
     /// <summary>
-    /// Gets a unique (run-time only) signal type ID for the given <paramref name="measurement"/> useful for sorting.
+    /// Gets the signal type ID for the given <paramref name="measurement"/> as queried from the database.
     /// </summary>
     /// <param name="measurement"><see cref="IMeasurement"/> to obtain signal type for.</param>
     /// <param name="dataSource"><see cref="DataSet"/> that contains measurement metadata.</param>
-    /// <returns>Unique (run-time only) signal type ID for the given <paramref name="measurement"/>.</returns>
-    // This uses string hash code over something like item count + 1 to generate a unique run-time ID of the signal type since chances of a hash code collision
-    // over a small set of signal types is much smaller than the chance of duplicates due to possible race conditions when using item count + 1
-    public static int GetSignalType(this IMeasurement measurement, DataSet dataSource)
+    /// <param name="defaultSignalTypeID">Default signal type ID to use if lookup fails.</param>
+    /// <returns>Signal type ID for the given <paramref name="measurement"/> if found in database; otherwise, <paramref name="defaultSignalTypeID"/>.</returns>
+    public static int GetSignalTypeID(this IMeasurement measurement, DataSet dataSource, int defaultSignalTypeID)
     {
-        return s_signalTypeIDCache.GetOrAdd(measurement.ID, signalID => s_signalTypeIDs.GetOrAdd(LookupSignalType(signalID, dataSource), signalType => signalType.GetHashCode()));
+        Guid signalID = measurement.ID;
+
+        return signalID == Guid.Empty ? 
+            defaultSignalTypeID : 
+            s_signalTypeIDs.GetOrAdd(signalID, _ => LookupSignalTypeID(LookupSignalType(signalID, dataSource), defaultSignalTypeID));
+    }
+
+    /// <summary>
+    /// Gets the signal type ID for the given <paramref name="measurement"/> as queried from the database.
+    /// </summary>
+    /// <param name="measurement"><see cref="IMeasurement"/> to obtain signal type for.</param>
+    /// <param name="dataSource"><see cref="DataSet"/> that contains measurement metadata.</param>
+    /// <param name="defaultSignalType">Default signal type to use if lookup fails -- uses enum value as ID.</param>
+    /// <returns>Signal type ID for the given <paramref name="measurement"/> if found in database; otherwise, <paramref name="defaultSignalType"/>.</returns>
+    public static int GetSignalTypeID(this IMeasurement measurement, DataSet dataSource, SignalType defaultSignalType)
+    {
+        // Enum value for SignalType enumeration match common defaults used in database schema,
+        // this is a convenience method to improve code readability without a required cast
+        return measurement.GetSignalTypeID(dataSource, (int)defaultSignalType);
+    }
+
+    /// <summary>
+    /// Gets the <see cref="SignalType"/> for the given <paramref name="measurement"/> as queried from the database - or -
+    /// <see cref="SignalType.NONE"/> if the signal type is not found in the database, the measurement ID is empty, or the
+    /// signal type ID is not a valid <see cref="SignalType"/> enumeration value.
+    /// </summary>
+    /// <param name="measurement"><see cref="IMeasurement"/> to obtain signal type for.</param>
+    /// <param name="dataSource"><see cref="DataSet"/> that contains measurement metadata.</param>
+    /// <returns><see cref="SignalType"/> for the given <paramref name="measurement"/> if found in database; otherwise, <see cref="SignalType.NONE"/>.</returns>
+    public static SignalType GetSignalType(this IMeasurement measurement, DataSet dataSource)
+    {
+        return Enum.TryParse(measurement.GetSignalTypeID(dataSource, SignalType.NONE).ToString(), true, out SignalType signalType) ?
+            signalType : 
+            SignalType.NONE;
     }
 
     /// <summary>
@@ -217,6 +241,21 @@ public static class IMeasurementExtensions
         {
             Logger.SwallowException(ex, $"Failed to lookup signal type in data source for measurement ID '{signalID}', defaulting to 'NONE'.");
             return "NONE";
+        }
+    }
+
+    // Lookup signal type ID for given signal type
+    private static int LookupSignalTypeID(string signalType, int defaultID)
+    {
+        try
+        {
+            using AdoDataConnection connection = new(Settings.Instance);
+            return connection.ExecuteScalar<int>("SELECT ID FROM SignalType WHERE Acronym = {0}", signalType);
+        }
+        catch (Exception ex)
+        {
+            Logger.SwallowException(ex, $"Failed to lookup signal type ID for \"SignalType.Acronym = '{signalType}'\", defaulting to {defaultID}.");
+            return defaultID;
         }
     }
 }

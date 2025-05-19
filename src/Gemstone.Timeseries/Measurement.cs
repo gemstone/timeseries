@@ -381,13 +381,13 @@ public class Measurement : IMeasurement
         if (measurement is null)
             return nameof(Undefined);
 
-        string? tagName = measurement.TagName;
         string keyText = measurement.Key.ToString();
 
-        if (includeTagName && !string.IsNullOrWhiteSpace(tagName))
-            return $"{tagName} [{keyText}]";
+        if (!includeTagName)
+            return keyText;
 
-        return keyText;
+        string tagName = string.IsNullOrWhiteSpace(measurement.TagName) ? measurement.ID.ToString() : measurement.TagName;
+        return $"{tagName} [{keyText}]";
     }
 
     /// <summary>

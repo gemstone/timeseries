@@ -35,4 +35,19 @@ namespace Gemstone.Timeseries.Adapters;
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class ConnectionStringParameterAttribute : Attribute
 {
+    /// <summary>
+    /// Gets or sets whether this parameter should be shown in the UI.
+    /// Defaults to <c>true</c>.
+    /// </summary>
+    public bool IsVisibleToUI { get; set; }
+
+    public ConnectionStringParameterAttribute()
+    {
+        IsVisibleToUI = true;
+    }
+
+    public ConnectionStringParameterAttribute(bool isVisibleToUI)
+    {
+        IsVisibleToUI = isVisibleToUI;
+    }
 }

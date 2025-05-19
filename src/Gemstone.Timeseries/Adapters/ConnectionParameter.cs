@@ -149,11 +149,16 @@ public class ConnectionParameter
     public string Label { get; set; } = default!;
 
     /// <summary>
+    /// Gets whether this parameter should be visible in the UI.
+    /// </summary>
+    public bool IsVisibleToUI { get; init; } = true;
+
+    /// <summary>
     /// Gets a <see cref="ConnectionParameter"/> instance from a <see cref="PropertyInfo"/>.
     /// </summary>
     public static ConnectionParameter GetConnectionParameter(PropertyInfo info)
     {
-        return new ConnectionParameter() 
+        return new ConnectionParameter()
         {
             Name = info.Name,
             Category = getCategory(info),
@@ -161,7 +166,8 @@ public class ConnectionParameter
             DataType = getDataType(info),
             DefaultValue = getDefaultValue(info)?.ToString() ?? "",
             AvailableValues = getAvailableValues(info),
-            Label = getLabel(info)
+            Label = getLabel(info),
+            IsVisibleToUI = getIsAvailableToUI(info)
         };
 
         static string getCategory(PropertyInfo value)
@@ -211,6 +217,13 @@ public class ConnectionParameter
         static string[] getAvailableValues(PropertyInfo value)
         {
             return value.PropertyType.IsEnum ? Enum.GetNames(value.PropertyType) : [];
+        }
+
+        static bool getIsAvailableToUI(PropertyInfo info)
+        {
+            ConnectionStringParameterAttribute? attribute = info.GetCustomAttribute<ConnectionStringParameterAttribute>();
+            bool isVisible = attribute?.IsVisibleToUI ?? true;
+            return isVisible;
         }
     }
 

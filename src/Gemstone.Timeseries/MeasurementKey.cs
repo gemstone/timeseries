@@ -414,7 +414,7 @@ public class MeasurementKey
     /// <param name="value">A string representing the <see cref="MeasurementKey"/> to convert.</param>
     /// <param name="key">Output <see cref="MeasurementKey"/> in which to stored parsed value.</param>
     /// <returns>A <c>true</c> if <see cref="MeasurementKey"/>representation contained in <paramref name="value"/> could be parsed; otherwise <c>false</c>.</returns>
-    public static bool TryParse(string value, out MeasurementKey key)
+    public static bool TryParse(string? value, out MeasurementKey key)
     {
         // Split the input into source and ID
         if (TrySplit(value, out string source, out ulong id))

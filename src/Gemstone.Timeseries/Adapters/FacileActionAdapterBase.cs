@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
@@ -143,6 +144,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
+    [Label("Input Measurement Keys")]
     public override MeasurementKey[]? InputMeasurementKeys
     {
         get => base.InputMeasurementKeys;
@@ -249,6 +251,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultFramesPerSecond)]
     [Description("Defines the number of frames per second expected by the adapter.")]
+    [Label("Frames Per Second")]
     public virtual int FramesPerSecond { get; set; } = DefaultFramesPerSecond;
 
     /// <summary>
@@ -263,6 +266,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultLagTime)]
     [Description("Defines the allowed past time deviation tolerance, in seconds (can be sub-second).")]
+    [Label("Lag Time")]
     public double LagTime
     {
         get => LatestMeasurements.LagTime;
@@ -281,6 +285,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultLeadTime)]
     [Description("Defines the allowed future time deviation tolerance, in seconds (can be sub-second).")]
+    [Label("Lead Time")]
     public double LeadTime
     {
         get => LatestMeasurements.LeadTime;
@@ -311,6 +316,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultUseLocalClockAsRealTime)]
     [Description("Defines flag that determines whether or not to use the local clock time as real time.")]
+    [Label("Use Local Clock As Real Time")]
     public virtual bool UseLocalClockAsRealTime { get; set; } = DefaultUseLocalClockAsRealTime;
 
     /// <summary>
@@ -322,6 +328,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     [ConnectionStringParameter]
     [DefaultValue(DefaultFallBackOnLocalClock)]
     [Description("Defines flag that determines whether to fall back on local clock time as real time when time is unreasonable. Only applicable when UseLocalClockAsRealTime is false.")]
+    [Label("Fall Back On Local Clock")]
     public virtual bool FallBackOnLocalClock { get; set; } = DefaultFallBackOnLocalClock;
 
     /// <summary>

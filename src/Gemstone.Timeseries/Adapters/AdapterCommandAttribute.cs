@@ -84,6 +84,10 @@ public sealed class AdapterCommandAttribute : Attribute
                 allowedResources.Add(resource);
             else if (resourceName.Equals("Administrator", StringComparison.OrdinalIgnoreCase))
                 allowedResources.Add(ResourceAccessLevel.Admin);
+            else if (resourceName.Equals("Editor", StringComparison.OrdinalIgnoreCase))
+                allowedResources.Add(ResourceAccessLevel.Edit);
+            else if (resourceName.Equals("Viewer", StringComparison.OrdinalIgnoreCase))
+                allowedResources.Add(ResourceAccessLevel.View);
             else
                 throw new ArgumentException($"Invalid resource name '{resourceName}' specified for adapter command '{description}'.");
         }

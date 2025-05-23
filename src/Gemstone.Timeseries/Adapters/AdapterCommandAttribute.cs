@@ -26,6 +26,7 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Generic;
 using Gemstone.Security.AccessControl;
 
 namespace Gemstone.Timeseries.Adapters;
@@ -72,7 +73,29 @@ public sealed class AdapterCommandAttribute : Attribute
     /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
     /// </summary>
     /// <param name="description">Assigns the description for this adapter command.</param>
-    /// <param name="includeUI">Assigns the UIAccesible flag.</param>
+    /// <param name="resourceNames">Assigns the resources, by string name, which are allowed to invoke this adapter command.</param>
+    public AdapterCommandAttribute(string description, params string[] resourceNames) : this(description)
+    {
+        List<ResourceAccessLevel> allowedResources = [];
+
+        foreach (string resourceName in resourceNames)
+        {
+            if (Enum.TryParse(resourceName, out ResourceAccessLevel resource))
+                allowedResources.Add(resource);
+            else if (resourceName.Equals("Administrator", StringComparison.OrdinalIgnoreCase))
+                allowedResources.Add(ResourceAccessLevel.Admin);
+            else
+                throw new ArgumentException($"Invalid resource name '{resourceName}' specified for adapter command '{description}'.");
+        }
+
+        m_allowResources = allowedResources.ToArray();
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
+    /// </summary>
+    /// <param name="description">Assigns the description for this adapter command.</param>
+    /// <param name="includeUI">Assigns the UI accessible flag.</param>
     public AdapterCommandAttribute(string description, bool includeUI) : this(description)
     {
         UIAcessible = includeUI;   
@@ -82,7 +105,7 @@ public sealed class AdapterCommandAttribute : Attribute
     /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
     /// </summary>
     /// <param name="description">Assigns the description for this adapter command.</param>
-    /// <param name="includeUI">Assigns the UIAccesible flag.</param>
+    /// <param name="includeUI">Assigns the UI accessible flag.</param>
     /// <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
     public AdapterCommandAttribute(string description, bool includeUI, params ResourceAccessLevel[] allowedResources) : this(description, allowedResources)
     {

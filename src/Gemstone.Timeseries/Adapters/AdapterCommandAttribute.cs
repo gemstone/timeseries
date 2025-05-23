@@ -102,7 +102,7 @@ public sealed class AdapterCommandAttribute : Attribute
     /// <param name="includeUI">Assigns the UI accessible flag.</param>
     public AdapterCommandAttribute(string description, bool includeUI) : this(description)
     {
-        UIAcessible = includeUI;   
+        UIAccessible = includeUI;   
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public sealed class AdapterCommandAttribute : Attribute
     /// <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
     public AdapterCommandAttribute(string description, bool includeUI, params ResourceAccessLevel[] allowedResources) : this(description, allowedResources)
     {
-        UIAcessible = includeUI;
+        UIAccessible = includeUI;
     }
 
     #endregion
@@ -133,6 +133,6 @@ public sealed class AdapterCommandAttribute : Attribute
     /// <summary>
     /// Gets the flag that indicates if this should be included in the UI.
     /// </summary>
-    public bool UIAcessible { get; } = true;
+    public bool UIAccessible { get; } = true;
     #endregion
 }

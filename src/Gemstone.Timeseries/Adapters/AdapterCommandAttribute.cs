@@ -80,7 +80,7 @@ public sealed class AdapterCommandAttribute : Attribute
 
         foreach (string resourceName in resourceNames)
         {
-            if (Enum.TryParse(resourceName, out ResourceAccessLevel resource))
+            if (Enum.TryParse(resourceName, true, out ResourceAccessLevel resource))
                 allowedResources.Add(resource);
             else if (resourceName.Equals("Administrator", StringComparison.OrdinalIgnoreCase))
                 allowedResources.Add(ResourceAccessLevel.Admin);

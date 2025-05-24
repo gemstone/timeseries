@@ -345,6 +345,65 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             LogException(ex);
         }
 
+        // Get configuration settings for thread pool size
+        int targetMinThreadPoolSize = section.MinThreadPoolWorkerThreads;
+        int targetMaxThreadPoolSize = section.MaxThreadPoolWorkerThreads;
+        int targetMinIOPortThreads = section.MinThreadPoolIOPortThreads;
+        int targetMaxIOPortThreads = section.MaxThreadPoolIOPortThreads;
+
+        // If all thread pool sizes are set to -1, then do not change system defaults
+        if (targetMinThreadPoolSize > -1 || targetMaxThreadPoolSize > -1 || targetMinIOPortThreads > -1 || targetMaxIOPortThreads > -1)
+        {
+            ThreadPool.GetMinThreads(out int currentMinThreadPoolSize, out int currentMinIOPortThreads);
+            ThreadPool.GetMaxThreads(out int currentMaxThreadPoolSize, out int currentMaxIOPortThreads);
+
+            // Use current thread pool sizes for target sizes that are set to -1
+            if (targetMinThreadPoolSize < 0)
+                targetMinThreadPoolSize = currentMinThreadPoolSize;
+
+            if (targetMinIOPortThreads < 0)
+                targetMinIOPortThreads = currentMinIOPortThreads;
+
+            if (targetMaxThreadPoolSize < 0)
+                targetMaxThreadPoolSize = currentMaxThreadPoolSize;
+
+            if (targetMaxIOPortThreads < 0)
+                targetMaxIOPortThreads = currentMaxIOPortThreads;
+
+            // Min threads needs to be between 0 and maximum threads
+            // Max threads needs to be at least as large as both min threads and Environment.ProcessorCount
+            if (targetMaxThreadPoolSize < Environment.ProcessorCount)
+                targetMaxThreadPoolSize = Environment.ProcessorCount;
+
+            if (targetMaxIOPortThreads < Environment.ProcessorCount)
+                targetMaxIOPortThreads = Environment.ProcessorCount;
+
+            if (targetMinThreadPoolSize > targetMaxThreadPoolSize)
+                targetMinThreadPoolSize = targetMaxThreadPoolSize;
+
+            if (targetMinIOPortThreads > targetMaxIOPortThreads)
+                targetMinIOPortThreads = targetMaxIOPortThreads;
+
+            // Update max before min to avoid constraint violations
+            bool success = ThreadPool.SetMaxThreads(targetMaxThreadPoolSize, targetMaxIOPortThreads);
+
+            if (!success)
+            {
+                string message = $"Failed to set maximum thread pool size to {targetMaxThreadPoolSize} worker threads and {targetMaxIOPortThreads} I/O port threads.";
+                DisplayStatusMessage(message, UpdateType.Alarm);
+                LogException(new InvalidOperationException(message));
+            }
+
+            success = ThreadPool.SetMinThreads(targetMinThreadPoolSize, targetMinIOPortThreads);
+
+            if (!success)
+            {
+                string message = $"Failed to set minimum thread pool size to {targetMinThreadPoolSize} worker threads and {targetMinIOPortThreads} I/O port threads.";
+                DisplayStatusMessage(message, UpdateType.Alarm);
+                LogException(new InvalidOperationException(message));
+            }
+        }
+
         // Set up the configuration loader
         m_configurationLoader = ConfigurationType switch
         {

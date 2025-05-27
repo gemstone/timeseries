@@ -260,10 +260,10 @@ public class Alarm : ICloneable
     private Func<IFrame, bool>? m_clearTest;
 
     [NonSerialized]
-    private Func<IFrame, HashSet<MeasurementKey>, Func<IMeasurement, bool>, bool>? m_combineCleared;
+    private Func<IFrame, Func<IMeasurement, bool>, bool>? m_combineCleared;
 
     [NonSerialized]
-    private Func<IFrame, HashSet<MeasurementKey>, Func<IMeasurement, bool>, bool>? m_combineRaised;
+    private Func<IFrame, Func<IMeasurement, bool>, bool>? m_combineRaised;
 
     #endregion
 
@@ -604,17 +604,17 @@ public class Alarm : ICloneable
 
     // Returns the function used to combine measurements when clearing.
     // Not that this is different than for raising. e.g. If AND is used ANY clearing would result in a CLEAR.
-    private Func<IFrame, HashSet<MeasurementKey>, Func<IMeasurement, bool>, bool> GetClearCombination() =>
+    private Func<IFrame, Func<IMeasurement, bool>, bool> GetClearCombination() =>
         m_combination switch
         {
-            AlarmCombination.AND => (IFrame frame, HashSet<MeasurementKey> keys, Func<IMeasurement, bool> func) => frame.Measurements.Any((kvp) => func.Invoke(kvp.Value)),
-            AlarmCombination.OR => (IFrame frame, HashSet<MeasurementKey> keys, Func<IMeasurement, bool> func) =>
+            AlarmCombination.AND => (IFrame frame, Func<IMeasurement, bool> func) => frame.Measurements.Any((kvp) => func.Invoke(kvp.Value)),
+            AlarmCombination.OR => (IFrame frame, Func<IMeasurement, bool> func) =>
             {
                 IEnumerable<MeasurementKey> active = frame.Measurements.Where((kvp) => !func.Invoke(kvp.Value)).Select(m => m.Key);
                 if (active.Any())
                 {
                     foreach (MeasurementKey mk in active)
-                        keys.Add(mk);
+                        m_activeTags.Add(mk);
                     return false;
                 }
                 return true;
@@ -624,26 +624,25 @@ public class Alarm : ICloneable
         };
 
     // Returns the function used to combine measurements.
-    private Func<IFrame, HashSet<MeasurementKey>, Func<IMeasurement, bool>, bool> GetRaisedCombination() =>
+    private Func<IFrame, Func<IMeasurement, bool>, bool> GetRaisedCombination() =>
         m_combination switch
         {
-            AlarmCombination.AND => (IFrame frame, HashSet<MeasurementKey> keys, Func<IMeasurement, bool> func) =>
+            AlarmCombination.AND => (IFrame frame, Func<IMeasurement, bool> func) =>
             {
                 if (frame.Measurements.All((kvp) => func.Invoke(kvp.Value)))
                 { 
-                   
-                    keys = frame.Measurements.Keys.ToHashSet();
+                    m_activeTags = frame.Measurements.Keys.ToHashSet();
                     return true;
                 }
                 return false;
             },
-            AlarmCombination.OR => (IFrame frame, HashSet<MeasurementKey> keys, Func<IMeasurement, bool> func) => 
+            AlarmCombination.OR => (IFrame frame, Func<IMeasurement, bool> func) => 
             {
                 IEnumerable<MeasurementKey> active = frame.Measurements.Where((kvp) => func.Invoke(kvp.Value)).Select(m => m.Key);
                 if (active.Any())
                 {
                     foreach (MeasurementKey mk in active)
-                        keys.Add(mk);
+                        m_activeTags.Add(mk);
                     return true;
                 }
                 return false;
@@ -654,7 +653,7 @@ public class Alarm : ICloneable
     // equal to the set point within the tolerance.
     private bool RaiseIfEqual(IFrame frame)
     {
-        bool isEqual = m_combineRaised.Invoke(frame, m_activeTags,
+        bool isEqual = m_combineRaised.Invoke(frame,
             (measurement) => measurement.Value <= m_setPoint + m_tolerance &&
                        measurement.Value >= m_setPoint - m_tolerance);
 
@@ -665,7 +664,7 @@ public class Alarm : ICloneable
     // Binary AND to the set point.
     private bool RaiseIfAnd(IFrame frame)
     {
-        bool isEqual = m_combineRaised.Invoke(frame, m_activeTags,
+        bool isEqual = m_combineRaised.Invoke(frame,
             (measurement) => ((ulong)measurement.Value &  (ulong)m_setPoint) == 0 );
 
         return CheckDelay(frame, isEqual);
@@ -675,7 +674,7 @@ public class Alarm : ICloneable
     // Binary OR to the set point.
     private bool RaiseIfOr(IFrame frame)
     {
-        bool isEqual = m_combineRaised.Invoke(frame, m_activeTags,
+        bool isEqual = m_combineRaised.Invoke(frame,
             (measurement) => ((ulong)measurement.Value | (ulong)m_setPoint) == 0);
 
         return CheckDelay(frame, isEqual);
@@ -686,7 +685,7 @@ public class Alarm : ICloneable
     // the range defined by the set point and tolerance.
     private bool RaiseIfNotEqual(IFrame frame)
     {
-        bool isNotEqual = m_combineRaised.Invoke(frame, m_activeTags,
+        bool isNotEqual = m_combineRaised.Invoke(frame,
             (measurement) => measurement.Value < m_setPoint - m_tolerance ||
                           measurement.Value > m_setPoint + m_tolerance);
 
@@ -696,26 +695,26 @@ public class Alarm : ICloneable
     // Indicates whether the given measurement
     // is greater than or equal to the set point.
     private bool RaiseIfGreaterOrEqual(IFrame frame) =>
-        CheckDelay(frame, m_combineRaised.Invoke(frame, m_activeTags, (measurement) => measurement.Value >= m_setPoint));
+        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value >= m_setPoint));
 
     // Indicates whether the given measurement
     // is less than or equal to the set point.
     private bool RaiseIfLessOrEqual(IFrame frame) =>
-        CheckDelay(frame, m_combineRaised.Invoke(frame, m_activeTags, (measurement) => measurement.Value <= m_setPoint));
+        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value <= m_setPoint));
 
     // Indicates whether the given measurement
     // is greater than the set point.
     private bool RaiseIfGreaterThan(IFrame frame) =>
-        CheckDelay(frame, m_combineRaised.Invoke(frame, m_activeTags, (measurement) => measurement.Value > m_setPoint));
+        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value > m_setPoint));
 
     // Indicates whether the given measurement
     // is less than the set point.
     private bool RaiseIfLessThan(IFrame frame) =>
-        CheckDelay(frame, m_combineRaised.Invoke(frame, m_activeTags, (measurement) => measurement.Value < m_setPoint));
+        CheckDelay(frame, m_combineRaised.Invoke(frame, (measurement) => measurement.Value < m_setPoint));
 
     // Indicates whether the given measurement is not greater
     // than or equal to the set point, offset by the hysteresis.
-    private bool ClearIfNotGreaterOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, m_activeTags, (measurement) =>
+    private bool ClearIfNotGreaterOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         measurement.Value < m_setPoint - (m_hysteresis ?? 0));
 
     // Indicates whether the given measurement has maintained the same
@@ -737,7 +736,7 @@ public class Alarm : ICloneable
 
         }
 
-        return m_combineRaised.Invoke(frame, m_activeTags, (measurement) =>
+        return m_combineRaised.Invoke(frame, (measurement) =>
         {
 
             Gemstone.Ticks lastChange;
@@ -756,39 +755,39 @@ public class Alarm : ICloneable
 
     // Indicates whether the given measurement is not
     // equal to the set point within the tolerance.
-    private bool ClearIfNotEqual(IFrame frame) => m_combineCleared.Invoke(frame, m_activeTags, (measurement) =>
+    private bool ClearIfNotEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         measurement.Value < m_setPoint - m_tolerance ||
         measurement.Value > m_setPoint + m_tolerance);
 
     // Indicates whether the given measurement is not outside
     // the range defined by the set point and tolerance.
-    private bool ClearIfNotNotEqual(IFrame frame) => m_combineCleared.Invoke(frame, m_activeTags, (measurement) =>
+    private bool ClearIfNotNotEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         measurement.Value <= m_setPoint + m_tolerance &&
         measurement.Value >= m_setPoint - m_tolerance);
 
     // Indicates whether the given measurement is not bitwhise AND
     // with the set point.
-    private bool ClearIfNotAnd(IFrame frame) => m_combineCleared.Invoke(frame, m_activeTags, (measurement) =>
+    private bool ClearIfNotAnd(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         ((ulong)measurement.Value & (ulong)m_setPoint) > 0);
 
     // Indicates whether the given measurement is not bitwhise OR
     // with the set point.
-    private bool ClearIfNotOr(IFrame frame) => m_combineCleared.Invoke(frame, m_activeTags, (measurement) =>
+    private bool ClearIfNotOr(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         ((ulong)measurement.Value | (ulong)m_setPoint) > 0);
 
     // Indicates whether the given measurement is not less
     // than or equal to the set point, offset by the hysteresis.
-    private bool ClearIfNotLessOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, m_activeTags, (measurement) =>
+    private bool ClearIfNotLessOrEqual(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         measurement.Value > m_setPoint + (m_hysteresis ?? 0));
 
     // Indicates whether the given measurement is not greater
     // than the set point, offset by the hysteresis.
-    private bool ClearIfNotGreaterThan(IFrame frame) => m_combineCleared.Invoke(frame, m_activeTags, (measurement) =>
+    private bool ClearIfNotGreaterThan(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         measurement.Value <= m_setPoint - (m_hysteresis ?? 0));
 
     // Indicates whether the given measurement is not less
     // than the set point, offset by the hysteresis.
-    private bool ClearIfNotLessThan(IFrame frame) => m_combineCleared.Invoke(frame, m_activeTags, (measurement) =>
+    private bool ClearIfNotLessThan(IFrame frame) => m_combineCleared.Invoke(frame, (measurement) =>
         measurement.Value >= m_setPoint + (m_hysteresis ?? 0));
 
     // Indicates whether the given measurement's value has changed.
@@ -807,7 +806,7 @@ public class Alarm : ICloneable
                 m_lastValue.AddOrUpdate(measurement.ID, measurement.AdjustedValue);
             }
         }
-        return m_combineCleared(frame, m_activeTags, (measurement) =>
+        return m_combineCleared(frame, (measurement) =>
         {
             Gemstone.Ticks lastChange;
 

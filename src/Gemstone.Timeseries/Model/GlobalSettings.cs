@@ -36,6 +36,8 @@ public class GlobalSettings
 {
     private static string? s_companyAcronym;
     private static string? s_systemName;
+    private static string? s_dateTimeFormat;
+    private static double? s_nominalFrequency;
 
     private static string ReadCompanyAcronymFromConfig()
     {
@@ -75,6 +77,44 @@ public class GlobalSettings
         }
     }
 
+    private static string ReadDateTimeFormatFromConfig()
+    {
+        try
+        {
+            dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
+            string dateTimeFormat = section["DateTimeFormat", "MM/dd/yyyy HH:mm:ss.fff", "Default date time format for system."];
+            
+            if (string.IsNullOrWhiteSpace(dateTimeFormat))
+                dateTimeFormat = "MM/dd/yyyy HH:mm:ss.fff";
+            
+            return dateTimeFormat;
+        }
+        catch (Exception ex)
+        {
+            Logger.SwallowException(ex, "Failed to load date time format from settings");
+            return "MM/dd/yyyy HH:mm:ss.fff";
+        }
+    }
+
+    private static double ReadNominalFrequencyFromConfig()
+    {
+        try
+        {
+            dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
+            double nominalFrequency = section["NominalFrequency", 60.0D, "Nominal frequency of the system in Hertz."];
+            
+            if (nominalFrequency <= 0.0D)
+                nominalFrequency = 60.0D;
+            
+            return nominalFrequency;
+        }
+        catch (Exception ex)
+        {
+            Logger.SwallowException(ex, "Failed to load nominal frequency from settings");
+            return 60.0D;
+        }
+    }
+
     /// <summary>
     /// Gets the company acronym for the host system.
     /// </summary>
@@ -84,6 +124,16 @@ public class GlobalSettings
     /// Gets the system name for the host system.
     /// </summary>
     public string SystemName => s_systemName ??= ReadSystemNameFromConfig();
+
+    /// <summary>
+    /// Gets the date and time format string used for formatting and parsing date and time values.
+    /// </summary>
+    public string DateTimeFormat => s_dateTimeFormat ??= ReadDateTimeFormatFromConfig();
+
+    /// <summary>
+    /// Gets the nominal frequency value used for system operations.
+    /// </summary>
+    public double NominalFrequency => s_nominalFrequency ??= ReadNominalFrequencyFromConfig();
 
     /// <summary>
     /// Defines default instance for global settings.

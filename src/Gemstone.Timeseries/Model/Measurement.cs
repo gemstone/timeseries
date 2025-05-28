@@ -56,13 +56,13 @@ public class Measurement
     public string PointTag { get; set; } = "";
 
     [Label("Alternate Tag Name")]
-    public string AlternateTag { get; set; } = "";
+    public string? AlternateTag { get; set; } = "";
 
     [Label("Alternate Tag Name 2")]
-    public string AlternateTag2 { get; set; } = "";
+    public string? AlternateTag2 { get; set; } = "";
 
     [Label("Alternate Tag Name 3")]
-    public string AlternateTag3 { get; set; } = "";
+    public string? AlternateTag3 { get; set; } = "";
 
     [Label("Signal Type")]
     public int SignalTypeID { get; set; }

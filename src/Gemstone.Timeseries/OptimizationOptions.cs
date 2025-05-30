@@ -96,11 +96,11 @@ public static class OptimizationOptions
 
     static OptimizationOptions()
     {
-        string setting = string.Empty;
+        string? setting = string.Empty;
 
         try
         {
-            setting = Settings.Default.Settings.OptimizationsConnectionString;
+            setting = Settings.Instance[Settings.SystemSettingsCategory]["OptimizationsConnectionString"] as string;
 
             if (setting is null)
                 return;

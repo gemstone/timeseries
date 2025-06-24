@@ -97,7 +97,7 @@ public class Device
     public string Description { get; set; } = "";
 
     [StringLength(200)]
-    [DefaultValue("UTC-0000")]
+    [DefaultValue("UTC")]
     public string TimeZone { get; set; }
 
     public long TimeAdjustmentTicks { get; set; }

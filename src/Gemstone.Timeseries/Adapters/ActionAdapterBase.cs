@@ -35,6 +35,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.Security.AccessControl;
@@ -283,6 +284,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </remarks>
     [ConnectionStringParameter]
     [Description("Defines the number of frames per second expected by the adapter.")]
+    [Label("Frames Per Second")]
     public new int FramesPerSecond
     {
         get => base.FramesPerSecond;
@@ -300,6 +302,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <exception cref="ArgumentOutOfRangeException">LagTime must be greater than zero, but it can be less than one.</exception>
     [ConnectionStringParameter]
     [Description("Defines the allowed past time deviation tolerance, in seconds (can be sub-second).")]
+    [Label("Lag Time")]
     public new double LagTime
     {
         get => base.LagTime;
@@ -317,6 +320,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <exception cref="ArgumentOutOfRangeException">LeadTime must be greater than zero, but it can be less than one.</exception>
     [ConnectionStringParameter]
     [Description("Defines the allowed future time deviation tolerance, in seconds (can be sub-second).")]
+    [Label("Lead Time")]
     public new double LeadTime
     {
         get => base.LeadTime;

@@ -33,6 +33,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Data;
 using Gemstone.Data.Model;
 using Gemstone.Diagnostics;
@@ -145,6 +146,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the number of frames per second applied to each adapter.")]
     [DefaultValue(DefaultFramesPerSecond)]
+    [Label("Frames Per Second")]
     public virtual int FramesPerSecond { get; set; } = DefaultFramesPerSecond;
 
     /// <summary>
@@ -158,6 +160,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the allowed past time deviation tolerance, in seconds (can be sub-second) applied to each adapter.")]
     [DefaultValue(DefaultLagTime)]
+    [Label("Lag Time")]
     public virtual double LagTime { get; set; } = DefaultLagTime;
 
     /// <summary>
@@ -171,6 +174,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the allowed future time deviation tolerance, in seconds (can be sub-second) applied to each adapter.")]
     [DefaultValue(DefaultLeadTime)]
+    [Label("Lead Time")]
     public virtual double LeadTime { get; set; } = DefaultLeadTime;
 
     /// <summary>
@@ -179,6 +183,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the wait timeout, in milliseconds, that system wait for system configuration reload to complete.")]
     [DefaultValue(DefaultConfigurationReloadWaitTimeout)]
+    [Label("Configuration Reload Wait Timeout")]
     public int ConfigurationReloadWaitTimeout { get; set; } = DefaultConfigurationReloadWaitTimeout;
 
     /// <summary>
@@ -187,6 +192,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the total number of attempts to wait for system configuration reloads when waiting for configuration updates to be available.")]
     [DefaultValue(DefaultConfigurationReloadWaitAttempts)]
+    [Label("Configuration Reload Wait Attempts")]
     public virtual int ConfigurationReloadWaitAttempts { get; set; } = DefaultConfigurationReloadWaitAttempts;
 
     /// <summary>
@@ -195,6 +201,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the connection string used for database operations. Leave blank to use local configuration database defined in \"systemSettings\".")]
     [DefaultValue(DefaultDatabaseConnectionString)]
+    [Label("Database Connection String")]
     public virtual string DatabaseConnectionString { get; set; }
 
     /// <summary>
@@ -203,6 +210,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the provider string used for database operations. Defaults to a SQL Server provider string.")]
     [DefaultValue(DefaultDatabaseProviderString)]
+    [Label("Database Provider String")]
     public virtual string DatabaseProviderString { get; set; }
 
     /// <summary>
@@ -211,6 +219,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description($"Defines template for output measurement point tag names, typically an expression like \"{DefaultPointTagTemplate}\" where \"{{0}}\" is substituted with this adapter name, a dash and then the PerAdapterOutputNames value for the current measurement. Note that \"{{0}}\" token is not required, property can be overridden to provide desired value.")]
     [DefaultValue(DefaultPointTagTemplate)]
+    [Label("Point Tag Template")]
     public virtual string PointTagTemplate { get; set; } = DefaultPointTagTemplate;
 
     /// <summary>
@@ -219,6 +228,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines template for output measurement alternate tag names, typically an expression where \"{0}\" is substituted with this adapter name, a dash and then the PerAdapterOutputNames value for the current measurement. Note that \"{0}\" token is not required, property can be overridden to provide desired value.")]
     [DefaultValue(DefaultAlternateTagTemplate)]
+    [Label("Alternate Tag Template")]
     public virtual string AlternateTagTemplate { get; set; } = DefaultAlternateTagTemplate;
 
     /// <summary>
@@ -227,6 +237,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description($"Defines template for output measurement signal reference names, typically an expression like \"{DefaultSignalReferenceTemplate}\" where \"{{0}}\" is substituted with this adapter name, a dash and then the PerAdapterOutputNames value for the current measurement. Note that \"{{0}}\" token is not required, property can be overridden to provide desired value.")]
     [DefaultValue(DefaultSignalReferenceTemplate)]
+    [Label("Signal Reference Template")]
     public virtual string SignalReferenceTemplate { get; set; } = DefaultSignalReferenceTemplate;
 
     /// <summary>
@@ -235,6 +246,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description($"Defines template for output measurement descriptions, typically an expression like \"{DefaultDescriptionTemplate}\".")]
     [DefaultValue(DefaultDescriptionTemplate)]
+    [Label("Description Template")]
     public virtual string DescriptionTemplate { get; set; } = DefaultDescriptionTemplate;
 
     /// <summary>
@@ -243,6 +255,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description($"Defines template for the parent device acronym used to group associated output measurements, typically an expression like \"{DefaultParentDeviceAcronymTemplate}\" where \"{{0}}\" is substituted with this adapter name. Set to blank value to create no parent device associated output measurements. Note that \"{{0}}\" token is not required, you can simply use a specific device acronym.")]
     [DefaultValue(DefaultParentDeviceAcronymTemplate)]
+    [Label("Parent Device Acronym Template")]
     public virtual string ParentDeviceAcronymTemplate { get; set; } = DefaultParentDeviceAcronymTemplate;
 
     /// <summary>
@@ -251,6 +264,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the default signal type to use for all output measurements. Used when per output measurement SignalTypes array is not defined.")]
     [DefaultValue(typeof(SignalType), DefaultSignalType)]
+    [Label("Signal Type")]
     public virtual SignalType SignalType { get; set; } = (SignalType)Enum.Parse(typeof(SignalType), DefaultSignalType);
 
     /// <summary>
@@ -270,6 +284,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the target historian acronym for output measurements.")]
     [DefaultValue(DefaultTargetHistorianAcronym)]
+    [Label("Target Historian Acronym")]
     public virtual string TargetHistorianAcronym { get; set; } = DefaultTargetHistorianAcronym;
 
     /// <summary>
@@ -278,6 +293,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     [ConnectionStringParameter]
     [Description("Defines the source measurement table to use for configuration.")]
     [DefaultValue(DefaultSourceMeasurementTable)]
+    [Label("Source Measurement Table")]
     public virtual string SourceMeasurementTable { get; set; } = DefaultSourceMeasurementTable;
 
     /// <summary>
@@ -308,6 +324,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// </summary>
     [ConnectionStringParameter]
     [Description("Defines the index into the per adapter input measurements to use for target adapter name.")]
+    [Label("Input Measurement Index Used For Name")]
     public virtual int InputMeasurementIndexUsedForName { get; set; }
 
     /// <summary>

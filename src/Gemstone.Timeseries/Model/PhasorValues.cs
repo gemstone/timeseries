@@ -10,11 +10,6 @@ namespace Gemstone.Timeseries.Model;
 public class PhasorValues
 {
 
-    private string m_magnitudeId;
-    private MeasurementKey m_magnitudeKey = MeasurementKey.Undefined;
-    private string m_angleId;
-    private MeasurementKey m_angleKey = MeasurementKey.Undefined;
-
     public string Device
     {
         get;
@@ -35,6 +30,7 @@ public class PhasorValues
         get;
         set;
     }
+
     [Label("Angle Tag Name")]
     [Required]
     [StringLength(200)]
@@ -44,28 +40,37 @@ public class PhasorValues
         set;
     }
 
+    [Label("Tag Name")]
+    [Required]
+    [StringLength(200)]
+    public string PointTag
+    {
+        get;
+        set;
+    }
+
+    public int? PrimaryVoltagePhasorID 
+    { 
+        get;
+        set; 
+    }
+
+    public int? SecondaryVoltagePhasorID 
+    { 
+        get;
+        set;
+    }
+
     public string MagnitudeID
     {
-        get => m_magnitudeId;
-        set
-        {
-            m_magnitudeId = value;
-
-            if (!MeasurementKey.TryParse(m_magnitudeId, out m_magnitudeKey))
-                m_magnitudeKey = MeasurementKey.Undefined;
-        }
+        get;
+        set;
     }
 
     public string AngleID
     {
-        get => m_angleId;
-        set
-        {
-            m_angleId = value;
-
-            if (!MeasurementKey.TryParse(m_angleId, out m_angleKey))
-                m_angleKey = MeasurementKey.Undefined;
-        }
+        get;
+        set;
     }
 
     [Label("Phasor ID")]
@@ -153,14 +158,8 @@ public class PhasorValues
 
     public string ID
     {
-        get => m_magnitudeId;
-        set
-        {
-            m_magnitudeId = value;
-
-            if (!MeasurementKey.TryParse(m_magnitudeId, out m_magnitudeKey))
-                m_magnitudeKey = MeasurementKey.Undefined;
-        }
+        get;
+        set;
     }
 
     [PrimaryKey(true)]

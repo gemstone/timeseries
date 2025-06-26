@@ -169,11 +169,4 @@ public class PhasorValues
         get;
         set;
     }
-
-    [Label("Alternate Tag Name")]
-    public string AlternateTag
-    {
-        get;
-        set;
-    }
 }

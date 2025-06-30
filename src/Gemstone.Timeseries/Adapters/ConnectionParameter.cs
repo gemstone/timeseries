@@ -175,7 +175,7 @@ public class ConnectionParameter
             DefaultValue = getDefaultValue(info)?.ToString() ?? "",
             AvailableValues = getAvailableValues(info),
             Label = getLabel(info),
-            IsVisibleToUI = getIsAvailableToUI(info)
+            IsVisibleToUI = !getIsHiddenToUI(info)
         };
 
         static string getCategory(PropertyInfo value)
@@ -227,7 +227,7 @@ public class ConnectionParameter
             return value.PropertyType.IsEnum ? Enum.GetNames(value.PropertyType) : [];
         }
 
-        static bool getIsAvailableToUI(PropertyInfo info)
+        static bool getIsHiddenToUI(PropertyInfo info)
         {
             EditorBrowsableAttribute? attr = info.GetCustomAttribute<EditorBrowsableAttribute>();
             return attr?.State == EditorBrowsableState.Never;

@@ -23,19 +23,52 @@
 // ReSharper disable StaticMemberInGenericType
 // ReSharper disable InconsistentNaming
 
-using Gemstone.EventHandlerExtensions;
-using Gemstone.StringExtensions;
-using Gemstone.TypeExtensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading;
+using Gemstone.EventHandlerExtensions;
+using Gemstone.StringExtensions;
+using Gemstone.TypeExtensions;
 
 namespace Gemstone.Timeseries.Adapters;
+
+/// <summary>
+/// Represents a collection of adpaters, provides a specialized method to retrieve `AdapterInfo` instances while cloning their connection parameters.
+/// </summary>
+public class AdapterCollection : Dictionary<Type, AdapterInfo>
+{
+    public AdapterCollection(IDictionary<Type, AdapterInfo> dictionary) : base(dictionary)
+    {
+    }
+
+    /// <summary>
+    /// Attempts to retrieve the <see cref="AdapterInfo"/> associated with the specified <see cref="Type"/> key.
+    /// </summary>
+    /// <remarks>If the key is found, the returned <see cref="AdapterInfo"/> is a copy with cloned
+    /// parameters.</remarks>
+    /// <param name="key">The <see cref="Type"/> key to locate in the collection.</param>
+    /// <param name="value">When this method returns, contains the <see cref="AdapterInfo"/> associated with the specified key, if the key
+    /// is found; otherwise, <see langword="null"/>. This parameter is passed uninitialized.</param>
+    /// <returns><see langword="true"/> if the collection contains an element with the specified key; otherwise, <see
+    /// langword="false"/>.</returns>
+    public new bool TryGetValue(Type key, [MaybeNullWhen(false)] out AdapterInfo value)
+    {
+        bool result = base.TryGetValue(key, out AdapterInfo val);
+
+        if (result)
+            value = val with { Parameters = val.Parameters.Select(param => param.Clone()).ToArray() };
+        else
+            value = null;
+
+        return result;
+    }
+}
 
 /// <summary>
 /// Represents an adapter type and its key attributes.
@@ -112,7 +145,7 @@ public record UIResourceInfo
     /// <summary>
     /// Gets the map of UI resource attributes by resource ID.
     /// </summary>
-    public required Dictionary<string, UIResourceAttribute> AttributeMap { get; init; } 
+    public required Dictionary<string, UIResourceAttribute> AttributeMap { get; init; }
 }
 
 /// <summary>
@@ -170,7 +203,7 @@ public static class AdapterCache
     // Notifies derived classes that adapters have been reloaded
     internal static EventHandler? AdaptersReloaded;
 
-    private static Dictionary<Type, AdapterInfo>? s_allAdapters;
+    private static AdapterCollection? s_allAdapters;
     private static Dictionary<Type, UIResourceInfo>? s_uiResources;
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
     private static Dictionary<Type, AdapterCommandInfo>? s_adapterCommands;
@@ -197,14 +230,14 @@ public static class AdapterCache
     /// <summary>
     /// Gets all time-series adapter types in the application directory.
     /// </summary>
-    public static Dictionary<Type, AdapterInfo> AllAdapters
+    public static AdapterCollection AllAdapters
     {
         get
         {
             // Caching default adapter types so expensive assembly load with type inspections
             // and reflection-based instance creation of types are only done once. If dynamic
             // reload is needed at runtime, call ReloadAdapterTypes() method.
-            Dictionary<Type, AdapterInfo>? allAdapters = Interlocked.CompareExchange(ref s_allAdapters, null, null);
+            AdapterCollection? allAdapters = Interlocked.CompareExchange(ref s_allAdapters, null, null);
 
             if (allAdapters is not null)
                 return allAdapters;
@@ -216,7 +249,7 @@ public static class AdapterCache
                     return s_allAdapters;
 
                 // Load all adapter types in the application directory
-                s_allAdapters = typeof(IAdapter).LoadImplementations()
+                s_allAdapters = new AdapterCollection(typeof(IAdapter).LoadImplementations()
                     .Distinct()
                     .Select(type => (type, info: type.GetDescription()))
                     .Select(item => new AdapterInfo
@@ -229,7 +262,7 @@ public static class AdapterCache
                         Description = item.info.description,
                         BrowsableState = item.type.GetEditorBrowsableState()
                     })
-                    .ToDictionary(item => item.Type, item => item);
+                    .ToDictionary(item => item.Type, item => item));
 
                 // Load adapter types with UI resource attributes
                 s_uiResources = s_allAdapters.Values
@@ -535,7 +568,7 @@ public static class AdapterCache
 /// </summary>
 public static class AdapterCache<T> where T : IAdapter
 {
-    private static Dictionary<Type, AdapterInfo>? s_allAdapters;
+    private static AdapterCollection? s_allAdapters;
     private static Dictionary<Type, UIResourceInfo>? s_uiResources;
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
     private static Dictionary<Type, AdapterCommandInfo>? s_adapterCommands;
@@ -581,7 +614,7 @@ public static class AdapterCache<T> where T : IAdapter
                 // which all happens within the same thread, so no deadlock concerns
 
                 // Filter adapter properties to type 'T'
-                s_allAdapters = AdapterCache.AllAdapters.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
+                s_allAdapters = new AdapterCollection(AdapterCache.AllAdapters.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary());
                 s_uiResources = AdapterCache.UIResources.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
                 s_adapterProtocols = AdapterCache.AdapterProtocols.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
                 s_adapterCommands = AdapterCache.AdapterCommands.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
@@ -658,7 +691,7 @@ public static class AdapterCache<T> where T : IAdapter
     /// Gets a cache of adapter types keyed by assembly file name and type name, e.g.:
     /// <c>("FileAdapters.dll", "FileAdapters.ProcessLauncher")</c> for faster lookups.
     /// </summary>
-    public static Dictionary<(string assemblyFileName, string typeName), Type> AssemblyTypes => 
+    public static Dictionary<(string assemblyFileName, string typeName), Type> AssemblyTypes =>
         AdapterCache.AssemblyTypes; // No need to filter by type 'T'
 
     /// <summary>

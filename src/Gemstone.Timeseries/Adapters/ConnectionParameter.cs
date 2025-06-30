@@ -262,10 +262,10 @@ public static class ConnectionParameterExtensions
     public static bool SetValue(this IEnumerable<ConnectionParameter> parameters, string name, string value)
     {
         ConnectionParameter? parameter = parameters.FirstOrDefault(param => param.Name == name);
-        
+
         if (parameter is null)
             return false;
-        
+
         parameter.Value = value;
         return true;
     }
@@ -392,5 +392,25 @@ public static class ConnectionParameterExtensions
         {
             return [];
         }
+    }
+
+    /// <summary>
+    /// Creates and returns a cloned instance of the original connection parameter.
+    /// </summary>
+    /// <param name="original"></param>
+    /// <returns></returns>
+    public static ConnectionParameter Clone(this ConnectionParameter original)
+    {
+        return new ConnectionParameter()
+        {
+            AvailableValues = original.AvailableValues,
+            Category = original.Category,
+            DataType = original.DataType,
+            DefaultValue = original.DefaultValue,
+            Value = original.Value,
+            Name = original.Name,
+            Label = original.Label,
+            IsVisibleToUI = original.IsVisibleToUI
+        };
     }
 }

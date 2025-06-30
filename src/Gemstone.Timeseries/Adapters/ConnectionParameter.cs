@@ -91,7 +91,15 @@ public enum DataType
     /// <summary>
     /// Represents an <see cref="Enum"/> data type.
     /// </summary>
-    Enum
+    Enum,
+    /// <summary>
+    /// Represents an <see cref="IMeasurement"/> data type.
+    /// </summary>
+    IMeasurement,
+    /// <summary>
+    /// Represents an <see cref="MeasurementKey"/> data type.
+    /// </summary>
+    MeasurementKey
 }
 
 /// <summary>
@@ -221,9 +229,8 @@ public class ConnectionParameter
 
         static bool getIsAvailableToUI(PropertyInfo info)
         {
-            ConnectionStringParameterAttribute? attribute = info.GetCustomAttribute<ConnectionStringParameterAttribute>();
-            bool isVisible = attribute?.IsVisibleToUI ?? true;
-            return isVisible;
+            EditorBrowsableAttribute? attr = info.GetCustomAttribute<EditorBrowsableAttribute>();
+            return attr?.State == EditorBrowsableState.Never;
         }
     }
 

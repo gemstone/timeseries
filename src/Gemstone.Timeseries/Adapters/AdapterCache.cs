@@ -271,7 +271,7 @@ public static class AdapterCache
                     {
                         Info = item.info,
                         Attributes = item.attributes,
-                        AttributeMap = item.attributes.ToDictionary(attr => attr.ResourceID)
+                        AttributeMap = item.attributes.GroupBy(attr => attr.ResourceID).Select(attr => attr.First()).ToDictionary(attr => attr.ResourceID)
                     })
                     .ToDictionary(item => item.Info.Type, item => item);
 

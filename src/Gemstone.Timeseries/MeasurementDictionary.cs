@@ -87,12 +87,12 @@ public class MeasurementDictionary : IDictionary<MeasurementKey, IMeasurement>, 
     /// <inheritdoc />
     public ICollection<MeasurementKey> Keys => m_map.Keys;
 
-    IEnumerable<IMeasurement> IReadOnlyDictionary<MeasurementKey, IMeasurement>.Values => Values;
+    /// <inheritdoc />
+    public ICollection<IMeasurement> Values => m_map.Values;
 
     IEnumerable<MeasurementKey> IReadOnlyDictionary<MeasurementKey, IMeasurement>.Keys => Keys;
 
-    /// <inheritdoc />
-    public ICollection<IMeasurement> Values => m_map.Values;
+    IEnumerable<IMeasurement> IReadOnlyDictionary<MeasurementKey, IMeasurement>.Values => Values;
 
     /// <inheritdoc />
     public IEnumerator<KeyValuePair<MeasurementKey, IMeasurement>> GetEnumerator()

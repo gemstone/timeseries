@@ -50,8 +50,8 @@ public class MeasurementDictionary : IDictionary<MeasurementKey, IMeasurement>, 
     /// <summary>
     /// Creates a new <see cref="MeasurementDictionary"/>.
     /// </summary>
-    /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="ConcurrentDictionary{TKey,TValue}"/> concurrently, or -1 to indicate a default value.</param>
-    /// <param name="capacity">The initial number of elements that the <see cref="ConcurrentDictionary{TKey,TValue}"/> can contain.</param>
+    /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="MeasurementDictionary"/> concurrently, or -1 to indicate a default value.</param>
+    /// <param name="capacity">The initial number of elements that the <see cref="MeasurementDictionary"/> can contain.</param>
     public MeasurementDictionary(int concurrencyLevel, int capacity)
     {
         m_map = new ConcurrentDictionary<MeasurementKey, IMeasurement>(concurrencyLevel, capacity);
@@ -60,7 +60,7 @@ public class MeasurementDictionary : IDictionary<MeasurementKey, IMeasurement>, 
     /// <summary>
     /// Creates a new <see cref="MeasurementDictionary"/>.
     /// </summary>
-    /// <param name="measurements">The measurements that are copied to the new <see cref="ConcurrentDictionary{TKey,TValue}"/>.</param>
+    /// <param name="measurements">The measurements that are copied to the new <see cref="MeasurementDictionary"/>.</param>
     public MeasurementDictionary(IEnumerable<KeyValuePair<MeasurementKey, IMeasurement>> measurements)
     {
         ArgumentNullException.ThrowIfNull(measurements);
@@ -87,15 +87,9 @@ public class MeasurementDictionary : IDictionary<MeasurementKey, IMeasurement>, 
     /// <inheritdoc />
     public ICollection<MeasurementKey> Keys => m_map.Keys;
 
-    IEnumerable<IMeasurement> IReadOnlyDictionary<MeasurementKey, IMeasurement>.Values
-    {
-        get => Values;
-    }
+    IEnumerable<IMeasurement> IReadOnlyDictionary<MeasurementKey, IMeasurement>.Values => Values;
 
-    IEnumerable<MeasurementKey> IReadOnlyDictionary<MeasurementKey, IMeasurement>.Keys
-    {
-        get => Keys;
-    }
+    IEnumerable<MeasurementKey> IReadOnlyDictionary<MeasurementKey, IMeasurement>.Keys => Keys;
 
     /// <inheritdoc />
     public ICollection<IMeasurement> Values => m_map.Values;

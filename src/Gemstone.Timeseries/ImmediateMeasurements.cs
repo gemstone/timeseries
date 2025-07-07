@@ -22,6 +22,9 @@
 //       Modified Header.
 //
 //******************************************************************************************************
+#if DEBUG
+// ReSharper disable PossibleMultipleEnumeration
+#endif
 
 using System;
 using System.Collections;
@@ -42,6 +45,7 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
 {
     #region [ Members ]
 
+    // Nested Types
     private class TemporalMeasurementDictionary : IDictionary<MeasurementKey, TemporalMeasurement>, IReadOnlyDictionary<MeasurementKey, TemporalMeasurement>
     {
         private readonly ConcurrentDictionary<MeasurementKey, TemporalMeasurement> m_map;
@@ -54,52 +58,65 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
             m_map = [];
         }
 
-        /// <summary>
-        /// Creates a new <see cref="TemporalMeasurementDictionary"/>.
-        /// </summary>
-        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="TemporalMeasurementDictionary"/> concurrently, or -1 to indicate a default value.</param>
-        /// <param name="capacity">The initial number of elements that the <see cref="TemporalMeasurementDictionary"/> can contain.</param>
-        public TemporalMeasurementDictionary(int concurrencyLevel, int capacity)
+        private IDictionary<MeasurementKey, TemporalMeasurement> Dictionary
         {
-            m_map = new ConcurrentDictionary<MeasurementKey, TemporalMeasurement>(concurrencyLevel, capacity);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="TemporalMeasurementDictionary"/>.
-        /// </summary>
-        /// <param name="measurements">The measurements that are copied to the new <see cref="TemporalMeasurementDictionary"/>.</param>
-        public TemporalMeasurementDictionary(IEnumerable<KeyValuePair<MeasurementKey, TemporalMeasurement>> measurements)
-        {
-            ArgumentNullException.ThrowIfNull(measurements);
-
-        #if DEBUG
-            foreach ((MeasurementKey key, var value) in measurements)
+            get
             {
-                if (value is not null && key != value.Key)
-                    throw new ArgumentException("MeasurementKey mismatch");
+                return m_map;
             }
-        #endif
-
-            m_map = new ConcurrentDictionary<MeasurementKey, TemporalMeasurement>(measurements);
         }
-
-        private IDictionary<MeasurementKey, TemporalMeasurement> Dictionary => m_map;
 
         /// <inheritdoc cref="IDictionary{TKey,TValue}" />
-        public int Count => m_map.Count;
+        public int Count
+        {
+            get
+            {
+                return m_map.Count;
+            }
+        }
 
         /// <inheritdoc />
-        public bool IsReadOnly => Dictionary.IsReadOnly;
+        public bool IsReadOnly
+        {
+            get
+            {
+                return Dictionary.IsReadOnly;
+            }
+        }
 
         /// <inheritdoc />
-        public ICollection<MeasurementKey> Keys => m_map.Keys;
+        public ICollection<MeasurementKey> Keys
+        {
+            get
+            {
+                return m_map.Keys;
+            }
+        }
 
         /// <inheritdoc />
-        public ICollection<TemporalMeasurement> Values => m_map.Values;
+        public ICollection<TemporalMeasurement> Values
+        {
+            get
+            {
+                return m_map.Values;
+            }
+        }
 
-        IEnumerable<MeasurementKey> IReadOnlyDictionary<MeasurementKey, TemporalMeasurement>.Keys => Keys;
+        IEnumerable<MeasurementKey> IReadOnlyDictionary<MeasurementKey, TemporalMeasurement>.Keys
+        {
+            get
+            {
+                return Keys;
+            }
+        }
 
-        IEnumerable<TemporalMeasurement> IReadOnlyDictionary<MeasurementKey, TemporalMeasurement>.Values => Values;
+        IEnumerable<TemporalMeasurement> IReadOnlyDictionary<MeasurementKey, TemporalMeasurement>.Values
+        {
+            get
+            {
+                return Values;
+            }
+        }
 
         /// <inheritdoc />
         public IEnumerator<KeyValuePair<MeasurementKey, TemporalMeasurement>> GetEnumerator()
@@ -189,7 +206,10 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
         /// <inheritdoc cref="IDictionary{TKey,TValue}" />
         public TemporalMeasurement this[MeasurementKey key]
         {
-            get => m_map[key];
+            get
+            {
+                return m_map[key];
+            }
             set
             {
             #if DEBUG
@@ -202,13 +222,12 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
         }
     }
 
-
     // Fields
     private ConcentratorBase? m_parent;
     private TemporalMeasurementDictionary m_measurements;
     private ConcurrentDictionary<string, List<MeasurementKey>> m_taggedMeasurements;
     private Func<Ticks> m_realTimeFunction;
-    private double m_lagTime;   // Allowed past time deviation tolerance, in seconds
+    private double m_lagTime;   // Allowed past-time deviation tolerance, in seconds
     private double m_leadTime;  // Allowed future time deviation tolerance, in seconds
     private bool m_disposed;
 
@@ -242,8 +261,10 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     /// <summary>
     /// Releases the unmanaged resources before the <see cref="ImmediateMeasurements"/> object is reclaimed by <see cref="GC"/>.
     /// </summary>
-    ~ImmediateMeasurements() => 
+    ~ImmediateMeasurements()
+    {
         Dispose(false);
+    }
 
     #endregion
 
@@ -335,7 +356,7 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     }
 
     /// <summary>
-    /// Gets or sets the allowed past time deviation tolerance, in seconds (can be sub-second).
+    /// Gets or sets the allowed past-time deviation tolerance, in seconds (can be sub-second).
     /// </summary>
     /// <remarks>
     /// <para>Defines the time sensitivity to past measurement timestamps.</para>
@@ -415,10 +436,10 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
             m_parent = null;
 
             m_measurements.Clear();
-            m_measurements = default!;
+            m_measurements = null!;
 
             m_taggedMeasurements.Clear();
-            m_taggedMeasurements = default!;
+            m_taggedMeasurements = null!;
         }
         finally
         {
@@ -431,8 +452,10 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     /// </summary>
     /// <param name="tag">A <see cref="String"/> that indicates the tag to use.</param>
     /// <returns>A collection of measurement keys.</returns>
-    public ReadOnlyCollection<MeasurementKey> TaggedMeasurementKeys(string tag) => 
-        new(m_taggedMeasurements[tag]);
+    public ReadOnlyCollection<MeasurementKey> TaggedMeasurementKeys(string tag)
+    {
+        return new ReadOnlyCollection<MeasurementKey>(m_taggedMeasurements[tag]);
+    }
 
     /// <summary>
     /// Store new measurement.
@@ -455,32 +478,37 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     /// </summary>
     /// <param name="id"><see cref="Guid"/> based signal ID of measurement.</param>
     /// <returns>A <see cref="TemporalMeasurement"/> object.</returns>
-    public TemporalMeasurement Measurement(MeasurementKey id) =>
-        m_measurements.GetOrAdd(id, key => new TemporalMeasurement(m_lagTime, m_leadTime)
+    public TemporalMeasurement Measurement(MeasurementKey id)
+    {
+        return m_measurements.GetOrAdd(id, key => new TemporalMeasurement(m_lagTime, m_leadTime)
         {
-            OutlierOperation = OutlierOperation,
-            OutlierState = OutlierState,
+            OutlierOperation = OutlierOperation, 
+            OutlierState = OutlierState, 
             Metadata = key.Metadata,
         });
+    }
 
     /// <summary>
     /// Retrieves the specified immediate temporal measurement, creating it if needed.
     /// </summary>
     /// <param name="measurement">Source <see cref="IMeasurement"/> value.</param>
     /// <returns>A <see cref="TemporalMeasurement"/> object.</returns>
-    public TemporalMeasurement Measurement(IMeasurement measurement) =>
-        m_measurements.GetOrAdd(measurement.Key, key => new TemporalMeasurement(m_lagTime, m_leadTime)
+    public TemporalMeasurement Measurement(IMeasurement measurement)
+    {
+        return m_measurements.GetOrAdd(measurement.Key, _ => new TemporalMeasurement(measurement, m_lagTime, m_leadTime)
         {
-            OutlierOperation = OutlierOperation,
-            OutlierState = OutlierState,
-            Metadata = key.Metadata.ChangeAdderMultiplier(measurement.Adder, measurement.Multiplier)
+            OutlierOperation = OutlierOperation, 
+            OutlierState = OutlierState
         });
+    }
 
     /// <summary>
     /// Clears the existing measurement cache.
     /// </summary>
-    public void ClearMeasurementCache() => 
+    public void ClearMeasurementCache()
+    {
         m_measurements.Clear();
+    }
 
     /// <summary>
     /// Defines tagged measurements from a data table.
@@ -615,21 +643,32 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     /// Updates the tracked temporal measurements lag time.
     /// </summary>
     /// <param name="lagTime">New lag time.</param>
-    protected void OnLagTimeUpdated(double lagTime) => 
+    protected void OnLagTimeUpdated(double lagTime)
+    {
         LagTime = lagTime;
+    }
 
     /// <summary>
     /// Updates the tracked temporal measurements lead time.
     /// </summary>
     /// <param name="leadTime">New lead time.</param>
-    protected void OnLeadTimeUpdated(double leadTime) => 
+    protected void OnLeadTimeUpdated(double leadTime)
+    {
         LeadTime = leadTime;
+    }
 
-    IEnumerator<TemporalMeasurement> IEnumerable<TemporalMeasurement>.GetEnumerator() => 
-        m_measurements.Values.ToList().GetEnumerator();
+    IEnumerator<TemporalMeasurement> IEnumerable<TemporalMeasurement>.GetEnumerator()
+    {
+        TemporalMeasurement[] measurements = m_measurements.Values.ToArray();
 
-    IEnumerator IEnumerable.GetEnumerator() => 
-        m_measurements.Values.ToList().GetEnumerator();
+        foreach (TemporalMeasurement measurement in measurements)
+            yield return measurement;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return m_measurements.Values.ToArray().GetEnumerator();
+    }
 
     #endregion
 }

@@ -28,7 +28,6 @@
 //******************************************************************************************************
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 // ReSharper disable NonReadonlyMemberInGetHashCode
@@ -64,8 +63,8 @@ public class Frame : IFrame
         m_lifespan = ShortTime.Now;
 
         Measurements = expectedMeasurements > 0 ? 
-            new ConcurrentDictionary<MeasurementKey, IMeasurement>(s_defaultConcurrencyLevel, expectedMeasurements * 2) : 
-            new ConcurrentDictionary<MeasurementKey, IMeasurement>();
+            new MeasurementDictionary(s_defaultConcurrencyLevel, expectedMeasurements * 2) : 
+            new MeasurementDictionary();
 
         m_sortedMeasurements = -1;
     }
@@ -79,7 +78,7 @@ public class Frame : IFrame
     {
         m_timestamp = timestamp;
         m_lifespan = ShortTime.Now;
-        Measurements = new ConcurrentDictionary<MeasurementKey, IMeasurement>(measurements);
+        Measurements = new MeasurementDictionary(measurements);
         m_sortedMeasurements = -1;
     }
 
@@ -90,7 +89,7 @@ public class Frame : IFrame
     /// <summary>
     /// Keyed measurements in this <see cref="Frame"/>.
     /// </summary>
-    public ConcurrentDictionary<MeasurementKey, IMeasurement> Measurements { get; }
+    public MeasurementDictionary Measurements { get; }
 
     /// <summary>
     /// Gets or sets published state of this <see cref="Frame"/> (pre-processing).

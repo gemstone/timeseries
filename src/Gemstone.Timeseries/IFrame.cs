@@ -28,7 +28,6 @@
 //******************************************************************************************************
 
 using System;
-using System.Collections.Concurrent;
 
 namespace Gemstone.Timeseries;
 
@@ -43,7 +42,7 @@ public interface IFrame : IEquatable<IFrame>, IComparable<IFrame>, IComparable
     /// <remarks>
     /// Represents a concurrent dictionary of measurements, keyed by <see cref="MeasurementKey"/>.
     /// </remarks>
-    ConcurrentDictionary<MeasurementKey, IMeasurement> Measurements { get; }
+    MeasurementDictionary Measurements { get; }
 
     /// <summary>
     /// Gets or sets published state of this <see cref="IFrame"/> (pre-processing).

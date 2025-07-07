@@ -29,6 +29,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Gemstone.StringExtensions;
 
@@ -41,9 +42,170 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
 {
     #region [ Members ]
 
+    private class TemporalMeasurementDictionary : IDictionary<MeasurementKey, TemporalMeasurement>, IReadOnlyDictionary<MeasurementKey, TemporalMeasurement>
+    {
+        private readonly ConcurrentDictionary<MeasurementKey, TemporalMeasurement> m_map;
+
+        /// <summary>
+        /// Creates a new <see cref="TemporalMeasurementDictionary"/>.
+        /// </summary>
+        public TemporalMeasurementDictionary()
+        {
+            m_map = [];
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="TemporalMeasurementDictionary"/>.
+        /// </summary>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="TemporalMeasurementDictionary"/> concurrently, or -1 to indicate a default value.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="TemporalMeasurementDictionary"/> can contain.</param>
+        public TemporalMeasurementDictionary(int concurrencyLevel, int capacity)
+        {
+            m_map = new ConcurrentDictionary<MeasurementKey, TemporalMeasurement>(concurrencyLevel, capacity);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="TemporalMeasurementDictionary"/>.
+        /// </summary>
+        /// <param name="measurements">The measurements that are copied to the new <see cref="TemporalMeasurementDictionary"/>.</param>
+        public TemporalMeasurementDictionary(IEnumerable<KeyValuePair<MeasurementKey, TemporalMeasurement>> measurements)
+        {
+            ArgumentNullException.ThrowIfNull(measurements);
+
+        #if DEBUG
+            foreach ((MeasurementKey key, var value) in measurements)
+            {
+                if (value is not null && key != value.Key)
+                    throw new ArgumentException("MeasurementKey mismatch");
+            }
+        #endif
+
+            m_map = new ConcurrentDictionary<MeasurementKey, TemporalMeasurement>(measurements);
+        }
+
+        private IDictionary<MeasurementKey, TemporalMeasurement> Dictionary => m_map;
+
+        /// <inheritdoc cref="IDictionary{TKey,TValue}" />
+        public int Count => m_map.Count;
+
+        /// <inheritdoc />
+        public bool IsReadOnly => Dictionary.IsReadOnly;
+
+        /// <inheritdoc />
+        public ICollection<MeasurementKey> Keys => m_map.Keys;
+
+        /// <inheritdoc />
+        public ICollection<TemporalMeasurement> Values => m_map.Values;
+
+        IEnumerable<MeasurementKey> IReadOnlyDictionary<MeasurementKey, TemporalMeasurement>.Keys => Keys;
+
+        IEnumerable<TemporalMeasurement> IReadOnlyDictionary<MeasurementKey, TemporalMeasurement>.Values => Values;
+
+        /// <inheritdoc />
+        public IEnumerator<KeyValuePair<MeasurementKey, TemporalMeasurement>> GetEnumerator()
+        {
+            return m_map.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        /// <inheritdoc />
+        public void Add(KeyValuePair<MeasurementKey, TemporalMeasurement> item)
+        {
+        #if DEBUG
+            if (item.Value is not null && item.Key != item.Value.Key)
+                throw new ArgumentException("MeasurementKey mismatch");
+        #endif
+
+            Dictionary.Add(item);
+        }
+
+        /// <inheritdoc />
+        public void Clear()
+        {
+            m_map.Clear();
+        }
+
+        /// <inheritdoc />
+        public bool Contains(KeyValuePair<MeasurementKey, TemporalMeasurement> item)
+        {
+            return Dictionary.Contains(item);
+        }
+
+        /// <summary>
+        /// Adds a key/value pair to the <see cref="TemporalMeasurementDictionary"/> if the key does not already exist.
+        /// </summary>
+        /// <param name="key">The key of the element to add.</param>
+        /// <param name="valueFactory">The function used to generate a value for the key</param>
+        public TemporalMeasurement GetOrAdd(MeasurementKey key, Func<MeasurementKey, TemporalMeasurement> valueFactory)
+        {
+            return m_map.GetOrAdd(key, valueFactory);
+        }
+
+        /// <inheritdoc />
+        public void CopyTo(KeyValuePair<MeasurementKey, TemporalMeasurement>[] array, int arrayIndex)
+        {
+            Dictionary.CopyTo(array, arrayIndex);
+        }
+
+        /// <inheritdoc />
+        public bool Remove(KeyValuePair<MeasurementKey, TemporalMeasurement> item)
+        {
+            return Dictionary.Remove(item);
+        }
+
+        /// <inheritdoc />
+        public void Add(MeasurementKey key, TemporalMeasurement value)
+        {
+        #if DEBUG
+            if (value is not null && key != value.Key)
+                throw new ArgumentException("MeasurementKey mismatch");
+        #endif
+
+            Dictionary.Add(key, value!);
+        }
+
+        /// <inheritdoc cref="IDictionary{TKey,TValue}" />
+        public bool ContainsKey(MeasurementKey key)
+        {
+            return m_map.ContainsKey(key);
+        }
+
+        /// <inheritdoc />
+        public bool Remove(MeasurementKey key)
+        {
+            return Dictionary.Remove(key);
+        }
+
+        /// <inheritdoc cref="IDictionary{TKey,TValue}" />
+        public bool TryGetValue(MeasurementKey key, [MaybeNullWhen(false)] out TemporalMeasurement value)
+        {
+            return m_map.TryGetValue(key, out value);
+        }
+
+        /// <inheritdoc cref="IDictionary{TKey,TValue}" />
+        public TemporalMeasurement this[MeasurementKey key]
+        {
+            get => m_map[key];
+            set
+            {
+            #if DEBUG
+                if (value is not null && key != value.Key)
+                    throw new ArgumentException("MeasurementKey mismatch");
+            #endif
+
+                m_map[key] = value!;
+            }
+        }
+    }
+
+
     // Fields
     private ConcentratorBase? m_parent;
-    private ConcurrentDictionary<MeasurementKey, TemporalMeasurement> m_measurements;
+    private TemporalMeasurementDictionary m_measurements;
     private ConcurrentDictionary<string, List<MeasurementKey>> m_taggedMeasurements;
     private Func<Ticks> m_realTimeFunction;
     private double m_lagTime;   // Allowed past time deviation tolerance, in seconds
@@ -59,7 +221,7 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     /// </summary>
     public ImmediateMeasurements()
     {
-        m_measurements = new ConcurrentDictionary<MeasurementKey, TemporalMeasurement>();
+        m_measurements = new TemporalMeasurementDictionary();
         m_taggedMeasurements = new ConcurrentDictionary<string, List<MeasurementKey>>();
         m_realTimeFunction = () => DateTime.UtcNow.Ticks;
     }

@@ -25,24 +25,22 @@
 
 using System;
 
-#pragma warning disable VSSpell001 // Spell Check
-
 namespace Gemstone.Timeseries;
 
 /// <summary>
 /// Enumeration that defines how to handle <see cref="TemporalMeasurement"/>
-/// values that are outside of the defined Lag/Lead time bounds.
+/// values that are outside the defined Lag/Lead time bounds.
 /// </summary>
 public enum TemporalOutlierOperation
 {
     /// <summary>
-    /// Measurement value is set to <see cref="double.NaN"/> if it is outside of the
+    /// Measurement value is set to <see cref="double.NaN"/> if it is outside the
     /// defined time bounds. This is the default behavior.
     /// </summary>
     PublishValueAsNan,
 
     /// <summary>
-    /// Measurement value is preserved if it is outside of the time bounds, but the state
+    /// Measurement value is preserved if it is outside the time bounds, but the state
     /// flags are set to <see cref="TemporalMeasurement.OutlierState"/> which defaults to
     /// <see cref="MeasurementStateFlags.SuspectTime"/>.
     /// </summary>
@@ -57,7 +55,7 @@ public class TemporalMeasurement : Measurement
     #region [ Members ]
 
     // Fields
-    private double m_lagTime;   // Allowed past time deviation tolerance
+    private double m_lagTime;   // Allowed past-time deviation tolerance
     private double m_leadTime;  // Allowed future time deviation tolerance
 
     #endregion
@@ -67,7 +65,7 @@ public class TemporalMeasurement : Measurement
     /// <summary>
     /// Constructs a new <see cref="TemporalMeasurement"/> given the specified parameters.
     /// </summary>
-    /// <param name="lagTime">Past time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
+    /// <param name="lagTime">past-time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
     /// <param name="leadTime">Future time deviation tolerance, in seconds - this becomes the tolerated +/- accuracy of the local clock to real-time.</param>
     public TemporalMeasurement(double lagTime, double leadTime)
         : this(null, lagTime, leadTime)
@@ -78,7 +76,7 @@ public class TemporalMeasurement : Measurement
     /// Constructs a new <see cref="TemporalMeasurement"/> given the specified parameters.
     /// </summary>
     /// <param name="measurement">Source <see cref="IMeasurement"/> value.</param>
-    /// <param name="lagTime">Past time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
+    /// <param name="lagTime">past-time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
     /// <param name="leadTime">Future time deviation tolerance, in seconds - this becomes the tolerated +/- accuracy of the local clock to real-time.</param>
     public TemporalMeasurement(IMeasurement? measurement, double lagTime, double leadTime)
     {
@@ -117,7 +115,7 @@ public class TemporalMeasurement : Measurement
     /// </summary>
     public MeasurementStateFlags OutlierState { get; set; } = MeasurementStateFlags.SuspectTime;
 
-    /// <summary>Allowed past time deviation tolerance in seconds (can be sub-second).</summary>
+    /// <summary>Allowed past-time deviation tolerance in seconds (can be sub-second).</summary>
     /// <remarks>
     /// <para>This value defines the time sensitivity to past measurement timestamps.</para>
     /// <para>Defined the number of seconds allowed before assuming a measurement timestamp is too old.</para>
@@ -161,7 +159,7 @@ public class TemporalMeasurement : Measurement
     /// Gets numeric adjusted value of this <see cref="TemporalMeasurement"/>, constrained within specified ticks.
     /// </summary>
     /// <remarks>
-    /// <para>Operation will return NaN if ticks are outside of time deviation tolerances.</para>
+    /// <para>Operation will return NaN if ticks are outside time deviation tolerances.</para>
     /// <para>Note that returned value will be offset by adder and multiplier.</para>
     /// </remarks>
     /// <param name="timestamp">Timestamp used to constrain <see cref="TemporalMeasurement"/> (typically set to real-time, i.e. "now").</param>
@@ -184,7 +182,7 @@ public class TemporalMeasurement : Measurement
     /// Gets numeric value of this <see cref="TemporalMeasurement"/>, constrained within specified ticks.
     /// </summary>
     /// <remarks>
-    /// <para>Operation will return NaN if ticks are outside of time deviation tolerances.</para>
+    /// <para>Operation will return NaN if ticks are outside time deviation tolerances.</para>
     /// </remarks>
     /// <param name="timestamp">Timestamp, in ticks, used to constrain <see cref="TemporalMeasurement"/> (typically set to real-time, i.e. "now").</param>
     /// <returns>Raw value of this measurement (i.e., value that is not offset by adder and multiplier).</returns>

@@ -139,7 +139,7 @@ public class Device
         // if TSL host application has not already defined one. This is
         // commonly only defined when host has a self-hosted web interface.
         if (registry["Global"] is null)
-            registry.RegisterSymbol("Global", new GlobalSettings());
+            registry.RegisterSymbol("Global", GlobalSettings.Default);
 
     }
 }

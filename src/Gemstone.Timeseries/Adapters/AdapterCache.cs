@@ -32,6 +32,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
 using Gemstone.TypeExtensions;
@@ -177,12 +178,12 @@ public record AdapterCommandInfo
     /// <summary>
     /// Gets the adapter command method attributes for the adapter.
     /// </summary>
-    public required (MethodInfo method, AdapterCommandAttribute attribute)[] MethodAttributes { get; init; }
+    public required (MethodInfo method, AdapterCommandAttribute attribute, string label)[] MethodAttributes { get; init; }
 
     /// <summary>
     /// Gets the map of adapter command attributes by name.
     /// </summary>
-    public required Dictionary<string, (MethodInfo method, AdapterCommandAttribute attribute)> MethodAttributeMap { get; init; }
+    public required Dictionary<string, (MethodInfo method, AdapterCommandAttribute attribute, string label)> MethodAttributeMap { get; init; }
 }
 
 /// <summary>
@@ -294,11 +295,23 @@ public static class AdapterCache
                 // Load adapter types with command attributes
                 s_adapterCommands = s_allAdapters.Values
                     .GetAdapterMethodAttributes<AdapterCommandAttribute>()
-                    .Select(item => new AdapterCommandInfo
+                    .Select(item =>
                     {
-                        Info = item.info,
-                        MethodAttributes = item.methodAttributes,
-                        MethodAttributeMap = item.methodAttributes.ToDictionary(attr => attr.method.Name)
+                        var attributes = item.methodAttributes
+                            .Select(ma =>
+                            {
+                                LabelAttribute? labelAttr = ma.method.GetCustomAttribute<LabelAttribute>();
+                                string labelText = labelAttr?.Label ?? ma.method.Name;
+                                return (ma.method, ma.attribute, Label: labelText);
+                            })
+                            .ToArray();
+
+                        return new AdapterCommandInfo
+                        {
+                            Info = item.info,
+                            MethodAttributes = attributes,
+                            MethodAttributeMap = attributes.ToDictionary(e => e.method.Name)
+                        };
                     })
                     .ToDictionary(item => item.Info.Type, item => item);
 

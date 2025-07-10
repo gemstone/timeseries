@@ -36,6 +36,7 @@ using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
 using Gemstone.TypeExtensions;
+using ParameterMap = System.Collections.Generic.Dictionary<string, (string label, string? description)>;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -178,12 +179,12 @@ public record AdapterCommandInfo
     /// <summary>
     /// Gets the adapter command method attributes for the adapter.
     /// </summary>
-    public required (MethodInfo method, AdapterCommandAttribute attribute, string label)[] MethodAttributes { get; init; }
+    public required (MethodInfo method, AdapterCommandAttribute attribute, string label, ParameterMap paramMap)[] MethodAttributes { get; init; }
 
     /// <summary>
     /// Gets the map of adapter command attributes by name.
     /// </summary>
-    public required Dictionary<string, (MethodInfo method, AdapterCommandAttribute attribute, string label)> MethodAttributeMap { get; init; }
+    public required Dictionary<string, (MethodInfo method, AdapterCommandAttribute attribute, string label, ParameterMap paramMap)> MethodAttributeMap { get; init; }
 }
 
 /// <summary>
@@ -297,12 +298,15 @@ public static class AdapterCache
                     .GetAdapterMethodAttributes<AdapterCommandAttribute>()
                     .Select(item =>
                     {
-                        var attributes = item.methodAttributes
+                        (MethodInfo method, AdapterCommandAttribute attribute, string Label, ParameterMap)[]? attributes = item.methodAttributes
                             .Select(ma =>
                             {
+                                IEnumerable<ParameterAttribute> paramAttrs = ma.method.GetCustomAttributes<ParameterAttribute>();
+                                ParameterMap paramMap = paramAttrs.ToDictionary(a => a.ParamName, a => (a.Label, a.Description));
+
                                 LabelAttribute? labelAttr = ma.method.GetCustomAttribute<LabelAttribute>();
                                 string labelText = labelAttr?.Label ?? ma.method.Name;
-                                return (ma.method, ma.attribute, Label: labelText);
+                                return (ma.method, ma.attribute, Label: labelText, paramMap);
                             })
                             .ToArray();
 
@@ -310,7 +314,7 @@ public static class AdapterCache
                         {
                             Info = item.info,
                             MethodAttributes = attributes,
-                            MethodAttributeMap = attributes.ToDictionary(e => e.method.Name)
+                            MethodAttributeMap = attributes.ToDictionary(e => e.method.Name),
                         };
                     })
                     .ToDictionary(item => item.Info.Type, item => item);

@@ -1110,6 +1110,9 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// </remarks>
     [AdapterCommand("Defines a temporal processing constraint for each adapter in the collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
     [Label("Set Temporal Constraint")]
+    [Parameter(nameof(startTime), "Start Time", "Defines a relative or exact start time for the temporal constraint, defaults to DateTime.MinValue if blank.")]
+    [Parameter(nameof(stopTime), "Stop Time", "Defines a relative or exact stop time for the temporal constraint, defaults to DateTime.MaxValue if blank.")]
+    [Parameter(nameof(constraintParameters), "Constraint Parameters", "Defines any temporal parameters related to the constraint.")]
     public virtual void SetTemporalConstraint(string? startTime, string? stopTime, string? constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?

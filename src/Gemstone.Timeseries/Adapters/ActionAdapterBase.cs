@@ -802,7 +802,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <param name="initialized">Desired initialized state.</param>
     [AdapterCommand("Manually sets the initialized state of the action adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
     [Label("Set Initialized State")]
-    [Parameter("initialized", "Initialized", "Flag that defines the initialized state.")]
+    [Parameter(nameof(initialized), "Initialized", "Manually sets the initialized state of the action adapter.")]
     public virtual void SetInitializedState(bool initialized) =>
         Initialized = initialized;
 
@@ -890,6 +890,9 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </remarks>
     [AdapterCommand("Defines a temporal processing constraint for the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
     [Label("Set Temporal Constraint")]
+    [Parameter(nameof(startTime), "Start Time", "Defines a relative or exact start time for the temporal constraint, defaults to DateTime.MinValue if blank.")]
+    [Parameter(nameof(stopTime), "Stop Time", "Defines a relative or exact stop time for the temporal constraint, defaults to DateTime.MaxValue if blank.")]
+    [Parameter(nameof(constraintParameters), "Constraint Parameters", "Defines any temporal parameters related to the constraint.")]
     public virtual void SetTemporalConstraint(string? startTime, string? stopTime, string? constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?

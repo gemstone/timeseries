@@ -320,6 +320,7 @@ public abstract class IndependentInputAdapterManagerBase : InputAdapterCollectio
     /// <returns>Status for adapter with specified <paramref name="adapterIndex"/>.</returns>
     [AdapterCommand("Gets subscriber information for specified client connection.")]
     [Label("Get Adapter Status")]
+    [Parameter(nameof(adapterIndex), "Adapter Index", "Enumerated index for child adapter.")]
     public virtual string GetAdapterStatus(int adapterIndex) => this.HandleGetAdapterStatus(adapterIndex);
 
     /// <summary>

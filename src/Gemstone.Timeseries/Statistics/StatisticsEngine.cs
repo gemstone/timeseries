@@ -37,6 +37,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Timers;
 using Gemstone.Collections.CollectionExtensions;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
 using Gemstone.Diagnostics;
@@ -569,6 +570,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// Loads or reloads system statistics.
     /// </summary>
     [AdapterCommand("Reloads system statistics.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [Label("Reload Statistics")]
     public void ReloadStatistics()
     {
         // See if statistics should be processed

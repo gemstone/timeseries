@@ -37,6 +37,7 @@ using System.Text;
 using Gemstone.ActionExtensions;
 using Gemstone.Collections;
 using Gemstone.Collections.CollectionExtensions;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
@@ -1040,6 +1041,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// Resets the statistics of this collection.
     /// </summary>
     [AdapterCommand("Resets the statistics of this collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [Label("Reset Statistics")]
     public void ResetStatistics()
     {
         m_processedMeasurements = 0;
@@ -1107,6 +1109,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// </para>
     /// </remarks>
     [AdapterCommand("Defines a temporal processing constraint for each adapter in the collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
+    [Label("Set Temporal Constraint")]
     public virtual void SetTemporalConstraint(string? startTime, string? stopTime, string? constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?

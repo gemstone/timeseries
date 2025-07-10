@@ -30,6 +30,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Text;
 using System.Threading;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Data;
 using Gemstone.Diagnostics;
 using Gemstone.Numeric.EE;
@@ -265,6 +266,7 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     /// Enumerates child adapters.
     /// </summary>
     [AdapterCommand("Enumerates child adapters.")]
+    [Label("Enumerate Adapters")]
     public virtual void EnumerateAdapters() => this.HandleEnumerateAdapters();
 
     /// <summary>
@@ -273,6 +275,7 @@ public abstract class IndependentOutputAdapterManagerBase : OutputAdapterCollect
     /// <param name="adapterIndex">Enumerated index for child adapter.</param>
     /// <returns>Status for adapter with specified <paramref name="adapterIndex"/>.</returns>
     [AdapterCommand("Gets subscriber information for specified client connection.")]
+    [Label("Get Adapter Status")]
     public virtual string GetAdapterStatus(int adapterIndex) => this.HandleGetAdapterStatus(adapterIndex);
 
     /// <summary>

@@ -670,6 +670,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// Enumerates child adapters.
     /// </summary>
     [AdapterCommand("Enumerates child adapters.")]
+    [Label("Enumerate Adapters")]
     public virtual void EnumerateAdapters() =>
         this.HandleEnumerateAdapters();
 
@@ -679,6 +680,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// <param name="adapterIndex">Enumerated index for child adapter.</param>
     /// <returns>Status for adapter with specified <paramref name="adapterIndex"/>.</returns>
     [AdapterCommand("Gets subscriber information for specified client connection.")]
+    [Label("Get Adapter Status")]
     public virtual string GetAdapterStatus(int adapterIndex) =>
         this.HandleGetAdapterStatus(adapterIndex);
 

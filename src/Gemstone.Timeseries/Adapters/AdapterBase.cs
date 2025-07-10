@@ -654,6 +654,7 @@ public abstract class AdapterBase : IAdapter
     /// </summary>
     /// <param name="initialized">Desired initialized state.</param>
     [AdapterCommand("Manually sets the initialized state of the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [Label("Set Initialized State")]
     public virtual void SetInitializedState(bool initialized) =>
         Initialized = initialized;
 
@@ -714,6 +715,7 @@ public abstract class AdapterBase : IAdapter
     /// </para>
     /// </remarks>
     [AdapterCommand("Defines a temporal processing constraint for the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
+    [Label("Set Temporal Constraint")]
     public virtual void SetTemporalConstraint(string startTime, string stopTime, string constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?

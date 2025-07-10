@@ -779,6 +779,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// Examines the concentrator frame queue state of the <see cref="ActionAdapterBase"/>.
     /// </summary>
     [AdapterCommand("Examines concentration frame queue state.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
+    [Label("Examine Queue State")]
     public void ExamineQueueState() =>
         OnStatusMessage(MessageLevel.Info, QueueState);
 
@@ -786,6 +787,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// Resets the statistics of the <see cref="ActionAdapterBase"/>.
     /// </summary>
     [AdapterCommand("Resets the statistics of the action adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [Label("Reset Statistics")]
     public override void ResetStatistics()
     {
         base.ResetStatistics();
@@ -799,6 +801,8 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </summary>
     /// <param name="initialized">Desired initialized state.</param>
     [AdapterCommand("Manually sets the initialized state of the action adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [Label("Set Initialized State")]
+    [Parameter("initialized", "Initialized", "Flag that defines the initialized state.")]
     public virtual void SetInitializedState(bool initialized) =>
         Initialized = initialized;
 
@@ -885,6 +889,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </para>
     /// </remarks>
     [AdapterCommand("Defines a temporal processing constraint for the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
+    [Label("Set Temporal Constraint")]
     public virtual void SetTemporalConstraint(string? startTime, string? stopTime, string? constraintParameters)
     {
         m_startTimeConstraint = string.IsNullOrWhiteSpace(startTime) ?

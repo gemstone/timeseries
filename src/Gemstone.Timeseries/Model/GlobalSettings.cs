@@ -36,6 +36,7 @@ public class GlobalSettings
 {
     private static string? s_companyAcronym;
     private static string? s_systemName;
+    private static int? s_defaultframeRate;
     private static double? s_nominalFrequency;
 
     private static string ReadCompanyAcronymFromConfig()
@@ -95,6 +96,25 @@ public class GlobalSettings
         }
     }
 
+    private static int ReadDefaultFrameRatefromConfig()
+    {
+        try
+        {
+            dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
+            int defaultFrameRate = section["DefaultFrameRate", "30", "Defines the default frame rate used for adpters in frames per second."];
+
+            if (defaultFrameRate <= 0)
+                defaultFrameRate = 30; // Default to 30 FPS if invalid value is set
+
+            return defaultFrameRate;
+        }
+        catch (Exception ex)
+        {
+            Logger.SwallowException(ex, "Failed to load default frame rate from settings");
+            return 30;
+        }
+    }
+
     /// <summary>
     /// Gets the company acronym for the host system.
     /// </summary>
@@ -109,6 +129,11 @@ public class GlobalSettings
     /// Gets the nominal frequency value used for system operations.
     /// </summary>
     public double NominalFrequency => s_nominalFrequency ??= ReadNominalFrequencyFromConfig();
+
+    /// <summary>
+    /// Gets the default frame rate value used for adapters.
+    /// </summary>
+    public int DefaultFrameRate => s_defaultframeRate ??= ReadDefaultFrameRatefromConfig();
 
     /// <summary>
     /// Defines default instance for global settings.

@@ -15,7 +15,11 @@ public class PhasorValues
         get;
         set;
     }
-
+    public string Label
+    {
+        get;
+        set;
+    }
     public int? DeviceID
     {
         get;

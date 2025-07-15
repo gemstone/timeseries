@@ -780,8 +780,11 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </summary>
     [AdapterCommand("Examines concentration frame queue state.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
     [Label("Examine Queue State")]
-    public void ExamineQueueState() =>
+    public string ExamineQueueState()
+    {
         OnStatusMessage(MessageLevel.Info, QueueState);
+        return QueueState;
+    }
 
     /// <summary>
     /// Resets the statistics of the <see cref="ActionAdapterBase"/>.

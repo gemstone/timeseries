@@ -1133,9 +1133,10 @@ public abstract class AdapterBase : IAdapter
             foreach (MeasurementKey key in sourceIDKeys)
             {
                 // Create a new measurement for the provided field level information
-                Measurement measurement = new();
-                measurement.Metadata = key.Metadata;
-                measurements.Add(measurement);
+                measurements.Add(new Measurement()
+                {
+                    Metadata = key.Metadata
+                });
             }
 
             // Combine output measurements for source IDs with any existing output measurements and return unique set

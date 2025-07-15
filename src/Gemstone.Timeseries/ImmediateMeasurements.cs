@@ -469,8 +469,6 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
         // Set new value updating state flags if value was updated...
         if (!measurement.SetValue(m_realTimeFunction(), newMeasurement.Timestamp, newMeasurement.Value, newMeasurement.StateFlags))
             return;
-
-        measurement.Metadata = newMeasurement.Metadata;
     }
 
     /// <summary>

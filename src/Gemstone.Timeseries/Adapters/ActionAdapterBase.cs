@@ -782,8 +782,9 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [Label("Examine Queue State")]
     public string ExamineQueueState()
     {
-        OnStatusMessage(MessageLevel.Info, QueueState);
-        return QueueState;
+        string queueState = QueueState;
+        OnStatusMessage(MessageLevel.Info, queueState);
+        return queueState;
     }
 
     /// <summary>

@@ -804,11 +804,11 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
                 // connection string and load values from the adapter cache
                 Dictionary<string, string> settings = connectionString.ParseKeyValuePairs();
 
-                if (settings.TryGetValue("phasorProtocol", out string? phasorProtocol) && !string.IsNullOrWhiteSpace(phasorProtocol))
+                if ((settings.TryGetValue("protocol", out string? protocol) || settings.TryGetValue("phasorProtocol", out protocol)) && !string.IsNullOrWhiteSpace(protocol))
                 {
                     foreach (AdapterProtocolInfo adapterProtocol in AdapterCache.AdapterProtocols.Values)
                     {
-                        if (adapterProtocol.Attributes.Any(attribute => string.Equals(phasorProtocol, attribute.Acronym, StringComparison.OrdinalIgnoreCase)))
+                        if (adapterProtocol.Attributes.Any(attribute => string.Equals(protocol, attribute.Acronym, StringComparison.OrdinalIgnoreCase)))
                         {
                             assemblyName = adapterProtocol.Info.AssemblyName;
                             typeName = adapterProtocol.Info.TypeName;

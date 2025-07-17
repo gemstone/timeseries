@@ -333,23 +333,11 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             IsBackground = true
         };
 
-        // Setup default thread pool size
-        try
-        {
-            ThreadPool.SetMinThreads(section.MinThreadPoolWorkerThreads, section.MinThreadPoolIOPortThreads);
-            ThreadPool.SetMaxThreads(section.MaxThreadPoolWorkerThreads, section.MaxThreadPoolIOPortThreads);
-        }
-        catch (Exception ex)
-        {
-            DisplayStatusMessage("Failed to set desired thread pool size due to exception: {0}", UpdateType.Alarm, ex.Message);
-            LogException(ex);
-        }
-
         // Get configuration settings for thread pool size
-        int targetMinThreadPoolSize = section.MinThreadPoolWorkerThreads;
-        int targetMaxThreadPoolSize = section.MaxThreadPoolWorkerThreads;
-        int targetMinIOPortThreads = section.MinThreadPoolIOPortThreads;
-        int targetMaxIOPortThreads = section.MaxThreadPoolIOPortThreads;
+        int targetMinThreadPoolSize = section.MinThreadPoolWorkerThreads; //Math.Max(section.MinThreadPoolWorkerThreads, short.MaxValue);
+        int targetMaxThreadPoolSize = section.MaxThreadPoolWorkerThreads; //Math.Max(section.MaxThreadPoolWorkerThreads, short.MaxValue * 20);
+        int targetMinIOPortThreads = section.MinThreadPoolIOPortThreads;  //Math.Max(section.MinThreadPoolIOPortThreads, Environment.ProcessorCount);
+        int targetMaxIOPortThreads = section.MaxThreadPoolIOPortThreads;  //Math.Max(section.MaxThreadPoolIOPortThreads, Environment.ProcessorCount * 20);
 
         // If all thread pool sizes are set to -1, then do not change system defaults
         if (targetMinThreadPoolSize > -1 || targetMaxThreadPoolSize > -1 || targetMinIOPortThreads > -1 || targetMaxIOPortThreads > -1)

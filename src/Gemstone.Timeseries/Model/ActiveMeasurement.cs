@@ -173,6 +173,12 @@ public class ActiveMeasurement
         set;
     }
 
+    public double BaseKV
+    {
+        get;
+        set;
+    }
+
     public decimal Latitude
     {
         get;

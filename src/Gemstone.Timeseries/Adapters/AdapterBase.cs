@@ -1176,13 +1176,17 @@ public abstract class AdapterBase : IAdapter
     /// <param name="allowSelect">Determines if database access via "SELECT" statement should be allowed for defining input measurement keys (see remarks about security).</param>
     /// <param name="value">Value of setting used to define input measurement keys, typically "inputMeasurementKeys".</param>
     /// <param name="measurementTable">Measurement table name used to load additional meta-data; this is not used when specifying a FILTER expression.</param>
+    /// <param name="measurementColumns">Columns in measurementTable that should be searched when not applying a Filter Expression</param>
     /// <returns>User selected input measurement keys.</returns>
     /// <remarks>
     /// Security warning: allowing SELECT statements, i.e., setting <paramref name="allowSelect"/> to <c>true</c>, should only be allowed in cases where SQL
     /// injection would not be an issue (e.g., in places where a user can already access the database and would have nothing to gain via an injection attack).
     /// </remarks>
-    public static MeasurementKey[] ParseInputMeasurementKeys(DataSet? dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements")
+    public static MeasurementKey[] ParseInputMeasurementKeys(DataSet? dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements", string[] measurementColumns = null)
     {
+        if (measurementColumns is null)
+            measurementColumns = new[] {"PointTag","ID"};
+
         List<MeasurementKey> keys = [];
         MeasurementKey key;
         bool dataSourceAvailable = dataSource is not null;
@@ -1261,11 +1265,15 @@ public abstract class AdapterBase : IAdapter
                     if (dataSourceAvailable && dataSource.Tables.Contains(measurementTable))
                     {
                         // The item could not be parsed as a signal ID, but we do have a data source we can use to find the signal ID
-                        DataRow[] filteredRows = dataSource.Tables[measurementTable].Select($"ID = '{item.Trim()}'");
+                        DataRow[] filteredRows = new DataRow[0];
 
-                        if (filteredRows.Length == 0)
-                            filteredRows = dataSource.Tables[measurementTable].Select($"PointTag = '{item.Trim()}'");
-
+                        foreach (string column in measurementColumns)
+                        {
+                            filteredRows = dataSource.Tables[measurementTable].Select($"{column} = '{item.Trim()}'");
+                            if (filteredRows.Length > 0)
+                                break;
+                        }
+                        
                         if (filteredRows.Length > 0)
                             key = MeasurementKey.LookUpOrCreate(filteredRows[0]["SignalID"].ToNonNullString(Guid.Empty.ToString()).ConvertToType<Guid>(), filteredRows[0][nameof(ID)].ToString());
                     }

@@ -94,19 +94,6 @@ public class ActiveMeasurement
         set;
     }
 
-    public string Protocol
-    {
-        get;
-        set;
-    }
-
-    [Label("Protocol Type")]
-    public string ProtocolType
-    {
-        get;
-        set;
-    }
-
     [Label("Signal Type<span class='pull-right' data-bind='text: notNull(EngineeringUnits()).length > 0 ? \"&nbsp;(\" + EngineeringUnits()  + \")\" : \"\"'></span>")]
     public string SignalType
     {

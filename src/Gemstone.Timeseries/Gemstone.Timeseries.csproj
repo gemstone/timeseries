@@ -58,7 +58,6 @@
   <ItemGroup>
      <ProjectReference Include="..\..\..\common\src\Gemstone\Gemstone.Common.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Common" Version="1.0.134" Condition="'$(Configuration)'!='Development'" />
-     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
 
      <ProjectReference Include="..\..\..\communication\src\Gemstone.Communication\Gemstone.Communication.csproj" Condition="'$(Configuration)'=='Development'" />
      <PackageReference Include="Gemstone.Communication" Version="1.0.134" Condition="'$(Configuration)'!='Development'" />

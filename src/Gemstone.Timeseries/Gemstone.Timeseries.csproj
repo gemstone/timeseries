@@ -78,7 +78,7 @@
      <ProjectReference Include="..\..\..\diagnostics\src\Gemstone.Diagnostics\Gemstone.Diagnostics.csproj" Condition="'$(Configuration)'=='Development'" /> 
      <PackageReference Include="Gemstone.Diagnostics" Version="1.0.134" Condition="'$(Configuration)'!='Development'" />
 
-     <PackageReference Include="System.Diagnostics.EventLog" Version="8.0.0" />
+     <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.8" />
   </ItemGroup>
 
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />

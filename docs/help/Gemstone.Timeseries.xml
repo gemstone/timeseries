@@ -21,15 +21,14 @@
             </summary>
       <param name="operation">The operation to be performed when testing values from the incoming signal.</param>
     </member>
-    <member name="P:Gemstone.Timeseries.Alarm.AssociatedMeasurementID">
+    <member name="P:Gemstone.Timeseries.Alarm.ActiveTags">
       <summary>
-            Gets or sets the identification number of
-            the measurements generated for alarm events.
+            Gets the latest set of measurement keys that cause the Alarm to be raised.
             </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Alarm.Cause">
       <summary>
-            Gets the most recent measurement
+            Gets the most recent frame
             that caused the alarm to be raised.
             </summary>
     </member>
@@ -41,6 +40,16 @@
             A new alarm that is a copy of this instance.
             </returns>
     </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Combination">
+      <summary>
+            Gets or sets the combination logic of the alarm.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.CreateAssociatedMeasurement">
+      <summary>
+            Gets or sets flag to indicate that a measurement should be created for this alarm.
+            </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Alarm.Delay">
       <summary>
             Gets or sets the amount of time that the
@@ -51,6 +60,11 @@
     <member name="P:Gemstone.Timeseries.Alarm.Description">
       <summary>
             Gets or sets the description of the alarm.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Enabled">
+      <summary>
+            Gets and Sets Enabled flag
             </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Alarm.Hysteresis">
@@ -78,6 +92,12 @@
             Gets or sets the identification number of the alarm.
             </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Alarm.InputMeasurementKeys">
+      <summary>
+            Gets or sets the identification
+            the measurements used to trigger the Alarm.
+            </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Alarm.Operation">
       <summary>
             Gets or sets the operation to be performed
@@ -100,7 +120,7 @@
     <member name="P:Gemstone.Timeseries.Alarm.SignalID">
       <summary>
             Gets or sets the identification number of the
-            signal whose value is monitored by the alarm.
+            the measurements generated for alarm events.
             </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Alarm.State">
@@ -113,13 +133,18 @@
             Gets or sets the tag name of the alarm.
             </summary>
     </member>
-    <member name="M:Gemstone.Timeseries.Alarm.Test(Gemstone.Timeseries.IMeasurement)">
+    <member name="M:Gemstone.Timeseries.Alarm.Test(Gemstone.Timeseries.IFrame)">
       <summary>
-            Tests the value of the given measurement to determine
+            Tests the value of the given frame to determine
             whether the alarm should be raised or cleared.
             </summary>
-      <param name="measurement">The measurement whose value is to be tested.</param>
+      <param name="frame">The frame whose value is to be tested.</param>
       <returns>true if the alarm's state changed; false otherwise</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Alarm.Timeout">
+      <summary>
+            Gets or sets the Timeout in seconds at which the alarm stops if no data comes in.
+            </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Alarm.TimeRaised">
       <summary>
@@ -144,6 +169,41 @@
           <item>Not equal: <c>(value &lt; SetPoint - Tolerance) || (value &gt; SetPoint + Tolerance)</c></item>
         </list>
       </remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.AlarmCombination">
+      <summary>
+            Represents the operation to be performed
+            when testing values from an incoming signal.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmCombination.AND">
+      <summary>
+            Require ALL singnals to meet Alarm Criteria
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmCombination.OR">
+      <summary>
+            Require ANY signal to meet Alarm Criteria
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.AlarmMeasurement">
+      <summary>
+            Represents an alarm measurement.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.AlarmMeasurement.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.AlarmMeasurement</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.AlarmMeasurement.AlarmID">
+      <summary>
+            Gets or sets Guid-based alarm ID.
+            </summary>
     </member>
     <member name="T:Gemstone.Timeseries.AlarmOperation">
       <summary>
@@ -184,6 +244,16 @@
     <member name="F:Gemstone.Timeseries.AlarmOperation.Flatline">
       <summary>
             Latched value
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmOperation.And">
+      <summary>
+            Bitwise AND
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.AlarmOperation.Or">
+      <summary>
+            Bitwise OR
             </summary>
     </member>
     <member name="T:Gemstone.Timeseries.AlarmSeverity">
@@ -914,6 +984,31 @@
             Gets the total number of wait handle expirations encountered due to delayed precision timer releases.
             </summary>
     </member>
+    <member name="T:Gemstone.Timeseries.ConfigurationType">
+      <summary>
+            Configuration data source type enumeration.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.ConfigurationType.Database">
+      <summary>
+            Configuration source is a database.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.ConfigurationType.WebService">
+      <summary>
+            Configuration source is a web-service.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.ConfigurationType.BinaryFile">
+      <summary>
+            Configuration source is a binary file.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.ConfigurationType.XmlFile">
+      <summary>
+            Configuration source is a XML file.
+            </summary>
+    </member>
     <member name="T:Gemstone.Timeseries.ConnectionException">
       <summary>
             Represents an exception related to connection activities.
@@ -1132,6 +1227,132 @@
             The value of this property represents the number of 100-nanosecond intervals that have elapsed since 12:00:00 midnight, January 1, 0001.
             </remarks>
     </member>
+    <member name="T:Gemstone.Timeseries.FrameQueue">
+      <summary>
+            Represents a real-time queue of <see cref="T:Gemstone.Timeseries.TrackingFrame" /> instances used by the <see cref="T:Gemstone.Timeseries.ConcentratorBase" /> class.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.FrameQueue.#ctor(Gemstone.Timeseries.FrameQueue.CreateNewFrameFunction)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.FrameQueue" />.
+            </summary>
+      <param name="createNewFrame">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>createNewFrame</parameter>
+            <parameter>M:Gemstone.Timeseries.FrameQueue.#ctor(Gemstone.Timeseries.FrameQueue.CreateNewFrameFunction)</parameter>
+          </include>
+        </markup>
+      </param>
+    </member>
+    <member name="M:Gemstone.Timeseries.FrameQueue.Clear">
+      <summary>
+            Clears the <see cref="T:Gemstone.Timeseries.FrameQueue" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.FrameQueue.Count">
+      <summary>
+            Returns the total number of frames in the <see cref="T:Gemstone.Timeseries.FrameQueue" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.FrameQueue.Dispose">
+      <summary>
+            Releases all the resources used by the <see cref="T:Gemstone.Timeseries.FrameQueue" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.FrameQueue.Dispose(System.Boolean)">
+      <summary>
+            Releases the unmanaged resources used by the <see cref="T:Gemstone.Timeseries.FrameQueue" /> object and optionally releases the managed resources.
+            </summary>
+      <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.FrameQueue.DownsamplingMethod">
+      <summary>
+            Gets or sets the <see cref="T:Gemstone.Timeseries.DownsamplingMethod" /> to be used by the <see cref="T:Gemstone.Timeseries.FrameQueue" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.FrameQueue.ExamineQueueState(System.Int32)">
+      <summary>
+            Examines and returns the status of the <see cref="T:Gemstone.Timeseries.FrameQueue" />.
+            </summary>
+      <param name="expectedMeasurements">Number of expected measurements per frame.</param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.FrameQueue.ExamineQueueState(System.Int32)</parameter>
+          </include>
+        </markup>
+      </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.FrameQueue.Finalize">
+      <summary>
+            Releases the unmanaged resources before the <see cref="T:Gemstone.Timeseries.FrameQueue" /> object is reclaimed by <see cref="T:System.GC" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.FrameQueue.FramesPerSecond">
+      <summary>
+            Gets or sets the number of frames per second to be used by <see cref="T:Gemstone.Timeseries.FrameQueue" />.
+            </summary>
+      <remarks>
+            Valid frame rates are greater than 0 frames per second.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.FrameQueue.GetFrame(System.Int64)">
+      <summary>
+            Gets <see cref="T:Gemstone.Timeseries.TrackingFrame" /> from the queue with the specified timestamp, in ticks.  If no frame exists for
+            the specified timestamp, one will be created.
+            </summary>
+      <param name="ticks">Timestamp, in ticks, for which to get or create <see cref="T:Gemstone.Timeseries.TrackingFrame" />.</param>
+      <returns>An existing or new <see cref="T:Gemstone.Timeseries.TrackingFrame" /> from the queue for the specified timestamp.</returns>
+      <remarks>
+            Ticks can be any point in time so long time requested is greater than time of last published frame; this queue is
+            used in a real-time scenario with time moving forward.  If a frame is requested for an old timestamp, null will
+            be returned. Note that frame returned will be "best-fit" for given timestamp based on <see cref="P:Gemstone.Timeseries.FrameQueue.FramesPerSecond" />.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.FrameQueue.Head">
+      <summary>
+            Returns the next <see cref="T:Gemstone.Timeseries.TrackingFrame" /> in the <see cref="T:Gemstone.Timeseries.FrameQueue" />, if any.
+            </summary>
+      <remarks>
+            This property is tracked separately from the internal frame collection, as a
+            result this property may be called at any time without a locking penalty.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.FrameQueue.Last">
+      <summary>
+            Gets the last processed <see cref="T:Gemstone.Timeseries.TrackingFrame" /> in the <see cref="T:Gemstone.Timeseries.FrameQueue" />.
+            </summary>
+      <remarks>
+            This property is tracked separately from the internal frame collection, as a
+            result this property may be called at any time without a locking penalty.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.FrameQueue.Pop">
+      <summary>
+            Removes current <see cref="P:Gemstone.Timeseries.FrameQueue.Head" /> frame from the <see cref="T:Gemstone.Timeseries.FrameQueue" /> after it has been processed and assigns a new <see cref="P:Gemstone.Timeseries.FrameQueue.Head" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.FrameQueue.RoundToNearestTimestamp">
+      <summary>
+            Gets or sets a value to indicate whether to round to the nearest
+            frame timestamp rather than rounding down to the nearest timestamps.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.FrameQueue.TimeResolution">
+      <summary>
+            Gets or sets the maximum time resolution to use when sorting measurements by timestamps into their proper destination frame.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.FrameQueue.CreateNewFrameFunction">
+      <summary>
+            Delegate signature for a function that creates a new <see cref="T:Gemstone.Timeseries.IFrame" /> instance.
+            </summary>
+      <param name="timestamp"> The Timestamp of the new Frame </param>
+      <returns>Returns an <see cref="T:Gemstone.Timeseries.IFrame" /></returns>
+    </member>
     <member name="T:Gemstone.Timeseries.IDevice">
       <summary>
             Represents a device that acts as a source of <see cref="T:Gemstone.Timeseries.IMeasurement" />s.
@@ -1309,7 +1530,7 @@
     </member>
     <member name="M:Gemstone.Timeseries.IMeasurementExtensions.GetDataColumn(Gemstone.Timeseries.IMeasurement[0:,0:],System.Int32)">
       <summary>
-            Gets a single column of measurement data from a two dimensional data window.
+            Gets a single column of measurement data from a two-dimensional data window.
             </summary>
       <param name="dataWindow">Target data window.</param>
       <param name="columnIndex">Index of column to return.</param>
@@ -1317,13 +1538,38 @@
     </member>
     <member name="M:Gemstone.Timeseries.IMeasurementExtensions.GetSignalType(Gemstone.Timeseries.IMeasurement,System.Data.DataSet)">
       <summary>
-            Gets a unique (run-time only) signal type ID for the given <paramref name="measurement" /> useful for sorting.
+            Gets the <see cref="T:Gemstone.Numeric.EE.SignalType" /> for the given <paramref name="measurement" /> as queried from the database - or -
+            <see cref="F:Gemstone.Numeric.EE.SignalType.NONE" /> if the signal type is not found in the database, the measurement ID is empty, or the
+            signal type ID is not a valid <see cref="T:Gemstone.Numeric.EE.SignalType" /> enumeration value.
             </summary>
       <param name="measurement">
         <see cref="T:Gemstone.Timeseries.IMeasurement" /> to obtain signal type for.</param>
       <param name="dataSource">
         <see cref="T:System.Data.DataSet" /> that contains measurement metadata.</param>
-      <returns>Unique (run-time only) signal type ID for the given <paramref name="measurement" />.</returns>
+      <returns>
+        <see cref="T:Gemstone.Numeric.EE.SignalType" /> for the given <paramref name="measurement" /> if found in database; otherwise, <see cref="F:Gemstone.Numeric.EE.SignalType.NONE" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.GetSignalTypeID(Gemstone.Timeseries.IMeasurement,System.Data.DataSet,Gemstone.Numeric.EE.SignalType)">
+      <summary>
+            Gets the signal type ID for the given <paramref name="measurement" /> as queried from the database.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> to obtain signal type for.</param>
+      <param name="dataSource">
+        <see cref="T:System.Data.DataSet" /> that contains measurement metadata.</param>
+      <param name="defaultSignalType">Default signal type to use if lookup fails -- uses enum value as ID.</param>
+      <returns>Signal type ID for the given <paramref name="measurement" /> if found in database; otherwise, <paramref name="defaultSignalType" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.GetSignalTypeID(Gemstone.Timeseries.IMeasurement,System.Data.DataSet,System.Int32)">
+      <summary>
+            Gets the signal type ID for the given <paramref name="measurement" /> as queried from the database.
+            </summary>
+      <param name="measurement">
+        <see cref="T:Gemstone.Timeseries.IMeasurement" /> to obtain signal type for.</param>
+      <param name="dataSource">
+        <see cref="T:System.Data.DataSet" /> that contains measurement metadata.</param>
+      <param name="defaultSignalTypeID">Default signal type ID to use if lookup fails.</param>
+      <returns>Signal type ID for the given <paramref name="measurement" /> if found in database; otherwise, <paramref name="defaultSignalTypeID" />.</returns>
     </member>
     <member name="M:Gemstone.Timeseries.IMeasurementExtensions.IsCalculated(Gemstone.Timeseries.IMeasurement)">
       <summary>
@@ -1351,14 +1597,6 @@
         <see cref="T:Gemstone.Timeseries.IMeasurement" /> enumeration to convert.</param>
       <returns>
         <see cref="T:Gemstone.Timeseries.MeasurementKey" /> values of the <see cref="T:Gemstone.Timeseries.IMeasurement" /> enumeration.</returns>
-    </member>
-    <member name="M:Gemstone.Timeseries.IMeasurementExtensions.RuntimeSignalID(Gemstone.Timeseries.IMeasurement)">
-      <summary>
-            Returns the measurement ID if defined, otherwise the run-time signal ID associated with the measurement key.
-            </summary>
-      <param name="measurement">
-        <see cref="T:Gemstone.Timeseries.IMeasurement" /> instance to test.</param>
-      <returns>Measurement ID if defined, otherwise the run-time signal ID associated with the measurement key.</returns>
     </member>
     <member name="M:Gemstone.Timeseries.IMeasurementExtensions.SetAdder(Gemstone.Timeseries.IMeasurement,System.Double)">
       <summary>
@@ -1490,7 +1728,7 @@
     </member>
     <member name="P:Gemstone.Timeseries.ImmediateMeasurements.LagTime">
       <summary>
-            Gets or sets the allowed past time deviation tolerance, in seconds (can be sub-second).
+            Gets or sets the allowed past-time deviation tolerance, in seconds (can be sub-second).
             </summary>
       <remarks>
         <para>Defines the time sensitivity to past measurement timestamps.</para>
@@ -1900,6 +2138,159 @@
             </summary>
       <returns>Raw value of this <see cref="T:Gemstone.Timeseries.Measurement" /> (i.e., value that is not offset by <see cref="P:Gemstone.Timeseries.Measurement.Adder" /> and <see cref="P:Gemstone.Timeseries.Measurement.Multiplier" />).</returns>
     </member>
+    <member name="T:Gemstone.Timeseries.MeasurementDictionary">
+      <summary>
+            Represents a measurement dictionary used with a <see cref="T:Gemstone.Timeseries.Frame" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.MeasurementDictionary" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement}})">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.MeasurementDictionary" />.
+            </summary>
+      <param name="measurements">The measurements that are copied to the new <see cref="T:Gemstone.Timeseries.MeasurementDictionary" />.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.#ctor(System.Int32,System.Int32)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.MeasurementDictionary" />.
+            </summary>
+      <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="T:Gemstone.Timeseries.MeasurementDictionary" /> concurrently, or -1 to indicate a default value.</param>
+      <param name="capacity">The initial number of elements that the <see cref="T:Gemstone.Timeseries.MeasurementDictionary" /> can contain.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.Add(Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement)">
+      <summary>Adds an element with the provided key and value to the <see cref="T:System.Collections.Generic.IDictionary`2" />.</summary>
+      <param name="key">The object to use as the key of the element to add.</param>
+      <param name="value">The object to use as the value of the element to add.</param>
+      <exception cref="T:System.ArgumentNullException">
+        <paramref name="key" /> is <see langword="null" />.</exception>
+      <exception cref="T:System.ArgumentException">An element with the same key already exists in the <see cref="T:System.Collections.Generic.IDictionary`2" />.</exception>
+      <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.IDictionary`2" /> is read-only.</exception>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.Add(System.Collections.Generic.KeyValuePair{Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement})">
+      <summary>Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>
+      <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
+      <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</exception>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.Clear">
+      <summary>Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>
+      <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</exception>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.Contains(System.Collections.Generic.KeyValuePair{Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement})">
+      <summary>Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.</summary>
+      <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
+      <returns>
+        <see langword="true" /> if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, <see langword="false" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.ContainsKey(Gemstone.Timeseries.MeasurementKey)">
+      <summary>Represents a generic collection of key/value pairs.</summary>
+      <param name="key">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>key</parameter>
+            <parameter>M:Gemstone.Timeseries.MeasurementDictionary.ContainsKey(Gemstone.Timeseries.MeasurementKey)</parameter>
+          </include>
+        </markup>
+      </param>
+      <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
+      <typeparam name="TValue">The type of values in the dictionary.</typeparam>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.MeasurementDictionary.ContainsKey(Gemstone.Timeseries.MeasurementKey)</parameter>
+          </include>
+        </markup>
+      </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.CopyTo(System.Collections.Generic.KeyValuePair{Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement}[],System.Int32)">
+      <summary>Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1" /> to an <see cref="T:System.Array" />, starting at a particular <see cref="T:System.Array" /> index.</summary>
+      <param name="array">The one-dimensional <see cref="T:System.Array" /> that is the destination of the elements copied from <see cref="T:System.Collections.Generic.ICollection`1" />. The <see cref="T:System.Array" /> must have zero-based indexing.</param>
+      <param name="arrayIndex">The zero-based index in <paramref name="array" /> at which copying begins.</param>
+      <exception cref="T:System.ArgumentNullException">
+        <paramref name="array" /> is <see langword="null" />.</exception>
+      <exception cref="T:System.ArgumentOutOfRangeException">
+        <paramref name="arrayIndex" /> is less than 0.</exception>
+      <exception cref="T:System.ArgumentException">The number of elements in the source <see cref="T:System.Collections.Generic.ICollection`1" /> is greater than the available space from <paramref name="arrayIndex" /> to the end of the destination <paramref name="array" />.</exception>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementDictionary.Count">
+      <summary>Represents a generic collection of key/value pairs.</summary>
+      <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
+      <typeparam name="TValue">The type of values in the dictionary.</typeparam>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.GetEnumerator">
+      <summary>Returns an enumerator that iterates through the collection.</summary>
+      <returns>An enumerator that can be used to iterate through the collection.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementDictionary.IsReadOnly">
+      <summary>Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</summary>
+      <returns>
+        <see langword="true" /> if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise, <see langword="false" />.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementDictionary.Item(Gemstone.Timeseries.MeasurementKey)">
+      <summary>Represents a generic collection of key/value pairs.</summary>
+      <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
+      <typeparam name="TValue">The type of values in the dictionary.</typeparam>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementDictionary.Keys">
+      <summary>Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the <see cref="T:System.Collections.Generic.IDictionary`2" />.</summary>
+      <returns>An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.Remove(Gemstone.Timeseries.MeasurementKey)">
+      <summary>Removes the element with the specified key from the <see cref="T:System.Collections.Generic.IDictionary`2" />.</summary>
+      <param name="key">The key of the element to remove.</param>
+      <returns>
+        <see langword="true" /> if the element is successfully removed; otherwise, <see langword="false" />.  This method also returns <see langword="false" /> if <paramref name="key" /> was not found in the original <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
+      <exception cref="T:System.ArgumentNullException">
+        <paramref name="key" /> is <see langword="null" />.</exception>
+      <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.IDictionary`2" /> is read-only.</exception>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.Remove(System.Collections.Generic.KeyValuePair{Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement})">
+      <summary>Removes the first occurrence of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>
+      <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
+      <returns>
+        <see langword="true" /> if <paramref name="item" /> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, <see langword="false" />. This method also returns <see langword="false" /> if <paramref name="item" /> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
+      <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</exception>
+    </member>
+    <member name="M:Gemstone.Timeseries.MeasurementDictionary.TryGetValue(Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement@)">
+      <summary>Represents a generic collection of key/value pairs.</summary>
+      <param name="key">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>key</parameter>
+            <parameter>M:Gemstone.Timeseries.MeasurementDictionary.TryGetValue(Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement@)</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="value">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>value</parameter>
+            <parameter>M:Gemstone.Timeseries.MeasurementDictionary.TryGetValue(Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement@)</parameter>
+          </include>
+        </markup>
+      </param>
+      <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
+      <typeparam name="TValue">The type of values in the dictionary.</typeparam>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.MeasurementDictionary.TryGetValue(Gemstone.Timeseries.MeasurementKey,Gemstone.Timeseries.IMeasurement@)</parameter>
+          </include>
+        </markup>
+      </returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.MeasurementDictionary.Values">
+      <summary>Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the <see cref="T:System.Collections.Generic.IDictionary`2" />.</summary>
+      <returns>An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
+    </member>
     <member name="T:Gemstone.Timeseries.MeasurementKey">
       <summary>
             Represents a primary key for a measurement.
@@ -1931,7 +2322,7 @@
       <exception cref="T:System.ArgumentNullException">
         <paramref name="source" /> cannot be null.</exception>
     </member>
-    <member name="M:Gemstone.Timeseries.MeasurementKey.EstablishDefaultCache(System.Data.IDbConnection,System.String)">
+    <member name="M:Gemstone.Timeseries.MeasurementKey.EstablishDefaultCache(System.Data.Common.DbConnection,System.String)">
       <summary>
             Establish default <see cref="T:Gemstone.Timeseries.MeasurementKey" /> cache.
             </summary>
@@ -2531,14 +2922,187 @@
             Represents the time-series framework service host.
             </summary>
     </member>
-    <member name="M:Gemstone.Timeseries.ServiceHostBase.#ctor">
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.#ctor(Microsoft.Extensions.Logging.ILogger)">
       <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.ServiceHostBase" />.
+            </summary>
+      <param name="logger">
         <markup>
-          <include item="SMCAutoDocConstructor">
-            <parameter>Gemstone.Timeseries.ServiceHostBase</parameter>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>logger</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.#ctor(Microsoft.Extensions.Logging.ILogger)</parameter>
           </include>
         </markup>
-      </summary>
+      </param>
+    </member>
+    <member name="P:Gemstone.Timeseries.ServiceHostBase.ActionAdapters">
+      <summary>
+            Gets reference to the <see cref="T:Gemstone.Timeseries.Adapters.ActionAdapterCollection" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ServiceHostBase.AllAdapters">
+      <summary>
+            Gets reference to the <see cref="T:Gemstone.Timeseries.Adapters.AllAdaptersCollection" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.CacheCurrentConfiguration(System.Data.DataSet)">
+      <summary>
+            Caches the current system configuration.
+            </summary>
+      <param name="configuration">Configuration <see cref="T:System.Data.DataSet" />.</param>
+      <remarks>
+            This method allows caching of the current system configuration, so it can be used if primary configuration source is unavailable.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.ServiceHostBase.ConfigurationType">
+      <summary>
+            Gets the defined system <see cref="T:Gemstone.Timeseries.ConfigurationType" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ServiceHostBase.ConsoleApplicationName">
+      <summary>
+            Gets the related remote console application name.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ServiceHostBase.DataSource">
+      <summary>
+            Gets the currently loaded system configuration <see cref="T:System.Data.DataSet" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.DefineSettings(Gemstone.Configuration.Settings,System.String)">
+      <summary>
+            Establishes default settings for the config file.
+            </summary>
+      <param name="settings">Settings instance used to hold configuration.</param>
+      <param name="settingsCategory">The config file settings category under which the settings are defined.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.UpdateType)">
+      <summary>
+            Displays a broadcast message to all subscribed clients.
+            </summary>
+      <param name="status">Status message to send to all clients.</param>
+      <param name="type">
+        <see cref="T:Gemstone.UpdateType" /> of message to send.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.UpdateType,System.Boolean)">
+      <summary>
+            Displays a broadcast message to all subscribed clients.
+            </summary>
+      <param name="status">Status message to send to all clients.</param>
+      <param name="type">
+        <see cref="T:Gemstone.UpdateType" /> of message to send.</param>
+      <param name="publishToLog">Determines if messages should be sent logging engine.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.UpdateType,System.Boolean,System.Object[])">
+      <summary>
+            Displays a broadcast message to all subscribed clients.
+            </summary>
+      <param name="status">Formatted status message to send to all clients.</param>
+      <param name="type">
+        <see cref="T:Gemstone.UpdateType" /> of message to send.</param>
+      <param name="publishToLog">Determines if messages should be sent logging engine.</param>
+      <param name="args">Arguments of the formatted status message.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.UpdateType,System.Object[])">
+      <summary>
+            Displays a broadcast message to all subscribed clients.
+            </summary>
+      <param name="status">Formatted status message to send to all clients.</param>
+      <param name="type">
+        <see cref="T:Gemstone.UpdateType" /> of message to send.</param>
+      <param name="args">Arguments of the formatted status message.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.Dispose">
+      <summary>
+            Releases all the resources used by the <see cref="T:Gemstone.Timeseries.ServiceHostBase" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.Dispose(System.Boolean)">
+      <summary>
+            Releases the unmanaged resources used by the <see cref="T:Gemstone.Timeseries.ServiceHostBase" /> object and optionally releases the managed resources.
+            </summary>
+      <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.ServiceHostBase.FilterAdapters">
+      <summary>
+            Gets reference to the <see cref="T:Gemstone.Timeseries.Adapters.FilterAdapterCollection" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.Initialize(System.String)">
+      <summary>
+            Initializes the adapter with the specified acronym.
+            </summary>
+      <param name="acronym">Acronym to initialize.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.InitializeServiceHelper">
+      <summary>
+            Initializes the service helper.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ServiceHostBase.InputAdapters">
+      <summary>
+            Gets reference to the <see cref="T:Gemstone.Timeseries.Adapters.InputAdapterCollection" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.LogException(System.Exception)">
+      <summary>
+            Logs an exception.
+            </summary>
+      <param name="ex">
+        <see cref="T:System.Exception" /> to log.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.ServiceHostBase.OutputAdapters">
+      <summary>
+            Gets reference to the <see cref="T:Gemstone.Timeseries.Adapters.OutputAdapterCollection" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.PropagateDataSource(System.Data.DataSet)">
+      <summary>
+            Handle assignment of data source to Iaon session.
+            </summary>
+      <param name="dataSource">New data source to assign.</param>
+      <returns>
+        <c>true</c> if data source was assigned; otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.ReloadConfig">
+      <summary>
+            Reloads the system configuration.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.ServiceHostBase.ServiceName">
+      <summary>
+            Gets or sets the name of the service.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.StartAsync(System.Threading.CancellationToken)">
+      <summary>
+            Triggered when the application host is ready to start the service.
+            </summary>
+      <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+      <returns>A <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous Start operation.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.StopAsync(System.Threading.CancellationToken)">
+      <summary>
+            Service stopping event handler.
+            </summary>
+      <param name="cancellationToken">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>cancellationToken</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.StopAsync(System.Threading.CancellationToken)</parameter>
+          </include>
+        </markup>
+      </param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.StopAsync(System.Threading.CancellationToken)</parameter>
+          </include>
+        </markup>
+      </returns>
     </member>
     <member name="T:Gemstone.Timeseries.TemporalMeasurement">
       <summary>
@@ -2550,14 +3114,14 @@
             Constructs a new <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> given the specified parameters.
             </summary>
       <param name="measurement">Source <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.</param>
-      <param name="lagTime">Past time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
+      <param name="lagTime">past-time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
       <param name="leadTime">Future time deviation tolerance, in seconds - this becomes the tolerated +/- accuracy of the local clock to real-time.</param>
     </member>
     <member name="M:Gemstone.Timeseries.TemporalMeasurement.#ctor(System.Double,System.Double)">
       <summary>
             Constructs a new <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> given the specified parameters.
             </summary>
-      <param name="lagTime">Past time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
+      <param name="lagTime">past-time deviation tolerance, in seconds - this becomes the amount of time to wait before publishing begins.</param>
       <param name="leadTime">Future time deviation tolerance, in seconds - this becomes the tolerated +/- accuracy of the local clock to real-time.</param>
     </member>
     <member name="M:Gemstone.Timeseries.TemporalMeasurement.GetAdjustedValue(Gemstone.Ticks)">
@@ -2567,7 +3131,7 @@
       <param name="timestamp">Timestamp used to constrain <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> (typically set to real-time, i.e. "now").</param>
       <returns>Value offset by adder and multiplier (i.e., Value * Multiplier + Adder).</returns>
       <remarks>
-        <para>Operation will return NaN if ticks are outside of time deviation tolerances.</para>
+        <para>Operation will return NaN if ticks are outside time deviation tolerances.</para>
         <para>Note that returned value will be offset by adder and multiplier.</para>
       </remarks>
     </member>
@@ -2578,11 +3142,11 @@
       <param name="timestamp">Timestamp, in ticks, used to constrain <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> (typically set to real-time, i.e. "now").</param>
       <returns>Raw value of this measurement (i.e., value that is not offset by adder and multiplier).</returns>
       <remarks>
-        <para>Operation will return NaN if ticks are outside of time deviation tolerances.</para>
+        <para>Operation will return NaN if ticks are outside time deviation tolerances.</para>
       </remarks>
     </member>
     <member name="P:Gemstone.Timeseries.TemporalMeasurement.LagTime">
-      <summary>Allowed past time deviation tolerance in seconds (can be sub-second).</summary>
+      <summary>Allowed past-time deviation tolerance in seconds (can be sub-second).</summary>
       <remarks>
         <para>This value defines the time sensitivity to past measurement timestamps.</para>
         <para>Defined the number of seconds allowed before assuming a measurement timestamp is too old.</para>
@@ -2610,10 +3174,11 @@
             timestamp is outside defined Lag/Lead time bounds.
             </summary>
     </member>
-    <member name="M:Gemstone.Timeseries.TemporalMeasurement.SetValue(Gemstone.Ticks,System.Double,Gemstone.Timeseries.MeasurementStateFlags)">
+    <member name="M:Gemstone.Timeseries.TemporalMeasurement.SetValue(Gemstone.Ticks,Gemstone.Ticks,System.Double,Gemstone.Timeseries.MeasurementStateFlags)">
       <summary>
             Sets numeric value and timestamp, as ticks, of this <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />.
             </summary>
+      <param name="currentTime">Timestamp, in ticks, used to constrain <see cref="T:Gemstone.Timeseries.TemporalMeasurement" /> (typically set to real-time, i.e. "now").</param>
       <param name="timestamp">New timestamp, in ticks, for <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />.</param>
       <param name="value">New value for <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />, only stored if <paramref name="timestamp" /> are newer than current <see cref="T:Gemstone.Ticks" />.</param>
       <param name="flags">New flags for <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />.</param>
@@ -2626,18 +3191,18 @@
     <member name="T:Gemstone.Timeseries.TemporalOutlierOperation">
       <summary>
             Enumeration that defines how to handle <see cref="T:Gemstone.Timeseries.TemporalMeasurement" />
-            values that are outside of the defined Lag/Lead time bounds.
+            values that are outside the defined Lag/Lead time bounds.
             </summary>
     </member>
     <member name="F:Gemstone.Timeseries.TemporalOutlierOperation.PublishValueAsNan">
       <summary>
-            Measurement value is set to <see cref="F:System.Double.NaN" /> if it is outside of the
+            Measurement value is set to <see cref="F:System.Double.NaN" /> if it is outside the
             defined time bounds. This is the default behavior.
             </summary>
     </member>
     <member name="F:Gemstone.Timeseries.TemporalOutlierOperation.PublishWithBadState">
       <summary>
-            Measurement value is preserved if it is outside of the time bounds, but the state
+            Measurement value is preserved if it is outside the time bounds, but the state
             flags are set to <see cref="P:Gemstone.Timeseries.TemporalMeasurement.OutlierState" /> which defaults to
             <see cref="F:Gemstone.Timeseries.MeasurementStateFlags.SuspectTime" />.
             </summary>
@@ -2645,6 +3210,46 @@
     <member name="T:Gemstone.Timeseries.TimeseriesStartupOperations">
       <summary>
             Defines a data operations to be performed at startup.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.TrackingFrame">
+      <summary>
+        <see cref="T:Gemstone.Timeseries.IFrame" /> container used to track <see cref="T:Gemstone.Timeseries.IMeasurement" /> values for down-sampling.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.TrackingFrame.#ctor(Gemstone.Timeseries.IFrame,Gemstone.Timeseries.DownsamplingMethod)">
+      <summary>
+            Constructs a new <see cref="T:Gemstone.Timeseries.TrackingFrame" /> given the specified parameters.
+            </summary>
+      <param name="sourceFrame">Source <see cref="T:Gemstone.Timeseries.IFrame" /> to track.</param>
+      <param name="downsamplingMethod">
+        <see cref="T:Gemstone.Timeseries.DownsamplingMethod" /> to apply.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.TrackingFrame.DeriveMeasurementValue(Gemstone.Timeseries.IMeasurement)">
+      <summary>
+            Derives measurement value, down-sampling if needed.
+            </summary>
+      <param name="measurement">New <see cref="T:Gemstone.Timeseries.IMeasurement" /> value.</param>
+      <returns>New derived <see cref="T:Gemstone.Timeseries.IMeasurement" /> value, or null if value should not be assigned to <see cref="T:Gemstone.Timeseries.IFrame" />.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.TrackingFrame.DownsampledMeasurements">
+      <summary>
+            Total number of measurements down-sampled by <see cref="T:Gemstone.Timeseries.TrackingFrame" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.TrackingFrame.Lock">
+      <summary>
+            Gets the <see cref="T:Gemstone.Timeseries.TrackingFrame" /> locking primitive.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.TrackingFrame.SourceFrame">
+      <summary>
+            Gets instance of <see cref="T:Gemstone.Timeseries.IFrame" /> being tracked.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.TrackingFrame.Timestamp">
+      <summary>
+            Gets timestamp of <see cref="T:Gemstone.Timeseries.IFrame" /> being tracked.
             </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.ActionAdapterBase">
@@ -2719,6 +3324,14 @@
       <summary>
             Examines the concentrator frame queue state of the <see cref="T:Gemstone.Timeseries.Adapters.ActionAdapterBase" />.
             </summary>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.ActionAdapterBase.ExamineQueueState</parameter>
+          </include>
+        </markup>
+      </returns>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.ActionAdapterBase.FramesPerSecond">
       <summary>
@@ -3457,7 +4070,7 @@
             This method can be safely called from multiple threads.
             </remarks>
     </member>
-    <member name="M:Gemstone.Timeseries.Adapters.AdapterBase.ParseInputMeasurementKeys(System.Data.DataSet,System.Boolean,System.String,System.String)">
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterBase.ParseInputMeasurementKeys(System.Data.DataSet,System.Boolean,System.String,System.String,System.String[])">
       <summary>
             Parses input measurement keys from connection string setting.
             </summary>
@@ -3465,6 +4078,7 @@
       <param name="allowSelect">Determines if database access via "SELECT" statement should be allowed for defining input measurement keys (see remarks about security).</param>
       <param name="value">Value of setting used to define input measurement keys, typically "inputMeasurementKeys".</param>
       <param name="measurementTable">Measurement table name used to load additional meta-data; this is not used when specifying a FILTER expression.</param>
+      <param name="measurementColumns">Columns in measurementTable that should be searched when not applying a Filter Expression</param>
       <returns>User selected input measurement keys.</returns>
       <remarks>
             Security warning: allowing SELECT statements, i.e., setting <paramref name="allowSelect" /> to <c>true</c>, should only be allowed in cases where SQL
@@ -3638,6 +4252,224 @@
       <summary>
             Gets the flag indicating if this adapter supports temporal processing.
             </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.AdapterCache">
+      <summary>
+            Represents a cache of loaded adapter types and their attributes.
+            </summary>
+      <remarks>
+        <para>
+            This static class holds a cache of all <see cref="T:Gemstone.Timeseries.Adapters.IAdapter" /> types found in
+            the local application directory along with loaded attribute information.
+            </para>
+        <para>
+            Caches are dynamically loaded on first access and can be reloaded at runtime
+            by calling the <see cref="M:Gemstone.Timeseries.Adapters.AdapterCache.ReloadAdapterTypes" /> method.
+            </para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache.AdapterCommands">
+      <summary>
+            Gets all adapter command attribute information for adapter types in the application directory.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache.AdapterProtocols">
+      <summary>
+            Gets all adapter protocol attribute information for adapter types in the application directory.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache.AllAdapters">
+      <summary>
+            Gets all time-series adapter types in the application directory.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache.AssemblyTypes">
+      <summary>
+            Gets a cache of adapter types keyed by assembly file name and type name, e.g.:
+            <c>("FileAdapters.dll", "FileAdapters.ProcessLauncher")</c> for faster lookups.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetAdapters(System.Func{System.ComponentModel.EditorBrowsableState,System.Boolean})">
+      <summary>
+            Returns all adapters in the application directory filtered by <see cref="T:System.ComponentModel.EditorBrowsableState" />.
+            </summary>
+      <param name="stateFilter">Filter for <see cref="T:System.ComponentModel.EditorBrowsableState" />. Defaults to exclude hidden adapters.</param>
+      <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1" /> describing all available adapters.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetAssemblyFileName(System.Type)">
+      <summary>
+            Gets the assembly file name for the given type.
+            </summary>
+      <param name="type">Type for which the assembly location is found.</param>
+      <returns>Assembly file name for the given type.</returns>
+      <remarks>
+            This commonly maps to 'AssemblyName' database field for adapters.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetAssemblyName(System.Type)">
+      <summary>
+            Gets the assembly name for the given type.
+            </summary>
+      <param name="type">Type for which the assembly name is found.</param>
+      <returns>Assembly name for the given type.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetConnectionParameters(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+      <summary>
+            Gets the connection parameters for the adapter and type name, optionally applying connection settings.
+            </summary>
+      <param name="assemblyName">Assembly file name for the adapter.</param>
+      <param name="typeName">Full type name for the adapter.</param>
+      <param name="settings">Optional connection settings to apply to connection parameters.</param>
+      <returns>Connection parameters for the adapter and type name.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetConnectionParameters(System.String,System.String,System.String)">
+      <summary>
+            Gets the connection parameters for the adapter and type name, optionally applying connection settings.
+            </summary>
+      <param name="assemblyName">Assembly file name for the adapter.</param>
+      <param name="typeName">Full type name for the adapter.</param>
+      <param name="connectionSettings">Optional connection settings to apply to connection parameters.</param>
+      <returns>Connection parameters for the adapter and type name.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetDescription(System.Type)">
+      <summary>
+            Gets the adapter name and description for the given type parsed from the <see cref="T:System.ComponentModel.DescriptionAttribute" />.
+            </summary>
+      <param name="type">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>type</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.AdapterCache.GetDescription(System.Type)</parameter>
+          </include>
+        </markup>
+      </param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.AdapterCache.GetDescription(System.Type)</parameter>
+          </include>
+        </markup>
+      </returns>
+      <remarks>
+            If no <see cref="T:System.ComponentModel.DescriptionAttribute" /> can be found, adapter name defaults to <see cref="!:Type.Name" /> and
+            description defaults to <see cref="P:System.Type.FullName" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetEditorBrowsableState(System.Reflection.MemberInfo)">
+      <summary>
+            Gets the <see cref="T:System.ComponentModel.EditorBrowsableState" /> for the given type. Defaults to
+            <see cref="F:System.ComponentModel.EditorBrowsableState.Always" /> if no attribute is found.
+            </summary>
+      <param name="type">Type for which the <see cref="T:System.ComponentModel.EditorBrowsableState" /> is found.</param>
+      <returns>
+        <see cref="T:System.ComponentModel.EditorBrowsableState" /> for the given type; defaults to 'Always'.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetFullName(System.Type)">
+      <summary>
+            Gets the <see cref="P:System.Type.FullName" />&gt; for the given type, falling back on <see cref="!:Type.Name" />.
+            </summary>
+      <param name="type">Type for which the full name is found.</param>
+      <returns>Full name of the given type.</returns>
+      <remarks>
+            This commonly maps to 'TypeName' database field for adapters.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.ReloadAdapterTypes">
+      <summary>
+            Clears all cached adapter types and their attributes which will force a reload on next access.
+            </summary>
+      <remarks>
+            Method should be exposed through an admin only interface.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache.UIResources">
+      <summary>
+            Gets all UI resource attribute information for adapter types in the application directory.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.AdapterCache`1">
+      <summary>
+            Represents a cache of loaded adapters of type <typeparamref name="T" /> and their attributes.
+            </summary>
+      <typeparam name="T">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>typeparam</parameter>
+            <parameter>T</parameter>
+            <parameter>T:Gemstone.Timeseries.Adapters.AdapterCache`1</parameter>
+          </include>
+        </markup>
+      </typeparam>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache`1.AdapterCommands">
+      <summary>
+            Gets all adapter command attribute information for adapters of type <typeparamref name="T" /> in the application directory.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache`1.AdapterProtocols">
+      <summary>
+            Gets all adapter protocol attribute information for adapters of type <typeparamref name="T" /> in the application directory.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache`1.AllAdapters">
+      <summary>
+            Gets all time-series adapters of type <typeparamref name="T" /> in the application directory.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache`1.AssemblyTypes">
+      <summary>
+            Gets a cache of adapter types keyed by assembly file name and type name, e.g.:
+            <c>("FileAdapters.dll", "FileAdapters.ProcessLauncher")</c> for faster lookups.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache`1.GetAdapters(System.Func{System.ComponentModel.EditorBrowsableState,System.Boolean})">
+      <summary>
+            Returns all adapters of type <typeparamref name="T" /> in the application directory filtered by <see cref="T:System.ComponentModel.EditorBrowsableState" />.
+            </summary>
+      <param name="stateFilter">Filter for <see cref="T:System.ComponentModel.EditorBrowsableState" />. Defaults to exclude hidden adapters.</param>
+      <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1" /> describing all available adapters of type <typeparamref name="T" />.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache`1.UIResources">
+      <summary>
+            Gets all UI resource attribute information for adapters of type <typeparamref name="T" /> in the application directory.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.AdapterCollection">
+      <summary>
+            Represents a collection of adpaters, provides a specialized method to retrieve `AdapterInfo` instances while cloning their connection parameters.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCollection.#ctor(System.Collections.Generic.IDictionary{System.Type,Gemstone.Timeseries.Adapters.AdapterInfo})">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Adapters.AdapterCollection</parameter>
+          </include>
+        </markup>
+      </summary>
+      <param name="dictionary">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>dictionary</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.AdapterCollection.#ctor(System.Collections.Generic.IDictionary{System.Type,Gemstone.Timeseries.Adapters.AdapterInfo})</parameter>
+          </include>
+        </markup>
+      </param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCollection.TryGetValue(System.Type,Gemstone.Timeseries.Adapters.AdapterInfo@)">
+      <summary>
+            Attempts to retrieve the <see cref="T:Gemstone.Timeseries.Adapters.AdapterInfo" /> associated with the specified <see cref="T:System.Type" /> key.
+            </summary>
+      <param name="key">The <see cref="T:System.Type" /> key to locate in the collection.</param>
+      <param name="value">When this method returns, contains the <see cref="T:Gemstone.Timeseries.Adapters.AdapterInfo" /> associated with the specified key, if the key
+            is found; otherwise, <see langword="null" />. This parameter is passed uninitialized.</param>
+      <returns>
+        <see langword="true" /> if the collection contains an element with the specified key; otherwise, <see langword="false" />.</returns>
+      <remarks>If the key is found, the returned <see cref="T:Gemstone.Timeseries.Adapters.AdapterInfo" /> is a copy with cloned
+            parameters.</remarks>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.AdapterCollectionBase`1">
       <summary>
@@ -4117,21 +4949,213 @@
             </summary>
       <param name="description">Assigns the description for this adapter command.</param>
     </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.#ctor(System.String,Gemstone.Security.AccessControl.ResourceAccessLevel[])">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.Adapters.AdapterCommandAttribute" /> with the specified <paramref name="description" /> value.
+            </summary>
+      <param name="description">Assigns the description for this adapter command.</param>
+      <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.#ctor(System.String,System.Boolean)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.Adapters.AdapterCommandAttribute" /> with the specified <paramref name="description" /> value.
+            </summary>
+      <param name="description">Assigns the description for this adapter command.</param>
+      <param name="uiAccessible">Assigns the UI accessible flag.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.#ctor(System.String,System.Boolean,Gemstone.Security.AccessControl.ResourceAccessLevel[])">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.Adapters.AdapterCommandAttribute" /> with the specified <paramref name="description" /> value.
+            </summary>
+      <param name="description">Assigns the description for this adapter command.</param>
+      <param name="uiAccessible">Assigns the UI accessible flag.</param>
+      <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
+    </member>
     <member name="M:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.#ctor(System.String,System.String[])">
       <summary>
             Creates a new <see cref="T:Gemstone.Timeseries.Adapters.AdapterCommandAttribute" /> with the specified <paramref name="description" /> value.
             </summary>
       <param name="description">Assigns the description for this adapter command.</param>
-      <param name="allowedRoles">Assigns the roles which are allowed to invoke this adapter command.</param>
+      <param name="resourceNames">Assigns the resources, by string name, which are allowed to invoke this adapter command.</param>
     </member>
-    <member name="P:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.AllowedRoles">
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.AllowedResources">
       <summary>
-            Gets the roles which are allowed to invoke this adapter command.
+            Gets the resources which are allowed to invoke this adapter command.
             </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.Description">
       <summary>
             Gets the description of this adapter command.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.UIAccessible">
+      <summary>
+            Gets the flag that indicates if this should be included in the UI.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.AdapterCommandInfo">
+      <summary>
+            Represents the set of adapter command attributes for an adapter.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCommandInfo.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Adapters.AdapterCommandInfo</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCommandInfo.Info">
+      <summary>
+            Gets the adapter type and its key attributes.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCommandInfo.MethodAttributeMap">
+      <summary>
+            Gets the map of adapter command attributes by name.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCommandInfo.MethodAttributes">
+      <summary>
+            Gets the adapter command method attributes for the adapter.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.AdapterInfo">
+      <summary>
+            Represents an adapter type and its key attributes.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterInfo.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Adapters.AdapterInfo</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterInfo.AdapterName">
+      <summary>
+            Gets the user-friendly name for the adapter as loaded from the <see cref="T:System.ComponentModel.DescriptionAttribute" />.
+            </summary>
+      <remarks>
+            Maps to 'AdapterName' in the database model.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterInfo.AssemblyName">
+      <summary>
+            Gets the assembly file name for the adapter.
+            </summary>
+      <remarks>
+            Maps to 'AssemblyName' in the database model.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterInfo.BrowsableState">
+      <summary>
+            Gets the <see cref="T:System.ComponentModel.EditorBrowsableState" /> for the adapter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterInfo.Description">
+      <summary>
+            Gets the description for the adapter as loaded from the <see cref="T:System.ComponentModel.DescriptionAttribute" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterInfo.Parameters">
+      <summary>
+            Gets the connection string parameters for the adapter.
+            </summary>
+      <remarks>
+            Maps to 'ConnectionString' in the database model.
+            Use 'ApplyConnectionString' to assign values from a connection string.
+            Use 'ToConnectionString' to convert values to a connection string.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterInfo.Type">
+      <summary>
+            Gets the type of the adapter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterInfo.TypeName">
+      <summary>
+            Gets the full name of the adapter type.
+            </summary>
+      <remarks>
+            Maps to 'TypeName' in the database model.
+            </remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute">
+      <summary>
+            Marks a class as an adapter protocol.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,System.String,System.Boolean,System.Int32)">
+      <summary>
+            Creates a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute" /> class.
+            </summary>
+      <param name="acronym">Acronym for the adapter protocol.</param>
+      <param name="name">Name of the adapter protocol.</param>
+      <param name="type">Type of the adapter protocol.</param>
+      <param name="category">Category of the adapter protocol.</param>
+      <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
+      <param name="loadOrder">Load order of the adapter protocol.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Acronym">
+      <summary>
+            Gets the acronym for the adapter protocol.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Category">
+      <summary>
+            Gets the category of the adapter protocol.
+            </summary>
+      <remarks>
+            Common categories include "Phasor", "Gateway", "Device", etc.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.LoadOrder">
+      <summary>
+            Gets the load order of the adapter protocol.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Name">
+      <summary>
+            Gets the name of the adapter protocol.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.SupportsConnectionTest">
+      <summary>
+            Gets flag that determines if the adapter protocol supports a connection test.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Type">
+      <summary>
+            Gets the type of the adapter protocol.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.AdapterProtocolInfo">
+      <summary>
+            Represents the set of adapter protocol attributes for an adapter.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterProtocolInfo.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Adapters.AdapterProtocolInfo</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolInfo.Attributes">
+      <summary>
+            Gets the adapter protocol attributes for the adapter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolInfo.Info">
+      <summary>
+            Gets the adapter type and its key attributes.
             </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.AllAdaptersCollection">
@@ -4276,6 +5300,235 @@
             This method traverses all collections looking for an adapter with the specified ID.
             </remarks>
     </member>
+    <member name="T:Gemstone.Timeseries.Adapters.ConnectionParameter">
+      <summary>
+            Represents a connection parameter.
+            </summary>
+      <remarks>
+            Intended to provide user interfaces with a structured representation of
+            a connection string parameter, i.e., adapter properties marked with the
+            <see cref="T:Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameter.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Adapters.ConnectionParameter</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.AvailableValues">
+      <summary>
+            Gets the available values, e.g., when <see cref="P:Gemstone.Timeseries.Adapters.ConnectionParameter.DataType" /> is "Enum".
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Category">
+      <summary>
+            Gets the category of the parameter.
+            </summary>
+      <remarks>
+            Category is used for UI grouping of parameters.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.DataType">
+      <summary>
+            Gets the basic type of the parameter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.DefaultValue">
+      <summary>
+            Gets the default value of the parameter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Description">
+      <summary>
+            Gets the description of the parameter.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameter.GetConnectionParameter(System.Reflection.PropertyInfo)">
+      <summary>
+            Gets a <see cref="T:Gemstone.Timeseries.Adapters.ConnectionParameter" /> instance from a <see cref="T:System.Reflection.PropertyInfo" />.
+            </summary>
+      <param name="info">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>info</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.ConnectionParameter.GetConnectionParameter(System.Reflection.PropertyInfo)</parameter>
+          </include>
+        </markup>
+      </param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.ConnectionParameter.GetConnectionParameter(System.Reflection.PropertyInfo)</parameter>
+          </include>
+        </markup>
+      </returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.IsVisibleToUI">
+      <summary>
+            Gets whether this parameter should be visible in the UI.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Label">
+      <summary>
+            Gets or sets the label of the parameter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Name">
+      <summary>
+            Gets the name of the parameter.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameter.op_Implicit(System.Reflection.PropertyInfo)~Gemstone.Timeseries.Adapters.ConnectionParameter">
+      <summary>
+            Implicitly converts a <see cref="T:System.Reflection.PropertyInfo" /> to a <see cref="T:Gemstone.Timeseries.Adapters.ConnectionParameter" />.
+            </summary>
+      <param name="info">Property info to convert.</param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.ConnectionParameter.op_Implicit(System.Reflection.PropertyInfo)~Gemstone.Timeseries.Adapters.ConnectionParameter</parameter>
+          </include>
+        </markup>
+      </returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Value">
+      <summary>
+            Gets or sets the parameter value.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions">
+      <summary>
+            Defines extension methods related to <see cref="T:Gemstone.Timeseries.Adapters.ConnectionParameter" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.ApplyConnectionString(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter},System.String)">
+      <summary>
+            Assigns values to a collection of connection parameters from a connection string.
+            </summary>
+      <param name="parameters">Target connection parameters.</param>
+      <param name="connectionString">Connection string to parse.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.ApplySettings(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter},System.Collections.Generic.Dictionary{System.String,System.String})">
+      <summary>
+            Assigns values to a collection of connection parameters from a dictionary of settings.
+            </summary>
+      <param name="parameters">Target connection parameters.</param>
+      <param name="settings">Settings to parse.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.Clone(Gemstone.Timeseries.Adapters.ConnectionParameter)">
+      <summary>
+            Creates and returns a cloned instance of the original connection parameter.
+            </summary>
+      <param name="original"></param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.Clone(Gemstone.Timeseries.Adapters.ConnectionParameter)</parameter>
+          </include>
+        </markup>
+      </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.GetConnectionParameters(System.Type)">
+      <summary>
+            Gets connection parameters from a specified type, i.e., set of new <see cref="T:Gemstone.Timeseries.Adapters.ConnectionParameter" />
+            instances derived from properties marked with <see cref="T:Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute" />.
+            </summary>
+      <param name="type">Type to get connection parameters from.</param>
+      <returns>Collection of connection parameters for the specified type.</returns>
+      <remarks>
+        <para>
+            Only public, instance properties are considered for returned parameter list. The
+            <see cref="P:Gemstone.Timeseries.Adapters.ConnectionParameter.DefaultValue" /> will be populated with the configured default
+            value of the property while the <see cref="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Value" /> remains unassigned.
+            Use <see cref="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.ApplyConnectionString(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter},System.String)" /> or <see cref="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.ApplySettings(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter},System.Collections.Generic.Dictionary{System.String,System.String})" /> to assign values from
+            a connection string or settings dictionary, respectively.
+            </para>
+        <para>
+            Note that the <see cref="T:Gemstone.Timeseries.Adapters.AdapterCache" /> automatically loads and caches adapter types
+            along with their connection parameters, so this method is not typically directly used.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.GetConnectionParameters(System.ValueTuple{System.String,System.String})">
+      <summary>
+            Gets connection parameters from a specified assembly and type using default values.
+            </summary>
+      <param name="src">Tuple containing assembly name and type name.</param>
+      <returns>Collection of connection parameters for the specified adapter.</returns>
+      <remarks>
+        <para>
+            The <paramref name="src" /> tuple should contain the assembly name and type name of the
+            desired adapter. The assembly will be loaded, if needed, and the type will be used to get
+            connection string parameters. Note that the 'assemblyName' and 'typeName' parameters
+            correspond to the 'AssemblyName' and 'TypeName' fields in the database model used to
+            load a specifically configured adapter instance.
+            </para>
+        <para>
+            Only public, instance properties are considered for returned parameter list. The
+            <see cref="P:Gemstone.Timeseries.Adapters.ConnectionParameter.DefaultValue" /> will be populated with the configured default
+            value of the property while the <see cref="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Value" /> remains unassigned.
+            Use <see cref="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.ApplyConnectionString(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter},System.String)" /> or <see cref="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.ApplySettings(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter},System.Collections.Generic.Dictionary{System.String,System.String})" /> to assign values from
+            a connection string or settings dictionary, respectively.
+            </para>
+        <para>
+            Call method like this:
+            <code>
+            var assemblyName = "FileAdapters.dll";
+            var typeName = "FileAdapters.ProcessLauncher";
+            var params = (assemblyName, typeName).GetConnectionParameters();
+            </code></para>
+        <para>
+            Note that the <see cref="T:Gemstone.Timeseries.Adapters.AdapterCache" /> automatically loads and caches adapter types
+            along with their connection parameters, so this method is not typically directly used.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.GetValue(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter},System.String)">
+      <summary>
+            Gets the value of a connection parameter.
+            </summary>
+      <param name="parameters">Collection of connection parameters.</param>
+      <param name="name">Name of the connection parameter.</param>
+      <returns>Value of the connection parameter; or, <c>null</c> if <paramref name="name" /> is not found.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.SetValue(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter},System.String,System.String)">
+      <summary>
+            Sets the value of a connection parameter.
+            </summary>
+      <param name="parameters">Collection of connection parameters.</param>
+      <param name="name">Name of the connection parameter.</param>
+      <param name="value">Value to set for the connection parameter.</param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.SetValue(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter},System.String,System.String)</parameter>
+          </include>
+        </markup>
+      </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.ToConnectionString(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter})">
+      <summary>
+            Converts a collection of connection parameters to a connection string.
+            </summary>
+      <param name="parameters">Source connection parameters.</param>
+      <returns>Connection string representation of the connection parameters.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameterExtensions.ToSettings(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.Adapters.ConnectionParameter})">
+      <summary>
+            Converts a collection of connection parameters to a dictionary of settings.
+            </summary>
+      <param name="parameters">Source connection parameters.</param>
+      <returns>Dictionary of settings representing the connection parameters.</returns>
+    </member>
     <member name="T:Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute">
       <summary>
             Marks a parameter as being a connection string parameter used to configure an <see cref="T:Gemstone.Timeseries.Adapters.IAdapter" />.
@@ -4290,34 +5543,83 @@
         </markup>
       </summary>
     </member>
-    <member name="T:Gemstone.Timeseries.Adapters.CustomConfigurationEditorAttribute">
+    <member name="T:Gemstone.Timeseries.Adapters.DataType">
       <summary>
-            Marks a parameter or class as having a custom configuration editor page used to configure that parameter or class.
+            Defines the basic data types for connection parameters.
+            </summary>
+      <remarks>
+            Enumeration is intended to provide user interfaces with basic data
+            type constraints for possible encountered connection parameters.
+            </remarks>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.String">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.String" /> data type.
             </summary>
     </member>
-    <member name="M:Gemstone.Timeseries.Adapters.CustomConfigurationEditorAttribute.#ctor(System.String,System.String,System.String)">
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.Int16">
       <summary>
-            Creates a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.CustomConfigurationEditorAttribute" /> class.
-            </summary>
-      <param name="assemblyName">The name of the assembly in which the editor type resides.</param>
-      <param name="typeName">The full name of the type of the editor.</param>
-      <param name="connectionString">The connection string for the custom configuration screen.</param>
-    </member>
-    <member name="M:Gemstone.Timeseries.Adapters.CustomConfigurationEditorAttribute.#ctor(System.Type,System.String)">
-      <summary>
-            Creates a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.CustomConfigurationEditorAttribute" /> class.
-            </summary>
-      <param name="editorType">The type of the editor.</param>
-      <param name="connectionString">The connection string for the custom configuration screen.</param>
-    </member>
-    <member name="P:Gemstone.Timeseries.Adapters.CustomConfigurationEditorAttribute.ConnectionString">
-      <summary>
-            Gets the connection string used to configure the editor.
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.Int16" /> data type.
             </summary>
     </member>
-    <member name="P:Gemstone.Timeseries.Adapters.CustomConfigurationEditorAttribute.EditorType">
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.UInt16">
       <summary>
-            Gets the type of the UI editor used to configure the custom adapter.
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.UInt16" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.Int32">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.Int32" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.UInt32">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.UInt32" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.Int64">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.Int64" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.UInt64">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.UInt64" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.Single">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.Single" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.Double">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.Double" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.DateTime">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.DateTime" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.Boolean">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.Boolean" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.Enum">
+      <summary>
+            Represents an <see cref="F:Gemstone.Timeseries.Adapters.DataType.Enum" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.IMeasurement">
+      <summary>
+            Represents an <see cref="F:Gemstone.Timeseries.Adapters.DataType.IMeasurement" /> data type.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.MeasurementKey">
+      <summary>
+            Represents an <see cref="F:Gemstone.Timeseries.Adapters.DataType.MeasurementKey" /> data type.
             </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.FacileActionAdapterBase">
@@ -4420,7 +5722,7 @@
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.FacileActionAdapterBase.LagTime">
       <summary>
-            Gets or sets the allowed past time deviation tolerance, in seconds (can be sub-second).
+            Gets or sets the allowed past-time deviation tolerance, in seconds (can be sub-second).
             </summary>
       <remarks>
         <para>Defines the time sensitivity to past measurement timestamps.</para>
@@ -4523,7 +5825,7 @@
             </summary>
       <remarks>
             Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-            adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start input demands,
+            adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start input demands,
             as an example, this would be <c>false</c> for an action adapter that calculated measurement, but <c>true</c> for an action adapter used to archive inputs.
             </remarks>
     </member>
@@ -4533,7 +5835,7 @@
             </summary>
       <remarks>
             Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-            adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start output demands,
+            adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start output demands,
             as an example, this would be <c>true</c> for an action adapter that calculated measurement, but <c>false</c> for an action adapter used to archive inputs.
             </remarks>
     </member>
@@ -4563,7 +5865,7 @@
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.FacileActionAdapterBase.UseLocalClockAsRealTime">
       <summary>
-            Gets or sets flag that determines whether or not to use the local clock time as real time.
+            Gets or sets flag that determines whether to use the local clock time as real time.
             </summary>
       <remarks>
             Use your local system clock as real time only if the time is locally GPS-synchronized,
@@ -5108,6 +6410,13 @@
             Gets or sets the configuration <see cref="T:System.Data.DataSet" /> for this <see cref="T:Gemstone.Timeseries.Adapters.IaonSession" />.
             </summary>
     </member>
+    <member name="M:Gemstone.Timeseries.Adapters.IaonSession.DefineSettings(Gemstone.Configuration.Settings,System.String)">
+      <summary>
+            Establishes default settings for the config file.
+            </summary>
+      <param name="settings">Settings instance used to hold configuration.</param>
+      <param name="settingsCategory">The config file settings category under which the settings are defined.</param>
+    </member>
     <member name="M:Gemstone.Timeseries.Adapters.IaonSession.Dispose">
       <summary>
             Releases all the resources used by the <see cref="T:Gemstone.Timeseries.Adapters.IaonSession" /> object.
@@ -5194,11 +6503,6 @@
             </summary>
       <param name="sender">Event source reference to the adapter that is reporting new measurements.</param>
       <param name="e">Event arguments for event that contains references to the new measurements.</param>
-    </member>
-    <member name="P:Gemstone.Timeseries.Adapters.IaonSession.NodeID">
-      <summary>
-            Gets or sets the <see cref="T:System.Guid" /> node ID  for this <see cref="T:Gemstone.Timeseries.Adapters.IaonSession" />.
-            </summary>
     </member>
     <member name="M:Gemstone.Timeseries.Adapters.IaonSession.OnConfigurationChanged(System.Object)">
       <summary>
@@ -7061,7 +8365,7 @@
         <para>
             It is important that consumers "resume" connection cycle if processing fails (e.g., connection
             to archive is lost). Here is an example:
-            <example><code language="cs">
+            <example><code>
             protected virtual void ProcessMeasurements(IMeasurement[] measurements)
             {
                 try
@@ -7250,6 +8554,21 @@
           <see cref="F:Gemstone.EventArgs`1.Argument" /> is total number of unprocessed measurements.
             </para>
       </remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.ProtocolType">
+      <summary>
+            Protocol type enumeration for adapter protocols.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.ProtocolType.Frame">
+      <summary>
+            Indicates a frame-based protocol.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.ProtocolType.Measurement">
+      <summary>
+            Indicates a measurement-based protocol.
+            </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.RouteMappingDoubleBufferQueue">
       <summary>
@@ -7547,6 +8866,104 @@
             A list of all <see cref="T:Gemstone.Timeseries.Adapters.IAdapter" /> that existed in the old route calculation, but do NOT exist in the new route calculation. 
             </summary>
     </member>
+    <member name="T:Gemstone.Timeseries.Adapters.UIAdapterProtocolAttribute">
+      <summary>
+            UI-enabled variant of the adapter protocol attribute.
+            This attribute inherits from UIResourceAttribute so that it carries UI resource information 
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.UIAdapterProtocolAttribute.#ctor(System.String,System.String,System.String)">
+      <summary>
+            Creates a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.UIAdapterProtocolAttribute" /> class.
+            </summary>
+      <param name="acronym">Acronym for the adapter protocol.</param>
+      <param name="assemblyName">Name of the assembly where the UI resource is located.</param>
+      <param name="resourceName">Name of the UI resource (fully qualified embedded resource name).</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.UIAdapterProtocolAttribute.Acronym">
+      <summary>
+            Gets the acronym for the adapter protocol.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.UIResourceAttribute">
+      <summary>
+            Marks a class with user interface resources used to display or configure an <see cref="T:Gemstone.Timeseries.Adapters.IAdapter" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.UIResourceAttribute.#ctor(System.String,System.String,System.String)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.Adapters.UIResourceAttribute" />.
+            </summary>
+      <param name="assemblyName">Name of assembly where the UI resource is located.</param>
+      <param name="resourceName">Name of the UI resource to load.</param>
+      <param name="resourceID">Usage target of the UI resource.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.UIResourceAttribute.AssemblyName">
+      <summary>
+            Gets the assembly name where the UI resource is located.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.UIResourceAttribute.GetResourceStream">
+      <summary>
+            Gets the stream for the resource.
+            </summary>
+      <returns>Stream for the resource.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.UIResourceAttribute.ResourceID">
+      <summary>
+            Gets the usage target of the UI resource.
+            </summary>
+      <remarks>
+        <para>
+            Defaults to last segment of <see cref="P:Gemstone.Timeseries.Adapters.UIResourceAttribute.ResourceName" /> if not specified.
+            For example, for a resource name of "AdapterUI.CSVAdapters.main.js",
+            the default resource ID would be "main.js".
+            </para>
+        <para>
+            Examples might include: "EntryFile", "BaseFile" and "ChunkFile". If more
+            complex use cases exist, e.g., separating configuration from monitoring,
+            prefix with a category, e.g., "Configuration:EntryFile".
+            </para>
+      </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.UIResourceAttribute.ResourceName">
+      <summary>
+            Gets the name of the UI resource to load.
+            </summary>
+      <remarks>
+            Fully qualified name of the embedded resource, for example.
+            If root namespace matches <see cref="P:Gemstone.Timeseries.Adapters.UIResourceAttribute.AssemblyName" />, can start with ".".
+            </remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.UIResourceInfo">
+      <summary>
+            Represents the set of UI resource attributes for an adapter.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.UIResourceInfo.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Adapters.UIResourceInfo</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.UIResourceInfo.AttributeMap">
+      <summary>
+            Gets the map of UI resource attributes by resource ID.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.UIResourceInfo.Attributes">
+      <summary>
+            Gets the UI resource attributes for the adapter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.UIResourceInfo.Info">
+      <summary>
+            Gets the adapter type and its key attributes.
+            </summary>
+    </member>
     <member name="T:Gemstone.Timeseries.Configuration.BinaryFileConfigurationLoader">
       <summary>
             Represents a configuration loader that gets its configuration from a binary file.
@@ -7718,11 +9135,6 @@
             </summary>
       <returns>The configuration data set.</returns>
     </member>
-    <member name="P:Gemstone.Timeseries.Configuration.DatabaseConfigurationLoader.NodeIDQueryString">
-      <summary>
-            Gets or sets the string to use in queries when filtering results by node ID.
-            </summary>
-    </member>
     <member name="M:Gemstone.Timeseries.Configuration.DatabaseConfigurationLoader.Open">
       <summary>
             Opens the database connection.
@@ -7733,7 +9145,6 @@
             Defines a method signature for a bootstrap data source operation.
             </summary>
       <param name="database">Connection to database.</param>
-      <param name="nodeIDQueryString">Formatted node ID Guid query string.</param>
       <param name="trackingVersion">Latest version of the configuration to which data operations were previously applied.</param>
       <param name="arguments">Optional data operation arguments.</param>
       <param name="statusMessage">Reference to host status message function.</param>
@@ -7958,6 +9369,285 @@
       <param name="measurementTable">Measurement table name used for meta-data lookup.</param>
       <returns>Metadata data row, if found; otherwise, <c>null</c>.</returns>
     </member>
+    <member name="T:Gemstone.Timeseries.Model.ActiveMeasurement">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>T:Gemstone.Timeseries.Model.ActiveMeasurement</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.ActiveMeasurement.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Model.ActiveMeasurement</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Adder">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Adder</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.AlternateTag">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.AlternateTag</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.BaseKV">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.BaseKV</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Company">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Company</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Description">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Description</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Device">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Device</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.DeviceID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.DeviceID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.EngineeringUnits">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.EngineeringUnits</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.FramesPerSecond">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.FramesPerSecond</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.ID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.ID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Internal">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Internal</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Latitude">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Latitude</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Longitude">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Longitude</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Multiplier">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Multiplier</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Phase">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Phase</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.PhasorID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.PhasorID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.PhasorType">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.PhasorType</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.PointID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.PointID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.PointTag">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.PointTag</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.SignalID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.SignalID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.SignalReference">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.SignalReference</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.SignalType">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.SignalType</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Source">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Source</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.SourceIndex">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.SourceIndex</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Subscribed">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.Subscribed</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.UpdatedOn">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.UpdatedOn</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="T:Gemstone.Timeseries.Model.Device">
       <summary>
         <markup>
@@ -7997,36 +9687,6 @@
         </markup>
       </summary>
     </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.AllowedParsingExceptions">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.AllowedParsingExceptions</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.AllowUseOfCachedConfiguration">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.AllowUseOfCachedConfiguration</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.AutoStartDataParsingSequence">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.AutoStartDataParsingSequence</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
     <member name="P:Gemstone.Timeseries.Model.Device.CompanyID">
       <summary>
         <markup>
@@ -8043,16 +9703,6 @@
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
             <parameter>P:Gemstone.Timeseries.Model.Device.ConnectionString</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.ConnectOnDemand">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.ConnectOnDemand</parameter>
           </include>
         </markup>
       </summary>
@@ -8087,22 +9737,12 @@
         </markup>
       </summary>
     </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.DataLossInterval">
+    <member name="P:Gemstone.Timeseries.Model.Device.Description">
       <summary>
         <markup>
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.DataLossInterval</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.DelayedConnectionInterval">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.DelayedConnectionInterval</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Device.Description</parameter>
           </include>
         </markup>
       </summary>
@@ -8113,16 +9753,6 @@
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
             <parameter>P:Gemstone.Timeseries.Model.Device.Enabled</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.FramesPerSecond">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.FramesPerSecond</parameter>
           </include>
         </markup>
       </summary>
@@ -8197,42 +9827,12 @@
         </markup>
       </summary>
     </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.MeasuredLines">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.MeasuredLines</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.MeasurementReportingInterval">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.MeasurementReportingInterval</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
     <member name="P:Gemstone.Timeseries.Model.Device.Name">
       <summary>
         <markup>
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
             <parameter>P:Gemstone.Timeseries.Model.Device.Name</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.NodeID">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.NodeID</parameter>
           </include>
         </markup>
       </summary>
@@ -8257,32 +9857,12 @@
         </markup>
       </summary>
     </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.ParsingExceptionWindow">
+    <member name="P:Gemstone.Timeseries.Model.Device.Subscribed">
       <summary>
         <markup>
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.ParsingExceptionWindow</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.ProtocolID">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.ProtocolID</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.Device.SkipDisableRealTimeData">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Device.SkipDisableRealTimeData</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Device.Subscribed</parameter>
           </include>
         </markup>
       </summary>
@@ -8346,6 +9926,94 @@
           </include>
         </markup>
       </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Model.EventDetails">
+      <summary>
+            Represents the details for an event.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.EventDetails.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Model.EventDetails</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.EventDetails.Details">
+      <summary>
+            Gets or sets the description details of the event.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.EventDetails.EndTime">
+      <summary>
+            Gets or sets the end time of the event.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.EventDetails.EventGuid">
+      <summary>
+            Gets or sets Guid-based event ID.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.EventDetails.ID">
+      <summary>
+            Gets or sets the ID, used as the primary key, for the event details.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.EventDetails.MeasurementID">
+      <summary>
+            Gets or sets the SignalID of the measurement associated with the event.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.EventDetails.StartTime">
+      <summary>
+            Gets or sets the start time of the event.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.EventDetails.Type">
+      <summary>
+            Gets or sets the event type.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Model.GlobalSettings">
+      <summary>
+            Defines global settings for the openHistorian system.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.GlobalSettings.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Model.GlobalSettings</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.GlobalSettings.CompanyAcronym">
+      <summary>
+            Gets the company acronym for the host system.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Model.GlobalSettings.Default">
+      <summary>
+            Defines default instance for global settings.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.GlobalSettings.DefaultFrameRate">
+      <summary>
+            Gets the default frame rate value used for adapters.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.GlobalSettings.NominalFrequency">
+      <summary>
+            Gets the nominal frequency value used for system operations.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.GlobalSettings.SystemName">
+      <summary>
+            Gets the system name for the host system.
+            </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Model.Historian">
       <summary>
@@ -8476,16 +10144,6 @@
         </markup>
       </summary>
     </member>
-    <member name="P:Gemstone.Timeseries.Model.Historian.NodeID">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Historian.NodeID</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
     <member name="P:Gemstone.Timeseries.Model.Historian.TypeName">
       <summary>
         <markup>
@@ -8545,6 +10203,26 @@
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Model.Measurement.AlternateTag2">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Measurement.AlternateTag2</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.Measurement.AlternateTag3">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Measurement.AlternateTag3</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Model.Measurement.CreatedBy">
       <summary>
         <markup>
@@ -8595,6 +10273,16 @@
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Model.Measurement.FramesPerSecond">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Measurement.FramesPerSecond</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Model.Measurement.HistorianID">
       <summary>
         <markup>
@@ -8611,6 +10299,26 @@
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
             <parameter>P:Gemstone.Timeseries.Model.Measurement.Internal</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.Measurement.Label">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Measurement.Label</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.Measurement.Manual">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Measurement.Manual</parameter>
           </include>
         </markup>
       </summary>
@@ -8764,16 +10472,6 @@
         </markup>
       </summary>
     </member>
-    <member name="P:Gemstone.Timeseries.Model.Phasor.DestinationPhasorID">
-      <summary>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>summary</parameter>
-            <parameter>P:Gemstone.Timeseries.Model.Phasor.DestinationPhasorID</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
     <member name="P:Gemstone.Timeseries.Model.Phasor.DeviceID">
       <summary>
         <markup>
@@ -8814,6 +10512,26 @@
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Model.Phasor.PrimaryVoltageID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Phasor.PrimaryVoltageID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.Phasor.SecondaryVoltageID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Phasor.SecondaryVoltageID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Model.Phasor.SourceIndex">
       <summary>
         <markup>
@@ -8850,6 +10568,265 @@
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
             <parameter>P:Gemstone.Timeseries.Model.Phasor.UpdatedOn</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Model.PhasorValues">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>T:Gemstone.Timeseries.Model.PhasorValues</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.PhasorValues.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Model.PhasorValues</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.AngleID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.AngleID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.AnglePointTag">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.AnglePointTag</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.AngleSignalID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.AngleSignalID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.AngleSignalReference">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.AngleSignalReference</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.Company">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.Company</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.Device">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.Device</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.DeviceID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.DeviceID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.ID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.ID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.Label">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.Label</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.Latitude">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.Latitude</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.Longitude">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.Longitude</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.MagnitudeID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.MagnitudeID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.MagnitudePointTag">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.MagnitudePointTag</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.MagnitudeSignalID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.MagnitudeSignalID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.MagnitudeSignalReference">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.MagnitudeSignalReference</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.Phase">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.Phase</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.PhasorID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.PhasorID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.PointTag">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.PointTag</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.PrimaryVoltagePhasorID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.PrimaryVoltagePhasorID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.SecondaryVoltagePhasorID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.SecondaryVoltagePhasorID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.SignalID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.SignalID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.SourceIndex">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.SourceIndex</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.Type">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.Type</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.UpdatedOn">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.UpdatedOn</parameter>
           </include>
         </markup>
       </summary>
@@ -9743,6 +11720,210 @@
       <param name="statistic">Current statistic value.</param>
       <param name="name">Name of statistic calculation.</param>
       <returns>Difference from last cached statistic value.</returns>
+    </member>
+    <member name="T:Gemstone.Timeseries.Transport.CommandMeasurement">
+      <summary>
+            Model for measurements published by the subscriber.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.CommandMeasurement.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Transport.CommandMeasurement</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.CommandMeasurement.SignalID">
+      <summary>
+            Gets or sets the signal ID of the measurement.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.CommandMeasurement.StateFlags">
+      <summary>
+            Gets or sets the flags that define the quality of the measurement.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.CommandMeasurement.Timestamp">
+      <summary>
+            Gets or sets the time that the measurement was taken.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.CommandMeasurement.Value">
+      <summary>
+            Gets or sets the value of the measurement.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Transport.IBinaryMeasurement">
+      <summary>
+            Defines a <see cref="T:Gemstone.Timeseries.IMeasurement" /> that supports <see cref="T:Gemstone.IO.Parsing.ISupportBinaryImage" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Transport.IClientSubscription">
+      <summary>
+            Represents a common set of interfaces for a client adapter subscription to the data publisher.
+            </summary>
+    </member>
+    <member name="E:Gemstone.Timeseries.Transport.IClientSubscription.BufferBlockRetransmission">
+      <summary>
+            Indicates that a buffer block needed to be retransmitted because
+            it was previously sent, but no confirmation was received.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.ClientID">
+      <summary>
+            Gets the <see cref="T:System.Guid" /> client TCP connection identifier of this <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.CompressionStrength">
+      <summary>
+            Gets or sets the compression strength value to use when <see cref="P:Gemstone.Timeseries.Transport.IClientSubscription.UsePayloadCompression" /> is <c>true</c> for this <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.IClientSubscription.ConfirmBufferBlock(System.UInt32)">
+      <summary>
+            Handles the confirmation message received from the
+            subscriber to indicate that a buffer block was received.
+            </summary>
+      <param name="sequenceNumber">The sequence number of the buffer block.</param>
+      <returns>A list of buffer block sequence numbers for blocks that need to be retransmitted.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.MeasurementReportingInterval">
+      <summary>
+            Gets or sets the measurement reporting interval.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.IClientSubscription.OnProcessException(Gemstone.Diagnostics.MessageLevel,System.Exception,System.String,Gemstone.Diagnostics.MessageFlags)">
+      <summary>
+            Explicitly raises the <see cref="E:Gemstone.Timeseries.Adapters.IAdapter.ProcessException" /> event.
+            </summary>
+      <param name="level">The <see cref="T:Gemstone.Diagnostics.MessageLevel" /> to assign to this message</param>
+      <param name="ex">Processing <see cref="T:System.Exception" />.</param>
+      <param name="eventName">A fixed string to classify this event; defaults to <c>null</c>.</param>
+      <param name="flags">
+        <see cref="T:Gemstone.Diagnostics.MessageFlags" /> to use, if any; defaults to <see cref="F:Gemstone.Diagnostics.MessageFlags.None" />.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.IClientSubscription.OnProcessingCompleted(System.Object,System.EventArgs)">
+      <summary>
+            Explicitly raises the <see cref="E:Gemstone.Timeseries.Adapters.IInputAdapter.ProcessingComplete" /> event.
+            </summary>
+      <param name="sender">
+        <see cref="T:Gemstone.Timeseries.Adapters.IInputAdapter" /> raising the notification.</param>
+      <param name="e">Event arguments for notification, if any.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.IClientSubscription.OnStatusMessage(Gemstone.Diagnostics.MessageLevel,System.String,System.String,Gemstone.Diagnostics.MessageFlags)">
+      <summary>
+            Explicitly raises the <see cref="E:Gemstone.Timeseries.Adapters.IAdapter.StatusMessage" /> event.
+            </summary>
+      <param name="level">The <see cref="T:Gemstone.Diagnostics.MessageLevel" /> to assign to this message</param>
+      <param name="status">New status message.</param>
+      <param name="eventName">A fixed string to classify this event; defaults to <c>null</c>.</param>
+      <param name="flags">
+        <see cref="T:Gemstone.Diagnostics.MessageFlags" /> to use, if any; defaults to <see cref="F:Gemstone.Diagnostics.MessageFlags.None" />.</param>
+    </member>
+    <member name="E:Gemstone.Timeseries.Transport.IClientSubscription.ProcessingComplete">
+      <summary>
+            Indicates to the host that processing for an input adapter (via temporal session) has completed.
+            </summary>
+      <remarks>
+            This event is expected to only be raised when an input adapter has been designed to process
+            a finite amount of data, e.g., reading a historical range of data during temporal processing.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.RequestedInputFilter">
+      <summary>
+            Gets the input filter requested by the subscriber when establishing this <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.SignalIndexCache">
+      <summary>
+            Gets the current signal index cache of this <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.SubscriberID">
+      <summary>
+            Gets the <see cref="T:System.Guid" /> based subscriber ID of this <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.TemporalSessionStatus">
+      <summary>
+            Gets the status of the active temporal session, if any.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.TimestampSize">
+      <summary>
+            Gets size of timestamp in bytes.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.UseCompactMeasurementFormat">
+      <summary>
+            Gets or sets flag that determines if the compact measurement format should be used in data packets of this <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.IClientSubscription.UsePayloadCompression">
+      <summary>
+            Gets or sets flag that determines if payload compression should be enabled in data packets of this <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Transport.IClientSubscriptionExtensions">
+      <summary>
+            Defines static extension functions for <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" /> implementations.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.IClientSubscriptionExtensions.CreateTemporalSession(Gemstone.Timeseries.Transport.IClientSubscription)">
+      <summary>
+            Returns a new temporal <see cref="T:Gemstone.Timeseries.Adapters.IaonSession" /> for a <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" />.
+            </summary>
+      <param name="clientSubscription">
+        <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" /> instance to create temporal <see cref="T:Gemstone.Timeseries.Adapters.IaonSession" /> for.</param>
+      <returns>New temporal <see cref="T:Gemstone.Timeseries.Adapters.IaonSession" /> for a <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" />.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.IClientSubscriptionExtensions.DisposeTemporalSession(Gemstone.Timeseries.Transport.IClientSubscription,Gemstone.Timeseries.Adapters.IaonSession@)">
+      <summary>
+            Disposes a temporal <see cref="T:Gemstone.Timeseries.Adapters.IaonSession" /> created using <see cref="M:Gemstone.Timeseries.Transport.IClientSubscriptionExtensions.CreateTemporalSession(Gemstone.Timeseries.Transport.IClientSubscription)" />.
+            </summary>
+      <param name="adapter">
+        <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" /> source instance.</param>
+      <param name="session">
+        <see cref="T:Gemstone.Timeseries.Adapters.IaonSession" /> instance to dispose.</param>
+    </member>
+    <member name="T:Gemstone.Timeseries.Transport.TemporalClientSubscriptionProxy">
+      <summary>
+            Represents an action adapter that exists within a temporal <see cref="T:Gemstone.Timeseries.Adapters.IaonSession" /> to proxy data back to its parent <see cref="T:Gemstone.Timeseries.Transport.IClientSubscription" /> instance.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.TemporalClientSubscriptionProxy.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Transport.TemporalClientSubscriptionProxy</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.TemporalClientSubscriptionProxy.GetShortStatus(System.Int32)">
+      <summary>
+            Gets a short one-line status of this <see cref="T:Gemstone.Timeseries.Transport.TemporalClientSubscriptionProxy" />.
+            </summary>
+      <param name="maxLength">Maximum number of available characters for display.</param>
+      <returns>A short one-line summary of the current status for this <see cref="T:Gemstone.Timeseries.Adapters.AdapterBase" />.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.TemporalClientSubscriptionProxy.Parent">
+      <summary>
+            Gets or sets parent subscription for the proxy used to deliver data.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Transport.TemporalClientSubscriptionProxy.QueueMeasurementsForProcessing(System.Collections.Generic.IEnumerable{Gemstone.Timeseries.IMeasurement})">
+      <summary>
+            Proxies measurements to parent adapter for processing.
+            </summary>
+      <param name="measurements">Collection of measurements to queue for processing.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.Transport.TemporalClientSubscriptionProxy.SupportsTemporalProcessing">
+      <summary>
+            Gets the flag indicating if this adapter supports temporal processing.
+            </summary>
     </member>
   </members>
 </doc>

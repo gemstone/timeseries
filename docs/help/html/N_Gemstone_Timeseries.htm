@@ -2,9 +2,11 @@
             The <span class="selflink">Gemstone.Timeseries</span> namespace organizes all Gemstone library functionality
             related to timeseries. The root timeseries namespace also includes common timeseries classes,
             e.g., <a href="T_Gemstone_Timeseries_Measurement.htm">Measurement</a>.
-            </div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Classes</h2><div id="IDDCASection"><table id="classList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_Alarm.htm">Alarm</a></td><td>
+            </div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Classes</h2><div id="IDECASection"><table id="classList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_Alarm.htm">Alarm</a></td><td>
             Represents an alarm that tests the values of
             an incoming signal to determine the state of alarm.
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_AlarmMeasurement.htm">AlarmMeasurement</a></td><td>
+            Represents an alarm measurement.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_BufferBlockMeasurement.htm">BufferBlockMeasurement</a></td><td>
             Represents a byte buffer that can be transported through the system as a <a href="T_Gemstone_Timeseries_IMeasurement.htm">IMeasurement</a>.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_ConcentratorBase.htm">ConcentratorBase</a></td><td>
@@ -13,12 +15,16 @@
             Represents an exception related to connection activities.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_Frame.htm">Frame</a></td><td>
             Implementation of a basic <a href="T_Gemstone_Timeseries_IFrame.htm">IFrame</a>.
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_FrameQueue.htm">FrameQueue</a></td><td>
+            Represents a real-time queue of <a href="T_Gemstone_Timeseries_TrackingFrame.htm">TrackingFrame</a> instances used by the <a href="T_Gemstone_Timeseries_ConcentratorBase.htm">ConcentratorBase</a> class.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_IMeasurementExtensions.htm">IMeasurementExtensions</a></td><td>
             Defines static extension functions for <a href="T_Gemstone_Timeseries_IMeasurement.htm">IMeasurement</a> implementations.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_ImmediateMeasurements.htm">ImmediateMeasurements</a></td><td>
             Represents the absolute latest measurement values received by a <a href="T_Gemstone_Timeseries_ConcentratorBase.htm">ConcentratorBase</a> implementation.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_Measurement.htm">Measurement</a></td><td>
             Represents a basic measurement implementation.
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_MeasurementDictionary.htm">MeasurementDictionary</a></td><td>
+            Represents a measurement dictionary used with a <a href="T_Gemstone_Timeseries_Frame.htm">Frame</a>.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_MeasurementKey.htm">MeasurementKey</a></td><td>
             Represents a primary key for a measurement.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_MeasurementMetadata.htm">MeasurementMetadata</a></td><td>
@@ -36,7 +42,8 @@
             Represents a time constrained measured value.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_TimeseriesStartupOperations.htm">TimeseriesStartupOperations</a></td><td>
             Defines a data operations to be performed at startup.
-            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Interfaces</h2><div id="IDJCASection"><table id="interfaceList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_IDevice.htm">IDevice</a></td><td>
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_TrackingFrame.htm">TrackingFrame</a></td><td><a href="T_Gemstone_Timeseries_IFrame.htm">IFrame</a> container used to track <a href="T_Gemstone_Timeseries_IMeasurement.htm">IMeasurement</a> values for down-sampling.
+            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Interfaces</h2><div id="IDNCASection"><table id="interfaceList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_IDevice.htm">IDevice</a></td><td>
             Represents a device that acts as a source of <a href="T_Gemstone_Timeseries_IMeasurement.htm">IMeasurement</a>s.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_IFrame.htm">IFrame</a></td><td>
             Abstract frame interface representing a collection of measurements at an exact moment in time.
@@ -46,24 +53,31 @@
             Represents the fundamental binary value interface for a time-series value.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_ITimeseriesValue_1.htm">ITimeseriesValue<span id="LST5B7D0E46_0" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'"></span>T<span id="LST5B7D0E46_1" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;"></span></a></td><td>
             Represents the fundamental typed interface for a time-series value.
-            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Delegates</h2><div id="IDLCASection"><table id="delegateList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_MeasurementValueFilterFunction.htm">MeasurementValueFilterFunction</a></td><td>
+            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Delegates</h2><div id="IDMCASection"><table id="delegateList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_FrameQueue_CreateNewFrameFunction.htm">FrameQueue<span id="LST5B7D0E46_2" data-languageSpecificText="cs=.|vb=.|cpp=::|nu=.|fs=."></span>CreateNewFrameFunction</a></td><td>
+            Delegate signature for a function that creates a new <a href="T_Gemstone_Timeseries_IFrame.htm">IFrame</a> instance.
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_MeasurementValueFilterFunction.htm">MeasurementValueFilterFunction</a></td><td>
             Method signature for function used to apply a value filter over a sequence of <a href="T_Gemstone_Timeseries_IMeasurement.htm">IMeasurement</a> values.
-            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Enumerations</h2><div id="IDACASection"><table id="enumerationList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_AlarmOperation.htm">AlarmOperation</a></td><td>
+            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Enumerations</h2><div id="IDACASection"><table id="enumerationList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Timeseries_AlarmCombination.htm">AlarmCombination</a></td><td>
+            Represents the operation to be performed
+            when testing values from an incoming signal.
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_AlarmOperation.htm">AlarmOperation</a></td><td>
             Represents the operation to be performed
             when testing values from an incoming signal.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_AlarmSeverity.htm">AlarmSeverity</a></td><td>
             Represents the severity of alarms.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_AlarmState.htm">AlarmState</a></td><td>
             Represents the two states that an alarm can be in: raised or cleared.
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_ConfigurationType.htm">ConfigurationType</a></td><td>
+            Configuration data source type enumeration.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_DownsamplingMethod.htm">DownsamplingMethod</a></td><td>
             Down-sampling method enumeration.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_MeasurementStateFlags.htm">MeasurementStateFlags</a></td><td>
             Measurement state flags.
-            </td></tr><tr><td><a href="T_Gemstone_Timeseries_OptimizationOptions_RoutingMethod.htm">OptimizationOptions<span id="LST5B7D0E46_2" data-languageSpecificText="cs=.|vb=.|cpp=::|nu=.|fs=."></span>RoutingMethod</a></td><td>
+            </td></tr><tr><td><a href="T_Gemstone_Timeseries_OptimizationOptions_RoutingMethod.htm">OptimizationOptions<span id="LST5B7D0E46_3" data-languageSpecificText="cs=.|vb=.|cpp=::|nu=.|fs=."></span>RoutingMethod</a></td><td>
             The routing method to use.
             </td></tr><tr><td><a href="T_Gemstone_Timeseries_TemporalOutlierOperation.htm">TemporalOutlierOperation</a></td><td>
             Enumeration that defines how to handle <a href="T_Gemstone_Timeseries_TemporalMeasurement.htm">TemporalMeasurement</a>
-            values that are outside of the defined Lag/Lead time bounds.
+            values that are outside the defined Lag/Lead time bounds.
             </td></tr></table></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Classes</a></li><li><a class="quickLink">Interfaces</a></li><li><a class="quickLink">Delegates</a></li><li><a class="quickLink">Enumerations</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3 fixedFooter"><div class="columns"><div class="column"><span class="site-footer-credits">
 <a href="https://gemstone.github.io/timeseries/" target="_self">Documentation Home</a>  •  <a href="https://www.nuget.org/packages/Gemstone.Timeseries/" target="_blank">Gemstone Timeseries Library on NuGet</a><br /><br />
 Generated by <a href="https://github.com/EWSoftware/SHFB" target="_blank">Sandcastle Help File Builder</a>

@@ -5,7 +5,7 @@
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_AdapterBase_ConnectionString.htm">ConnectionString</a></td><td>
             Gets or sets key/value pair connection information specific to this <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Statistics_StatisticsEngine_DataSource.htm">DataSource</a></td><td>
-            Gets or sets <a href="https://docs.microsoft.com/dotnet/api/system.data.dataset" target="_blank" rel="noopener noreferrer">DataSet</a> based data source available to the <a href="T_Gemstone_Timeseries_Statistics_StatisticsEngine.htm">StatisticsEngine</a>.
+            Gets or sets <span class="noLink">DataSet</span> based data source available to the <a href="T_Gemstone_Timeseries_Statistics_StatisticsEngine.htm">StatisticsEngine</a>.
             <br />(Overrides <a href="P_Gemstone_Timeseries_Adapters_AdapterBase_DataSource.htm">AdapterBase<span id="LSTA3E86181_0" data-languageSpecificText="cs=.|vb=.|cpp=::|nu=.|fs=."></span>DataSource</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_AdapterBase_Enabled.htm">Enabled</a></td><td>
             Gets or sets enabled state of this <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_FacileActionAdapterBase_FallBackOnLocalClock.htm">FallBackOnLocalClock</a></td><td>
@@ -25,7 +25,7 @@
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_FacileActionAdapterBase.htm">FacileActionAdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_AdapterBase_IsDisposed.htm">IsDisposed</a></td><td>
             Gets a flag that indicates whether the object has been disposed.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_FacileActionAdapterBase_LagTime.htm">LagTime</a></td><td>
-            Gets or sets the allowed past time deviation tolerance, in seconds (can be sub-second).
+            Gets or sets the allowed past-time deviation tolerance, in seconds (can be sub-second).
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_FacileActionAdapterBase.htm">FacileActionAdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_FacileActionAdapterBase_LatestMeasurements.htm">LatestMeasurements</a></td><td>
             Gets reference to the collection of absolute latest received measurement values.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_FacileActionAdapterBase.htm">FacileActionAdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_FacileActionAdapterBase_LeadTime.htm">LeadTime</a></td><td>
@@ -46,7 +46,7 @@
             Gets or sets the desired processing interval, in milliseconds, for the adapter.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_FacileActionAdapterBase_RealTime.htm">RealTime</a></td><td>
             Gets the most accurate time value that is available. If <a href="P_Gemstone_Timeseries_Adapters_FacileActionAdapterBase_UseLocalClockAsRealTime.htm">UseLocalClockAsRealTime</a> = <span class="code">true</span>, then
-            this function will return <a href="https://docs.microsoft.com/dotnet/api/system.datetime.utcnow#System_DateTime_UtcNow" target="_blank" rel="noopener noreferrer">UtcNow</a>. Otherwise, this function will return the timestamp of the
+            this function will return <span class="noLink">UtcNow</span>. Otherwise, this function will return the timestamp of the
             most recent measurement.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_FacileActionAdapterBase.htm">FacileActionAdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_FacileActionAdapterBase_RequestedInputMeasurementKeys.htm">RequestedInputMeasurementKeys</a></td><td>
             Gets or sets input measurement keys that are requested by other adapters based on what adapter says it can provide.
@@ -59,7 +59,7 @@
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_FacileActionAdapterBase.htm">FacileActionAdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_AdapterBase_RunTime.htm">RunTime</a></td><td>
             Gets the total amount of time, in seconds, that the adapter has been active.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_AdapterBase_Settings.htm">Settings</a></td><td>
-            Gets settings <a href="https://docs.microsoft.com/dotnet/api/system.collections.generic.dictionary-2" target="_blank" rel="noopener noreferrer">Dictionary<span id="LSTA3E86181_2" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'"></span>TKey, TValue<span id="LSTA3E86181_3" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;"></span></a> parsed when <a href="P_Gemstone_Timeseries_Adapters_AdapterBase_ConnectionString.htm">ConnectionString</a> was assigned.
+            Gets settings <span class="noLink">Dictionary<span id="LSTA3E86181_2" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'"></span>TKey, TValue<span id="LSTA3E86181_3" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;"></span></span> parsed when <a href="P_Gemstone_Timeseries_Adapters_AdapterBase_ConnectionString.htm">ConnectionString</a> was assigned.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_AdapterBase_StartTime.htm">StartTime</a></td><td>
             Gets the UTC time this <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a> was started.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_AdapterBase.htm">AdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_AdapterBase_StartTimeConstraint.htm">StartTimeConstraint</a></td><td>
@@ -75,7 +75,7 @@
             <br />(Overrides <a href="P_Gemstone_Timeseries_Adapters_AdapterBase_SupportsTemporalProcessing.htm">AdapterBase<span id="LSTA3E86181_5" data-languageSpecificText="cs=.|vb=.|cpp=::|nu=.|fs=."></span>SupportsTemporalProcessing</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_FacileActionAdapterBase_TrackLatestMeasurements.htm">TrackLatestMeasurements</a></td><td>
             Gets or sets flag to start tracking the absolute latest received measurement values.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_FacileActionAdapterBase.htm">FacileActionAdapterBase</a>)</td></tr><tr><td><a href="P_Gemstone_Timeseries_Adapters_FacileActionAdapterBase_UseLocalClockAsRealTime.htm">UseLocalClockAsRealTime</a></td><td>
-            Gets or sets flag that determines whether or not to use the local clock time as real time.
+            Gets or sets flag that determines whether to use the local clock time as real time.
             <br />(Inherited from <a href="T_Gemstone_Timeseries_Adapters_FacileActionAdapterBase.htm">FacileActionAdapterBase</a>)</td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>See Also</h2><div id="seeAlsoSection"><h4>Reference</h4><div><a href="T_Gemstone_Timeseries_Statistics_StatisticsEngine.htm">StatisticsEngine Class</a></div><div><a href="N_Gemstone_Timeseries_Statistics.htm">Gemstone.Timeseries.Statistics Namespace</a></div></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Properties</a></li><li><a class="quickLink">See Also</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3 fixedFooter"><div class="columns"><div class="column"><span class="site-footer-credits">
 <a href="https://gemstone.github.io/timeseries/" target="_self">Documentation Home</a>  •  <a href="https://www.nuget.org/packages/Gemstone.Timeseries/" target="_blank">Gemstone Timeseries Library on NuGet</a><br /><br />
 Generated by <a href="https://github.com/EWSoftware/SHFB" target="_blank">Sandcastle Help File Builder</a>

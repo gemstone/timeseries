@@ -57,7 +57,7 @@ public interface IAdapterCollection : IAdapter, IList<IAdapter>
     /// <param name="id">ID of adapter to get.</param>
     /// <param name="adapter">Adapter reference if found; otherwise null.</param>
     /// <returns><c>true</c> if adapter with the specified <paramref name="id"/> was found; otherwise <c>false</c>.</returns>
-    bool TryGetAdapterByID(uint id, out IAdapter adapter);
+    bool TryGetAdapterByID(uint id, out IAdapter? adapter);
 
     /// <summary>
     /// Attempts to get the adapter with the specified <paramref name="name"/>.
@@ -65,7 +65,7 @@ public interface IAdapterCollection : IAdapter, IList<IAdapter>
     /// <param name="name">Name of adapter to get.</param>
     /// <param name="adapter">Adapter reference if found; otherwise null.</param>
     /// <returns><c>true</c> if adapter with the specified <paramref name="name"/> was found; otherwise <c>false</c>.</returns>
-    bool TryGetAdapterByName(string name, out IAdapter adapter);
+    bool TryGetAdapterByName(string name, out IAdapter? adapter);
 
     /// <summary>
     /// Attempts to create an <see cref="IAdapter"/> from the specified <see cref="DataRow"/>.
@@ -73,7 +73,7 @@ public interface IAdapterCollection : IAdapter, IList<IAdapter>
     /// <param name="adapterRow"><see cref="DataRow"/> containing item information to initialize.</param>
     /// <param name="adapter">Initialized adapter if successful; otherwise null.</param>
     /// <returns><c>true</c> if item was successfully initialized; otherwise <c>false</c>.</returns>
-    bool TryCreateAdapter(DataRow adapterRow, out IAdapter adapter);
+    bool TryCreateAdapter(DataRow adapterRow, out IAdapter? adapter);
 
     /// <summary>
     /// Attempts to initialize (or reinitialize) an individual <see cref="IAdapter"/> based on its ID.

@@ -255,7 +255,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// ID, AdapterName, AssemblyName, TypeName, ConnectionString<br/>
     /// ID column type should be integer based, all other column types are expected to be string based.
     /// </remarks>
-    public virtual required string DataMember { get; set; }
+    public virtual string? DataMember { get; set; }
 
     /// <summary>
     /// Gets or sets the default adapter time that represents the maximum time system will wait during <see cref="Start()"/> for initialization.

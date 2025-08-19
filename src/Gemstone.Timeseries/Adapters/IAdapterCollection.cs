@@ -44,7 +44,7 @@ public interface IAdapterCollection : IAdapter, IList<IAdapter>
     /// ID, AdapterName, AssemblyName, TypeName, ConnectionString<br/>
     /// ID column type should be integer based, all other column types are expected to be string based.
     /// </remarks>
-    string DataMember { get; set; }
+    string? DataMember { get; set; }
 
     /// <summary>
     /// Resets the statistics of this collection.

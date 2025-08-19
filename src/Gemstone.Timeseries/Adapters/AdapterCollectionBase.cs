@@ -24,6 +24,7 @@
 //       Converted code to .NET core.
 //
 //******************************************************************************************************
+// ReSharper disable ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
 
 using System;
 using System.Collections.Generic;
@@ -98,7 +99,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
 
     // Fields
     private string m_name;
-    private string m_connectionString;
+    private string? m_connectionString;
     private DataSet? m_dataSource;
     private int m_initializationTimeout;
     private bool m_autoStart;
@@ -112,7 +113,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     private DateTime m_startTimeConstraint;
     private DateTime m_stopTimeConstraint;
     private int m_processingInterval;
-    private readonly SharedTimer m_monitorTimer;
+    private readonly SharedTimer? m_monitorTimer;
     private bool m_monitorTimerEnabled;
     private readonly LogicalThreadScheduler m_lifecycleThreadScheduler;
     private readonly Dictionary<uint, LogicalThread> m_lifecycleThreads;
@@ -205,7 +206,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// </summary>
     public virtual string ConnectionString
     {
-        get => m_connectionString;
+        get => m_connectionString ?? "";
         set
         {
             m_connectionString = value;
@@ -217,7 +218,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
         }
     }
 
-    string IAdapter.ConnectionInfo => null;
+    string? IAdapter.ConnectionInfo => null;
 
     /// <summary>
     /// Gets or sets <see cref="DataSet"/> based data source used to load each <see cref="IAdapter"/>.
@@ -254,7 +255,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// ID, AdapterName, AssemblyName, TypeName, ConnectionString<br/>
     /// ID column type should be integer based, all other column types are expected to be string based.
     /// </remarks>
-    public virtual string DataMember { get; set; }
+    public virtual string? DataMember { get; set; }
 
     /// <summary>
     /// Gets or sets the default adapter time that represents the maximum time system will wait during <see cref="Start()"/> for initialization.
@@ -295,7 +296,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             {
                 foreach (T adapter in this)
                 {
-                    MeasurementKey[] inputMeasurementKeys = adapter?.InputMeasurementKeys;
+                    MeasurementKey[]? inputMeasurementKeys = adapter?.InputMeasurementKeys;
 
                     // If any of the children expects all measurements (i.e., null InputMeasurementKeys)
                     // then the parent collection must expect all measurements
@@ -332,7 +333,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             {
                 foreach (T adapter in this)
                 {
-                    IMeasurement[] outputMeasurements = adapter?.OutputMeasurements;
+                    IMeasurement[]? outputMeasurements = adapter?.OutputMeasurements;
 
                     if (outputMeasurements?.Length > 0)
                         cumulativeMeasurements.AddRange(outputMeasurements);
@@ -362,7 +363,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <remarks>
     /// The collection classes simply track this value if assigned, no automatic action is taken.
     /// </remarks>
-    public virtual string[] OutputSourceIDs { get; set; }
+    public virtual string[]? OutputSourceIDs { get; set; }
 
     /// <summary>
     /// Gets or sets input measurement keys that are requested by other adapters based on what adapter says it can provide.
@@ -378,11 +379,11 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             // Otherwise return cumulative results of all child adapters
             lock (this)
             {
-                if (typeof(IActionAdapter).IsAssignableFrom(typeof(T)))
-                    return this.Cast<IActionAdapter>().Where(item => item.RequestedInputMeasurementKeys is not null).SelectMany(item => item.RequestedInputMeasurementKeys).Distinct().ToArray();
+                if (s_isActionAdapterCollection)
+                    return this.Cast<IActionAdapter>().Where(item => item.RequestedInputMeasurementKeys is not null).SelectMany(item => item.RequestedInputMeasurementKeys ?? []).Distinct().ToArray();
 
-                if (typeof(IOutputAdapter).IsAssignableFrom(typeof(T)))
-                    return this.Cast<IOutputAdapter>().Where(item => item.RequestedInputMeasurementKeys is not null).SelectMany(item => item.RequestedInputMeasurementKeys).Distinct().ToArray();
+                if (s_isOutputAdapterCollection)
+                    return this.Cast<IOutputAdapter>().Where(item => item.RequestedInputMeasurementKeys is not null).SelectMany(item => item.RequestedInputMeasurementKeys ?? []).Distinct().ToArray();
             }
 
             return null;
@@ -393,7 +394,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Gets or sets output measurement keys that are requested by other adapters based on what adapter says it can provide.
     /// </summary>
-    public virtual MeasurementKey[] RequestedOutputMeasurementKeys
+    public virtual MeasurementKey[]? RequestedOutputMeasurementKeys
     {
         get
         {
@@ -404,11 +405,11 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             // Otherwise return cumulative results of all child adapters
             lock (this)
             {
-                if (typeof(IActionAdapter).IsAssignableFrom(typeof(T)))
-                    return this.Cast<IActionAdapter>().Where(item => item.RequestedOutputMeasurementKeys is not null).SelectMany(item => item.RequestedOutputMeasurementKeys).Distinct().ToArray();
+                if (s_isActionAdapterCollection)
+                    return this.Cast<IActionAdapter>().Where(item => item.RequestedOutputMeasurementKeys is not null).SelectMany(item => item.RequestedOutputMeasurementKeys ?? []).Distinct().ToArray();
 
-                if (typeof(IInputAdapter).IsAssignableFrom(typeof(T)))
-                    return this.Cast<IInputAdapter>().Where(item => item.RequestedOutputMeasurementKeys is not null).SelectMany(item => item.RequestedOutputMeasurementKeys).Distinct().ToArray();
+                if (s_isInputAdapterCollection)
+                    return this.Cast<IInputAdapter>().Where(item => item.RequestedOutputMeasurementKeys is not null).SelectMany(item => item.RequestedOutputMeasurementKeys ?? []).Distinct().ToArray();
             }
 
             return null;
@@ -446,9 +447,9 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// Gets or sets the desired processing interval, in milliseconds, for the adapter collection and applies this interval to each adapter.
     /// </summary>
     /// <remarks>
-    /// With the exception of the values of -1 and 0, this value specifies the desired processing interval for data, i.e.,
-    /// basically a delay, or timer interval, over which to process data. A value of -1 means to use the default processing
-    /// interval while a value of 0 means to process data as fast as possible.
+    /// Except the values of -1 and 0, this value specifies the desired processing interval for data, i.e., basically a delay, or timer
+    /// interval, over which to process data. A value of -1 means to use the default processing interval while a value of 0 means to process
+    /// data as fast as possible.
     /// </remarks>
     public virtual int ProcessingInterval
     {
@@ -587,7 +588,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
         get
         {
             StringBuilder status = new();
-            DataSet dataSource = DataSource;
+            DataSet? dataSource = DataSource;
 
             // Show collection status
             status.AppendLine($"  Total adapter components: {Count}");
@@ -653,9 +654,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
                 {
                     foreach (T item in this)
                     {
-                        IProvideStatus statusProvider = item;
-
-                        if (statusProvider is null)
+                        if (item is not IProvideStatus statusProvider)
                             continue;
 
                         // This component provides status information.                       
@@ -708,8 +707,11 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             if (!disposing)
                 return;
 
-            m_monitorTimer.Elapsed -= m_monitorTimer_Elapsed;
-            m_monitorTimer.Dispose();
+            if (m_monitorTimer is not null)
+            {
+                m_monitorTimer.Elapsed -= m_monitorTimer_Elapsed;
+                m_monitorTimer.Dispose();
+            }
 
             Clear();        // This disposes all items in collection...
         }
@@ -749,7 +751,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
         Dictionary<string, string> settings = Settings;
 
         // Load the default initialization parameter for adapters in this collection
-        if (settings.TryGetValue(nameof(InitializationTimeout), out string setting))
+        if (settings.TryGetValue(nameof(InitializationTimeout), out string? setting))
             InitializationTimeout = int.Parse(setting);
 
         lock (this)
@@ -758,7 +760,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
 
             if (DataSource.Tables.Contains(DataMember))
             {
-                foreach (DataRow adapterRow in DataSource.Tables[DataMember].Rows)
+                foreach (DataRow adapterRow in DataSource.Tables[DataMember]!.Rows)
                 {
                     if (TryCreateAdapter(adapterRow, out T item))
                         Add(item);
@@ -806,14 +808,15 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
 
                 if ((settings.TryGetValue("protocol", out string? protocol) || settings.TryGetValue("phasorProtocol", out protocol)) && !string.IsNullOrWhiteSpace(protocol))
                 {
-                    foreach (AdapterProtocolInfo adapterProtocol in AdapterCache.AdapterProtocols.Values)
+                    foreach (AdapterProtocolInfo adapterProtocol in AdapterCache.AdapterProtocols.Values.Where(info => info.Attributes.Any(attribute => string.Equals(protocol, attribute.Acronym, StringComparison.OrdinalIgnoreCase))))
                     {
-                        if (adapterProtocol.Attributes.Any(attribute => string.Equals(protocol, attribute.Acronym, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            assemblyName = adapterProtocol.Info.AssemblyName;
-                            typeName = adapterProtocol.Info.TypeName;
-                            break;
-                        }
+                        if ((s_isInputAdapterCollection && !typeof(IInputAdapter).IsAssignableFrom(adapterProtocol.Info.Type)) ||
+                            (s_isActionAdapterCollection && !typeof(IActionAdapter).IsAssignableFrom(adapterProtocol.Info.Type)))
+                            continue;
+
+                        assemblyName = adapterProtocol.Info.AssemblyName;
+                        typeName = adapterProtocol.Info.TypeName;
+                        break;
                     }
                 }
             }
@@ -864,8 +867,10 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <param name="id">ID of adapter to get.</param>
     /// <param name="adapter">Adapter reference if found; otherwise null.</param>
     /// <returns><c>true</c> if adapter with the specified <paramref name="id"/> was found; otherwise <c>false</c>.</returns>
-    public virtual bool TryGetAdapterByID(uint id, out T adapter) =>
-        TryGetAdapter(id, (item, value) => item.ID == value, out adapter);
+    public virtual bool TryGetAdapterByID(uint id, out T? adapter)
+    {
+        return TryGetAdapter(id, (item, value) => item.ID == value, out adapter);
+    }
 
     /// <summary>
     /// Attempts to get the adapter with the specified <paramref name="name"/>.
@@ -873,8 +878,10 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <param name="name">Name of adapter to get.</param>
     /// <param name="adapter">Adapter reference if found; otherwise null.</param>
     /// <returns><c>true</c> if adapter with the specified <paramref name="name"/> was found; otherwise <c>false</c>.</returns>
-    public virtual bool TryGetAdapterByName(string name, out T adapter) =>
-        TryGetAdapter(name, (item, value) => item.Name.Equals(value, StringComparison.OrdinalIgnoreCase), out adapter);
+    public virtual bool TryGetAdapterByName(string name, out T? adapter)
+    {
+        return TryGetAdapter(name, (item, value) => item.Name.Equals(value, StringComparison.OrdinalIgnoreCase), out adapter);
+    }
 
     /// <summary>
     /// Attempts to get the adapter with the specified <paramref name="value"/> given <paramref name="testItem"/> function.
@@ -883,7 +890,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <param name="testItem">Function delegate used to test item <paramref name="value"/>.</param>
     /// <param name="adapter">Adapter reference if found; otherwise null.</param>
     /// <returns><c>true</c> if adapter with the specified <paramref name="value"/> was found; otherwise <c>false</c>.</returns>
-    protected virtual bool TryGetAdapter<TValue>(TValue value, Func<T, TValue, bool> testItem, out T adapter)
+    protected virtual bool TryGetAdapter<TValue>(TValue value, Func<T, TValue, bool> testItem, out T? adapter)
     {
         lock (this)
         {
@@ -897,22 +904,22 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             }
         }
 
-        adapter = default;
+        adapter = null;
         return false;
     }
 
     // Explicit IAdapter implementation of TryGetAdapterByID
-    bool IAdapterCollection.TryGetAdapterByID(uint id, out IAdapter adapter)
+    bool IAdapterCollection.TryGetAdapterByID(uint id, out IAdapter? adapter)
     {
-        bool result = TryGetAdapterByID(id, out T adapterT);
+        bool result = TryGetAdapterByID(id, out T? adapterT);
         adapter = adapterT;
         return result;
     }
 
     // Explicit IAdapter implementation of TryGetAdapterByName
-    bool IAdapterCollection.TryGetAdapterByName(string name, out IAdapter adapter)
+    bool IAdapterCollection.TryGetAdapterByName(string name, out IAdapter? adapter)
     {
-        bool result = TryGetAdapterByName(name, out T adapterT);
+        bool result = TryGetAdapterByName(name, out T? adapterT);
         adapter = adapterT;
         return result;
     }
@@ -924,7 +931,10 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <returns><c>true</c> if item was successfully initialized; otherwise <c>false</c>.</returns>
     public virtual bool TryInitializeAdapterByID(uint id)
     {
-        foreach (DataRow adapterRow in DataSource.Tables[DataMember].Rows)
+        if (DataSource is null || !DataSource.Tables.Contains(DataMember))
+            return false;
+
+        foreach (DataRow adapterRow in DataSource.Tables[DataMember]!.Rows)
         {
             uint rowID = uint.Parse(adapterRow[nameof(ID)].ToNonNullString("0"));
 
@@ -1001,7 +1011,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
 
         // Start data monitor...
         if (MonitorTimerEnabled)
-            m_monitorTimer.Start();
+            m_monitorTimer?.Start();
     }
 
     /// <summary>
@@ -1034,7 +1044,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
         }
 
         // Stop data monitor...
-        m_monitorTimer.Stop();
+        m_monitorTimer?.Stop();
     }
 
     /// <summary>
@@ -1281,7 +1291,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <remarks>
     /// Derived classes should override if more events are defined.
     /// </remarks>
-    protected virtual void InitializeItem(T item)
+    protected virtual void InitializeItem(T? item)
     {
         if (item is null)
             return;
@@ -1304,7 +1314,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             lifecycleThread.Push(() =>
             {
                 m_activeItem.Value = item;
-                LogicalThread.CurrentThread.Push(() => Initialize(item));
+                LogicalThread.CurrentThread?.Push(() => Initialize(item));
             });
         }
         catch (Exception ex)
@@ -1322,7 +1332,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <remarks>
     /// Derived classes should override if more events are defined.
     /// </remarks>
-    protected virtual void DisposeItem(T item)
+    protected virtual void DisposeItem(T? item)
     {
         if (item is null)
             return;
@@ -1373,9 +1383,9 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             }
 
             // If the item is set to auto-start and not already started, start it now
-            if (item.AutoStart && !item.Enabled)
+            if (item is { AutoStart: true, Enabled: false })
             {
-                LogicalThread.CurrentThread.Push(() =>
+                LogicalThread.CurrentThread?.Push(() =>
                 {
                     Start(item);
 
@@ -1442,7 +1452,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
         if (m_activeItem.Value != item)
             return;
 
-        if (item.Initialized && item.Enabled)
+        if (item is { Initialized: true, Enabled: true })
             item.Stop();
     }
 
@@ -1634,6 +1644,14 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     }
 
     #endregion
+
+    #endregion
+
+    #region [ Static ]
+
+    private static readonly bool s_isInputAdapterCollection = typeof(IInputAdapter).IsAssignableFrom(typeof(T));
+    private static readonly bool s_isActionAdapterCollection = typeof(IActionAdapter).IsAssignableFrom(typeof(T));
+    private static readonly bool s_isOutputAdapterCollection = typeof(IOutputAdapter).IsAssignableFrom(typeof(T));
 
     #endregion
 }

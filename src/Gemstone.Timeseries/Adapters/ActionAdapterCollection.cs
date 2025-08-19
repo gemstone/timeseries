@@ -96,7 +96,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// </summary>
     /// <remarks>
     /// Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-    /// adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start input demands,
+    /// adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start input demands,
     /// as an example, this would be <c>false</c> for an action adapter that calculated measurement, but <c>true</c> for an action adapter used to archive inputs.
     /// </remarks>
     public virtual bool RespectInputDemands { get; set; }
@@ -106,7 +106,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// </summary>
     /// <remarks>
     /// Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-    /// adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start output demands,
+    /// adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start output demands,
     /// as an example, this would be <c>true</c> for an action adapter that calculated measurement, but <c>false</c> for an action adapter used to archive inputs.
     /// </remarks>
     public virtual bool RespectOutputDemands { get; set; }
@@ -153,7 +153,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
 
         Dictionary<string, string> settings = Settings;
 
-        RespectInputDemands = settings.TryGetValue(nameof(RespectInputDemands), out string setting) && setting.ParseBoolean();
+        RespectInputDemands = settings.TryGetValue(nameof(RespectInputDemands), out string? setting) && setting.ParseBoolean();
         RespectOutputDemands = !settings.TryGetValue(nameof(RespectOutputDemands), out setting) || setting.ParseBoolean();
     }
 
@@ -186,8 +186,10 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// Raises the <see cref="NewMeasurements"/> event.
     /// </summary>
     /// <param name="measurements">New measurements.</param>
-    protected void OnNewMeasurements(ICollection<IMeasurement> measurements) =>
+    protected void OnNewMeasurements(ICollection<IMeasurement> measurements)
+    {
         OnNewMeasurements(this, new EventArgs<ICollection<IMeasurement>>(measurements));
+    }
 
     /// <summary>
     /// Raises the <see cref="NewMeasurements"/> event.
@@ -267,7 +269,7 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     /// Unwires events and disposes of <see cref="IActionAdapter"/> implementation.
     /// </summary>
     /// <param name="item"><see cref="IActionAdapter"/> to dispose.</param>
-    protected override void DisposeItem(IActionAdapter item)
+    protected override void DisposeItem(IActionAdapter? item)
     {
         if (item is null)
             return;
@@ -285,20 +287,28 @@ public class ActionAdapterCollection : AdapterCollectionBase<IActionAdapter>, IA
     }
 
     // Raise new measurements event on behalf of each item in collection
-    private void item_NewMeasurements(object? sender, EventArgs<ICollection<IMeasurement>> e) =>
+    private void item_NewMeasurements(object? sender, EventArgs<ICollection<IMeasurement>> e)
+    {
         OnNewMeasurements(sender, e);
+    }
 
     // Raise unpublished samples event on behalf of each item in collection
-    private void item_UnpublishedSamples(object? sender, EventArgs<int> e) =>
+    private void item_UnpublishedSamples(object? sender, EventArgs<int> e)
+    {
         UnpublishedSamples?.SafeInvoke(sender, e);
+    }
 
     // Raise discarding measurements event on behalf of each item in collection
-    private void item_DiscardingMeasurements(object? sender, EventArgs<IEnumerable<IMeasurement>> e) =>
+    private void item_DiscardingMeasurements(object? sender, EventArgs<IEnumerable<IMeasurement>> e)
+    {
         DiscardingMeasurements?.SafeInvoke(sender, e);
+    }
 
     // Raise request temporal support event on behalf of each item in collection
-    private void item_RequestTemporalSupport(object? sender, EventArgs e) =>
+    private void item_RequestTemporalSupport(object? sender, EventArgs e)
+    {
         RequestTemporalSupport?.SafeInvoke(sender, e);
+    }
 
     #endregion
 }

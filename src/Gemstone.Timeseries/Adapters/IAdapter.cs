@@ -93,7 +93,7 @@ public interface IAdapter : ISupportLifecycle, IProvideStatus
         /// <remarks>
         /// For example, this could return IP or host name of source connection.
         /// </remarks>
-        string ConnectionInfo { get; }
+        string? ConnectionInfo { get; }
 
         /// <summary>
         /// Gets settings <see cref="Dictionary{TKey,TValue}"/> parsed when <see cref="ConnectionString"/> was assigned.

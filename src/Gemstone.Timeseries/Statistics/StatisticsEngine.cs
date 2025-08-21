@@ -544,7 +544,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// <summary>
     /// Starts the <see cref="StatisticsEngine"/> or restarts it if it is already running.
     /// </summary>
-    [AdapterCommand("Starts the statistics engine or restarts it if it is already running.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Starts the statistics engine or restarts it if it is already running.")]
     public override void Start()
     {
         base.Start();
@@ -559,7 +559,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// <summary>
     /// Stops the <see cref="StatisticsEngine"/>.
     /// </summary>		
-    [AdapterCommand("Stops the statistics engine.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Stops the statistics engine.")]
     public override void Stop()
     {
         base.Stop();
@@ -569,7 +569,7 @@ public class StatisticsEngine : FacileActionAdapterBase
     /// <summary>
     /// Loads or reloads system statistics.
     /// </summary>
-    [AdapterCommand("Reloads system statistics.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Reloads system statistics.")]
     [Label("Reload Statistics")]
     public void ReloadStatistics()
     {

@@ -758,7 +758,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <summary>
     /// Starts the <see cref="ActionAdapterBase"/> or restarts it if it is already running.
     /// </summary>
-    [AdapterCommand("Starts the action adapter or restarts it if it is already running.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Starts the action adapter or restarts it if it is already running.")]
     public override void Start()
     {
         // Make sure we are stopped (e.g., disconnected) before attempting to start (e.g., connect)
@@ -771,14 +771,14 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <summary>
     /// Stops the <see cref="ActionAdapterBase"/>.
     /// </summary>
-    [AdapterCommand("Stops the action adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Stops the action adapter.")]
     public override void Stop() =>
         base.Stop();
 
     /// <summary>
     /// Examines the concentrator frame queue state of the <see cref="ActionAdapterBase"/>.
     /// </summary>
-    [AdapterCommand("Examines concentration frame queue state.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
+    [AdapterCommand("Examines concentration frame queue state.")]
     [Label("Examine Queue State")]
     public string ExamineQueueState()
     {
@@ -790,7 +790,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <summary>
     /// Resets the statistics of the <see cref="ActionAdapterBase"/>.
     /// </summary>
-    [AdapterCommand("Resets the statistics of the action adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Resets the statistics of the action adapter.")]
     [Label("Reset Statistics")]
     public override void ResetStatistics()
     {
@@ -804,7 +804,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// Manually sets the initialized state of the <see cref="ActionAdapterBase"/>.
     /// </summary>
     /// <param name="initialized">Desired initialized state.</param>
-    [AdapterCommand("Manually sets the initialized state of the action adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Manually sets the initialized state of the action adapter.")]
     [Label("Set Initialized State")]
     [Parameter(nameof(initialized), "Initialized", "Manually sets the initialized state of the action adapter.")]
     public virtual void SetInitializedState(bool initialized) =>
@@ -892,7 +892,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </list>
     /// </para>
     /// </remarks>
-    [AdapterCommand("Defines a temporal processing constraint for the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
+    [AdapterCommand("Defines a temporal processing constraint for the adapter.")]
     [Label("Set Temporal Constraint")]
     [Parameter(nameof(startTime), "Start Time", "Defines a relative or exact start time for the temporal constraint, defaults to DateTime.MinValue if blank.")]
     [Parameter(nameof(stopTime), "Stop Time", "Defines a relative or exact stop time for the temporal constraint, defaults to DateTime.MaxValue if blank.")]

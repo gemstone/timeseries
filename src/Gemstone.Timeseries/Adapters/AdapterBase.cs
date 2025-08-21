@@ -621,7 +621,7 @@ public abstract class AdapterBase : IAdapter
     /// <summary>
     /// Starts the <see cref="AdapterBase"/> or restarts it if it is already running.
     /// </summary>
-    [AdapterCommand("Starts the adapter or restarts it if it is already running.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Starts the adapter or restarts it if it is already running.")]
     public virtual void Start()
     {
         if (IsDisposed)
@@ -639,7 +639,7 @@ public abstract class AdapterBase : IAdapter
     /// <summary>
     /// Stops the <see cref="AdapterBase"/>.
     /// </summary>
-    [AdapterCommand("Stops the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Stops the adapter.")]
     public virtual void Stop()
     {
         if (IsDisposed)
@@ -653,7 +653,7 @@ public abstract class AdapterBase : IAdapter
     /// Manually sets the initialized state of the <see cref="AdapterBase"/>.
     /// </summary>
     /// <param name="initialized">Desired initialized state.</param>
-    [AdapterCommand("Manually sets the initialized state of the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Manually sets the initialized state of the adapter.")]
     [Label("Set Initialized State")]
     [Parameter(nameof(initialized), "Initialized", "Manually sets the initialized state of the adapter.")]
     public virtual void SetInitializedState(bool initialized) =>
@@ -715,7 +715,7 @@ public abstract class AdapterBase : IAdapter
     /// </list>
     /// </para>
     /// </remarks>
-    [AdapterCommand("Defines a temporal processing constraint for the adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
+    [AdapterCommand("Defines a temporal processing constraint for the adapter.")]
     [Label("Set Temporal Constraint")]
     [Parameter(nameof(startTime), "Start Time", "Defines a relative or exact start time for the temporal constraint, defaults to DateTime.MinValue if blank.")]
     [Parameter(nameof(stopTime), "Stop Time", "Defines a relative or exact stop time for the temporal constraint, defaults to DateTime.MaxValue if blank.")]

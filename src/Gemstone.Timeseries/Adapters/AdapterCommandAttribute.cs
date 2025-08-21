@@ -26,8 +26,6 @@
 //******************************************************************************************************
 
 using System;
-using System.Collections.Generic;
-using Gemstone.Security.AccessControl;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -35,19 +33,14 @@ namespace Gemstone.Timeseries.Adapters;
 /// Represents an attribute that allows a method in an <see cref="IAdapter"/> class to be exposed as
 /// an invokable command.
 /// </summary>
+/// <param name="description">Assigns the description for this adapter command.</param>
+/// <param name="uiAccessible">Assigns the UI accessible flag.</param>
 /// <remarks>
 /// Only public methods will be exposed as invokable.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class AdapterCommandAttribute : Attribute
+public sealed class AdapterCommandAttribute(string description, bool uiAccessible) : Attribute
 {
-    #region [ Members ]
-
-    // Fields
-    private readonly ResourceAccessLevel[]? m_allowResources;
-
-    #endregion
-
     #region [ Constructors ]
 
     /// <summary>
@@ -55,65 +48,8 @@ public sealed class AdapterCommandAttribute : Attribute
     /// </summary>
     /// <param name="description">Assigns the description for this adapter command.</param>
     public AdapterCommandAttribute(string description)
+        : this(description, true)
     {
-        Description = description;
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
-    /// </summary>
-    /// <param name="description">Assigns the description for this adapter command.</param>
-    /// <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
-    public AdapterCommandAttribute(string description, params ResourceAccessLevel[] allowedResources) : this(description)
-    {
-        m_allowResources = allowedResources;
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
-    /// </summary>
-    /// <param name="description">Assigns the description for this adapter command.</param>
-    /// <param name="resourceNames">Assigns the resources, by string name, which are allowed to invoke this adapter command.</param>
-    public AdapterCommandAttribute(string description, params string[] resourceNames) : this(description)
-    {
-        List<ResourceAccessLevel> allowedResources = [];
-
-        foreach (string resourceName in resourceNames)
-        {
-            if (Enum.TryParse(resourceName, true, out ResourceAccessLevel resource))
-                allowedResources.Add(resource);
-            else if (resourceName.Equals("Administrator", StringComparison.OrdinalIgnoreCase))
-                allowedResources.Add(ResourceAccessLevel.Admin);
-            else if (resourceName.Equals("Editor", StringComparison.OrdinalIgnoreCase))
-                allowedResources.Add(ResourceAccessLevel.Edit);
-            else if (resourceName.Equals("Viewer", StringComparison.OrdinalIgnoreCase))
-                allowedResources.Add(ResourceAccessLevel.View);
-            else
-                throw new ArgumentException($"Invalid resource name '{resourceName}' specified for adapter command '{description}'.");
-        }
-
-        m_allowResources = allowedResources.ToArray();
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
-    /// </summary>
-    /// <param name="description">Assigns the description for this adapter command.</param>
-    /// <param name="uiAccessible">Assigns the UI accessible flag.</param>
-    public AdapterCommandAttribute(string description, bool uiAccessible) : this(description)
-    {
-        UIAccessible = uiAccessible;   
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="AdapterCommandAttribute"/> with the specified <paramref name="description"/> value.
-    /// </summary>
-    /// <param name="description">Assigns the description for this adapter command.</param>
-    /// <param name="uiAccessible">Assigns the UI accessible flag.</param>
-    /// <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
-    public AdapterCommandAttribute(string description, bool uiAccessible, params ResourceAccessLevel[] allowedResources) : this(description, allowedResources)
-    {
-        UIAccessible = uiAccessible;
     }
 
     #endregion
@@ -123,17 +59,12 @@ public sealed class AdapterCommandAttribute : Attribute
     /// <summary>
     /// Gets the description of this adapter command.
     /// </summary>
-    public string Description { get; }
-
-    /// <summary>
-    /// Gets the resources which are allowed to invoke this adapter command.
-    /// </summary>
-    public ResourceAccessLevel[] AllowedResources => m_allowResources ?? [ResourceAccessLevel.Admin];
+    public string Description { get; } = description;
 
     /// <summary>
     /// Gets the flag that indicates if this should be included in the UI.
     /// </summary>
-    public bool UIAccessible { get; } = true;
+    public bool UIAccessible { get; } = uiAccessible;
 
     #endregion
 }

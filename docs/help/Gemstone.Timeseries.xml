@@ -2330,10 +2330,8 @@
       <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
       <remarks>
             Source tables are expected to have at least the following fields:
-            <code>
-                 ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
-                 SignalID    GUID        Unique identification for measurement
-            </code></remarks>
+            <codeSnippetGroup><code language="cs" codeLanguage="CSharp" style="cs">ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
+SignalID    GUID        Unique identification for measurement</code></codeSnippetGroup></remarks>
     </member>
     <member name="M:Gemstone.Timeseries.MeasurementKey.GetHashCode">
       <summary>
@@ -3762,7 +3760,7 @@
             </summary>
       <remarks>
             Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-            adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start input demands,
+            adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start input demands,
             as an example, this would be <c>false</c> for an action adapter that calculated measurement, but <c>true</c> for an action adapter used to archive inputs.
             </remarks>
     </member>
@@ -3772,7 +3770,7 @@
             </summary>
       <remarks>
             Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-            adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start output demands,
+            adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start output demands,
             as an example, this would be <c>true</c> for an action adapter that calculated measurement, but <c>false</c> for an action adapter used to archive inputs.
             </remarks>
     </member>
@@ -4751,9 +4749,9 @@
             Gets or sets the desired processing interval, in milliseconds, for the adapter collection and applies this interval to each adapter.
             </summary>
       <remarks>
-            With the exception of the values of -1 and 0, this value specifies the desired processing interval for data, i.e.,
-            basically a delay, or timer interval, over which to process data. A value of -1 means to use the default processing
-            interval while a value of 0 means to process data as fast as possible.
+            Except the values of -1 and 0, this value specifies the desired processing interval for data, i.e., basically a delay, or timer
+            interval, over which to process data. A value of -1 means to use the default processing interval while a value of 0 means to process
+            data as fast as possible.
             </remarks>
     </member>
     <member name="M:Gemstone.Timeseries.Adapters.AdapterCollectionBase`1.RemoveItem(System.Int32)">

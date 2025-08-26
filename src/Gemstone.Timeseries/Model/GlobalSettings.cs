@@ -34,10 +34,30 @@ namespace Gemstone.Timeseries.Model;
 /// </summary>
 public class GlobalSettings
 {
+    private static string? s_companyName;
     private static string? s_companyAcronym;
     private static string? s_systemName;
     private static int? s_defaultframeRate;
     private static double? s_nominalFrequency;
+
+    private static string ReadCompanyNameFromConfig()
+    {
+        try
+        {
+            dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
+            string companyName = section["CompanyName", "Grid Protection Alliance", "Full name of the company who owns the host system."];
+
+            if (string.IsNullOrWhiteSpace(companyName))
+                companyName = "Grid Protection Alliance";
+            
+            return companyName;
+        }
+        catch (Exception ex)
+        {
+            Logger.SwallowException(ex, "Failed to load company name from settings");
+            return "Grid Protection Alliance";
+        }
+    }
 
     private static string ReadCompanyAcronymFromConfig()
     {
@@ -114,6 +134,11 @@ public class GlobalSettings
             return 30;
         }
     }
+
+    /// <summary>
+    /// Gets the company name for the host system.
+    /// </summary>
+    public string CompanyName => s_companyName ??= ReadCompanyNameFromConfig();
 
     /// <summary>
     /// Gets the company acronym for the host system.

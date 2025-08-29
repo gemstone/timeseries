@@ -33,13 +33,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.Threading;
+using Gemstone.Timeseries.Adapters;
 using Gemstone.Units;
 
 [assembly: InternalsVisibleTo("PhasorProtocolAdapters")]
@@ -587,6 +590,10 @@ public abstract class ConcentratorBase : IDisposable
     /// <summary>
     /// Gets or sets flag that determines if precision timer should be used for frame publication.
     /// </summary>
+    [ConnectionStringParameter]
+    [Description("Determines if precision timer should be used for frame publication.")]
+    [DefaultValue(true)]
+    [Label("Use Precision Timer")]
     public bool UsePrecisionTimer
     {
         get => m_usePrecisionTimer;
@@ -829,6 +836,7 @@ public abstract class ConcentratorBase : IDisposable
     /// values greater than <see cref="Ticks"/>.<see cref="Ticks.PerSecond"/> will be set to <see cref="Ticks"/>.<see cref="Ticks.PerSecond"/>
     /// since maximum possible concentrator resolution is one second (i.e., 1 frame per second).
     /// </remarks>
+    [ConnectionStringParameter]
     public long TimeResolution
     {
         get => m_timeResolution;
@@ -853,6 +861,10 @@ public abstract class ConcentratorBase : IDisposable
     /// Gets or sets a value to indicate whether the concentrator should round to the
     /// nearest frame timestamp rather than rounding down to the nearest timestamps.
     /// </summary>
+    [ConnectionStringParameter]
+    [Description("Determines if output stream should round to the nearest frame timestamp rather than rounding down to the nearest timestamps.")]
+    [Label("Round To Nearest Timestamp")]
+    [DefaultValue(true)]
     public bool RoundToNearestTimestamp
     {
         get => m_roundToNearestTimestamp;
@@ -872,6 +884,10 @@ public abstract class ConcentratorBase : IDisposable
     /// <remarks>
     /// The down-sampling method determines the algorithm to use if input is being received at a higher-resolution than the defined output.
     /// </remarks>
+    [ConnectionStringParameter]
+    [Description("Defines the downsampling algorithm when configured FramesPerSecond is lower than the incoming data rate.")]
+    [DefaultValue(DownsamplingMethod.LastReceived)]
+    [Label("Downsampling Method")]
     public DownsamplingMethod DownsamplingMethod
     {
         get => m_downsamplingMethod;
@@ -901,6 +917,10 @@ public abstract class ConcentratorBase : IDisposable
     /// <remarks>
     /// In order for this property to used, the <see cref="ExpectedMeasurements"/> must be defined.
     /// </remarks>
+    [ConnectionStringParameter]
+    [DefaultValue(true)]
+    [Description("Determines if output stream will preemptively publish frames ahead of schedule when all expected inputs have arrived.")]
+    [Label("Allow Preemptive Publishing")]
     public bool AllowPreemptivePublishing { get; set; }
 
     /// <summary>
@@ -914,6 +934,10 @@ public abstract class ConcentratorBase : IDisposable
     /// be grossly incorrect. For non-production configurations, setting this value to false will allow
     /// concentration of historical data.
     /// </remarks>
+    [ConnectionStringParameter]
+    [DefaultValue(true)]
+    [Description("Determines if timestamp reasonability checks should be performed on incoming measurements using +/- LeadTime tolerance.")]
+    [Label("Perform Timestamp Reasonability Check")]
     public bool PerformTimestampReasonabilityCheck { get; set; }
 
     /// <summary>
@@ -932,6 +956,10 @@ public abstract class ConcentratorBase : IDisposable
     /// and <see cref="AllowSortsByArrival"/> to be <c>false</c>.
     /// </para>
     /// </remarks>
+    [ConnectionStringParameter]
+    [DefaultValue(false)]
+    [Description("Determines if concentrator should sort measurements by received time; commonly only used to process data faster than defined frame rate.")]
+    [Label("Process By Received Timestamp")]
     public bool ProcessByReceivedTimestamp
     {
         get => m_processByReceivedTimestamp;
@@ -1012,6 +1040,10 @@ public abstract class ConcentratorBase : IDisposable
     /// Setting this property to <c>true</c> forces system to use timestamps as-is without checking quality.
     /// If this property is <c>true</c>, it will supersede operation of <see cref="AllowSortsByArrival"/>.
     /// </remarks>
+    [ConnectionStringParameter]
+    [DefaultValue(true)]
+    [Label("Ignore Bad Timestamps")]
+    [Description("Determines if bad timestamps (as determined by measurement's timestamp quality) should be ignored when sorting measurements.")]
     public bool IgnoreBadTimestamps { get; set; }
 
     /// <summary>
@@ -1029,6 +1061,10 @@ public abstract class ConcentratorBase : IDisposable
     /// Value will be forced to <c>false</c> if <see cref="ProcessByReceivedTimestamp"/> is <c>true</c>.
     /// </para>
     /// </remarks>
+    [ConnectionStringParameter]
+    [DefaultValue(false)]
+    [Description("Determines if incoming measurements with bad timestamps are allowed to be sorted by arrival time.")]
+    [Label("Allow Sorts By Arrival")]
     public bool AllowSortsByArrival
     {
         get => m_allowSortsByArrival;
@@ -1048,6 +1084,10 @@ public abstract class ConcentratorBase : IDisposable
     /// always be set to <c>true</c>, even if you try to set it to <c>false</c>.
     /// </para>
     /// </remarks>
+    [ConnectionStringParameter]
+    [DefaultValue(false)]
+    [Description("Determines if the local clock can be used as real-time for the output stream; otherwise, latest reasonable incoming measurement time will be used.")]
+    [Label("Use Local Clock As Real Time")]
     public bool UseLocalClockAsRealTime
     {
         get => m_useLocalClockAsRealTime;

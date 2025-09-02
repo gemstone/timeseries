@@ -979,7 +979,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Starts, or restarts, each <see cref="IAdapter"/> implementation in this <see cref="AdapterCollectionBase{T}"/>.
     /// </summary>
-    [AdapterCommand("Starts, or restarts, each adapter in the collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Starts, or restarts, each adapter in the collection.")]
     public virtual void Start()
     {
         // Make sure we are stopped (e.g., disconnected) before attempting to start (e.g., connect)
@@ -1017,7 +1017,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Stops each <see cref="IAdapter"/> implementation in this <see cref="AdapterCollectionBase{T}"/>.
     /// </summary>
-    [AdapterCommand("Stops each adapter in the collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Stops each adapter in the collection.")]
     public virtual void Stop()
     {
         if (!m_enabled)
@@ -1050,7 +1050,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <summary>
     /// Resets the statistics of this collection.
     /// </summary>
-    [AdapterCommand("Resets the statistics of this collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Resets the statistics of this collection.")]
     [Label("Reset Statistics")]
     public void ResetStatistics()
     {
@@ -1118,7 +1118,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// </list>
     /// </para>
     /// </remarks>
-    [AdapterCommand("Defines a temporal processing constraint for each adapter in the collection.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit, ResourceAccessLevel.View)]
+    [AdapterCommand("Defines a temporal processing constraint for each adapter in the collection.")]
     [Label("Set Temporal Constraint")]
     [Parameter(nameof(startTime), "Start Time", "Defines a relative or exact start time for the temporal constraint, defaults to DateTime.MinValue if blank.")]
     [Parameter(nameof(stopTime), "Stop Time", "Defines a relative or exact stop time for the temporal constraint, defaults to DateTime.MaxValue if blank.")]

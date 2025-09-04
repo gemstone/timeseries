@@ -2330,8 +2330,10 @@
       <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
       <remarks>
             Source tables are expected to have at least the following fields:
-            <codeSnippetGroup><code language="cs" codeLanguage="CSharp" style="cs">ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
-SignalID    GUID        Unique identification for measurement</code></codeSnippetGroup></remarks>
+            <code>
+                 ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
+                 SignalID    GUID        Unique identification for measurement
+            </code></remarks>
     </member>
     <member name="M:Gemstone.Timeseries.MeasurementKey.GetHashCode">
       <summary>

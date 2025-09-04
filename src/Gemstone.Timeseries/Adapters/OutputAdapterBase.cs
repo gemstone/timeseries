@@ -404,7 +404,7 @@ public abstract class OutputAdapterBase : AdapterBase, IOutputAdapter
     /// <summary>
     /// Initiates request for metadata refresh for <see cref="OutputAdapterBase"/>, if implemented.
     /// </summary>
-    [AdapterCommand("Requests metadata refresh of output adapter.", ResourceAccessLevel.Admin, ResourceAccessLevel.Edit)]
+    [AdapterCommand("Requests metadata refresh of output adapter.")]
     [Label("Refresh Metadata")]
     public void RefreshMetadata()
     {

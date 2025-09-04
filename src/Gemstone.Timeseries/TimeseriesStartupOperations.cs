@@ -62,7 +62,6 @@ public static class TimeseriesStartupOperations
         // Run data operations
         ValidateAdapterCollections(database);
         ValidateActiveMeasurements(database);
-        ValidateAccountsAndGroups(database);
         ValidateDataPublishers(database, arguments);
         ValidateStatistics(database);
         ValidateAlarming(database);
@@ -127,76 +126,6 @@ public static class TimeseriesStartupOperations
 
         if (measurementConfigEntityCount == 0)
             database.Connection.ExecuteNonQuery(MeasurementConfigEntityInsertFormat);
-    }
-
-    /// <summary>
-    /// Data operation to validate accounts and groups to ensure
-    /// that account names and group names are converted to SIDs.
-    /// </summary>
-    private static void ValidateAccountsAndGroups(AdoDataConnection database)
-    {
-        const string SelectUserAccountQuery = "SELECT ID, Name, UseADAuthentication FROM UserAccount";
-        const string SelectSecurityGroupQuery = "SELECT ID, Name FROM SecurityGroup";
-        const string UpdateUserAccountFormat = "UPDATE UserAccount SET Name = '{0}' WHERE ID = '{1}'";
-        const string UpdateSecurityGroupFormat = "UPDATE SecurityGroup SET Name = '{0}' WHERE ID = '{1}'";
-
-        string id;
-        string sid;
-        string accountName;
-
-        Dictionary<string, string> updateMap = new();
-
-        // Find user accounts that need to be updated
-        (DbDataReader userAccountReader, DbCommand command) = database.Connection.ExecuteReader(SelectUserAccountQuery);
-
-        using (userAccountReader)
-        using (command)
-        {
-            while (userAccountReader.Read())
-            {
-                id = userAccountReader["ID"].ToNonNullString();
-                accountName = userAccountReader["Name"].ToNonNullString();
-
-                if (!userAccountReader["UseADAuthentication"].ToNonNullString().ParseBoolean())
-                    continue;
-
-                sid = UserInfo.UserNameToSID(accountName);
-
-                if (!ReferenceEquals(accountName, sid) && UserInfo.IsUserSID(sid))
-                    updateMap.Add(id, sid);
-            }
-        }
-
-        // Update user accounts
-        foreach (KeyValuePair<string, string> pair in updateMap)
-            database.Connection.ExecuteNonQuery(string.Format(UpdateUserAccountFormat, pair.Value, pair.Key));
-
-        updateMap.Clear();
-
-        // Find security groups that need to be updated
-        (DbDataReader securityGroupReader, command) = database.Connection.ExecuteReader(SelectSecurityGroupQuery);
-
-        using (securityGroupReader)
-        using (command)
-        {
-            while (securityGroupReader.Read())
-            {
-                id = securityGroupReader["ID"].ToNonNullString();
-                accountName = securityGroupReader["Name"].ToNonNullString();
-
-                if (!accountName.Contains('\\'))
-                    continue;
-
-                sid = UserInfo.GroupNameToSID(accountName);
-
-                if (!ReferenceEquals(accountName, sid) && UserInfo.IsGroupSID(sid))
-                    updateMap.Add(id, sid);
-            }
-        }
-
-        // Update security groups
-        foreach (KeyValuePair<string, string> pair in updateMap)
-            database.Connection.ExecuteNonQuery(string.Format(UpdateSecurityGroupFormat, pair.Value, pair.Key));
     }
 
     /// <summary>

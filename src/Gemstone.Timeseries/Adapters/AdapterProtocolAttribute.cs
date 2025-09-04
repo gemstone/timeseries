@@ -44,7 +44,7 @@ namespace Gemstone.Timeseries.Adapters
     /// <summary>
     /// Marks a class as an adapter protocol.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public class AdapterProtocolAttribute : Attribute
     {
         /// <summary>

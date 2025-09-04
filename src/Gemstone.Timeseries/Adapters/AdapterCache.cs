@@ -41,11 +41,16 @@ using ParameterMap = System.Collections.Generic.Dictionary<string, (string label
 namespace Gemstone.Timeseries.Adapters;
 
 /// <summary>
-/// Represents a collection of adpaters, provides a specialized method to retrieve `AdapterInfo` instances while cloning their connection parameters.
+/// Represents a collection of adapters providing specialized method to retrieve `AdapterInfo` instances
+/// while cloning their connection parameters.
 /// </summary>
-public class AdapterCollection : Dictionary<Type, AdapterInfo>
+public class AdapterTypeInfoMap : Dictionary<Type, AdapterInfo>
 {
-    public AdapterCollection(IDictionary<Type, AdapterInfo> dictionary) : base(dictionary)
+    /// <summary>
+    /// Creates a new instance of the <see cref="AdapterTypeInfoMap"/> class.
+    /// </summary>
+    /// <param name="dictionary">Source dictionary.</param>
+    public AdapterTypeInfoMap(IDictionary<Type, AdapterInfo> dictionary) : base(dictionary)
     {
     }
 
@@ -61,9 +66,9 @@ public class AdapterCollection : Dictionary<Type, AdapterInfo>
     /// langword="false"/>.</returns>
     public new bool TryGetValue(Type key, [MaybeNullWhen(false)] out AdapterInfo value)
     {
-        bool result = base.TryGetValue(key, out AdapterInfo val);
+        bool result = base.TryGetValue(key, out AdapterInfo? val);
 
-        if (result)
+        if (result && val is not null)
             value = val with { Parameters = val.Parameters.Select(param => param.Clone()).ToArray() };
         else
             value = null;
@@ -205,7 +210,7 @@ public static class AdapterCache
     // Notifies derived classes that adapters have been reloaded
     internal static EventHandler? AdaptersReloaded;
 
-    private static AdapterCollection? s_allAdapters;
+    private static AdapterTypeInfoMap? s_allAdapters;
     private static Dictionary<Type, UIResourceInfo>? s_uiResources;
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
     private static Dictionary<Type, AdapterCommandInfo>? s_adapterCommands;
@@ -232,14 +237,14 @@ public static class AdapterCache
     /// <summary>
     /// Gets all time-series adapter types in the application directory.
     /// </summary>
-    public static AdapterCollection AllAdapters
+    public static AdapterTypeInfoMap AllAdapters
     {
         get
         {
             // Caching default adapter types so expensive assembly load with type inspections
             // and reflection-based instance creation of types are only done once. If dynamic
             // reload is needed at runtime, call ReloadAdapterTypes() method.
-            AdapterCollection? allAdapters = Interlocked.CompareExchange(ref s_allAdapters, null, null);
+            AdapterTypeInfoMap? allAdapters = Interlocked.CompareExchange(ref s_allAdapters, null, null);
 
             if (allAdapters is not null)
                 return allAdapters;
@@ -251,7 +256,7 @@ public static class AdapterCache
                     return s_allAdapters;
 
                 // Load all adapter types in the application directory
-                s_allAdapters = new AdapterCollection(typeof(IAdapter).LoadImplementations()
+                s_allAdapters = new AdapterTypeInfoMap(typeof(IAdapter).LoadImplementations()
                     .Distinct()
                     .Select(type => (type, info: type.GetDescription()))
                     .Select(item => new AdapterInfo
@@ -298,7 +303,7 @@ public static class AdapterCache
                     .GetAdapterMethodAttributes<AdapterCommandAttribute>()
                     .Select(item =>
                     {
-                        (MethodInfo method, AdapterCommandAttribute attribute, string Label, ParameterMap)[]? attributes = item.methodAttributes
+                        (MethodInfo method, AdapterCommandAttribute attribute, string Label, ParameterMap)[] attributes = item.methodAttributes
                             .Select(ma =>
                             {
                                 IEnumerable<ParameterAttribute> paramAttrs = ma.method.GetCustomAttributes<ParameterAttribute>();
@@ -585,11 +590,11 @@ public static class AdapterCache
 /// </summary>
 public static class AdapterCache<T> where T : IAdapter
 {
-    private static AdapterCollection? s_allAdapters;
+    private static AdapterTypeInfoMap? s_allAdapters;
     private static Dictionary<Type, UIResourceInfo>? s_uiResources;
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
     private static Dictionary<Type, AdapterCommandInfo>? s_adapterCommands;
-    private static readonly object s_loadLock = new();
+    private static readonly Lock s_loadLock = new();
 
     static AdapterCache()
     {
@@ -631,7 +636,7 @@ public static class AdapterCache<T> where T : IAdapter
                 // which all happens within the same thread, so no deadlock concerns
 
                 // Filter adapter properties to type 'T'
-                s_allAdapters = new AdapterCollection(AdapterCache.AllAdapters.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary());
+                s_allAdapters = new AdapterTypeInfoMap(AdapterCache.AllAdapters.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary());
                 s_uiResources = AdapterCache.UIResources.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
                 s_adapterProtocols = AdapterCache.AdapterProtocols.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();
                 s_adapterCommands = AdapterCache.AdapterCommands.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary();

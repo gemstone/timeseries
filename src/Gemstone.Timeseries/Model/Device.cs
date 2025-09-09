@@ -113,6 +113,9 @@ public class Device
     [DefaultValue(true)]
     public bool Enabled { get; set; }
 
+    [DefaultValue(true)]
+    public bool Internal { get; set; }
+
     [DefaultValueExpression("DateTime.UtcNow")]
     public DateTime CreatedOn { get; set; }
 

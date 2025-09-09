@@ -88,7 +88,7 @@ public class Measurement
 
     public string Label { get; set; } = "";
 
-    [DefaultValue(false)]
+    [DefaultValue(true)]
     public bool Internal { get; set; }
 
     public bool Subscribed { get; set; }

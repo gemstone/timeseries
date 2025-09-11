@@ -41,6 +41,22 @@ namespace Gemstone.Timeseries.Adapters
         Measurement
     }
 
+    public enum UIVisibility
+    {
+        /// <summary>
+        /// Indicates that this protocol should be hidden from UI
+        /// </summary>
+        Hidden,
+        /// <summary>
+        /// Indicates that this protocol is for inputs.
+        /// </summary>
+        Input,
+        /// <summary>
+        /// Indicates that this protocol is for outputs.
+        /// </summary>
+        Output
+    }
+
     /// <summary>
     /// Marks a class as an adapter protocol.
     /// </summary>
@@ -64,14 +80,6 @@ namespace Gemstone.Timeseries.Adapters
         public ProtocolType Type { get; }
 
         /// <summary>
-        /// Gets the category of the adapter protocol.
-        /// </summary>
-        /// <remarks>
-        /// Common categories include "Phasor", "Gateway", "Device", etc.
-        /// </remarks>
-        public string Category { get; }
-
-        /// <summary>
         /// Gets flag that determines if the adapter protocol supports a connection test.
         /// </summary>
         public bool SupportsConnectionTest { get; }
@@ -81,16 +89,18 @@ namespace Gemstone.Timeseries.Adapters
         /// </summary>
         public int LoadOrder { get; }
 
+        public UIVisibility Visibility { get; }
+
         /// <summary>
         /// Creates a new instance of the <see cref="AdapterProtocolAttribute"/> class.
         /// </summary>
         /// <param name="acronym">Acronym for the adapter protocol.</param>
         /// <param name="name">Name of the adapter protocol.</param>
         /// <param name="type">Type of the adapter protocol.</param>
-        /// <param name="category">Category of the adapter protocol.</param>
+        /// <param name="visibility">UI Visibility of the protocol.</param>
         /// <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
         /// <param name="loadOrder">Load order of the adapter protocol.</param>
-        public AdapterProtocolAttribute(string acronym, string name, ProtocolType type, string category = "Device", bool supportsConnectionTest = true, int loadOrder = 0)
+        public AdapterProtocolAttribute(string acronym, string name, ProtocolType type, UIVisibility visibility, bool supportsConnectionTest = true, int loadOrder = 0)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(acronym);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -98,7 +108,7 @@ namespace Gemstone.Timeseries.Adapters
             Acronym = acronym;
             Name = name;
             Type = type;
-            Category = category;
+            Visibility = visibility;
             SupportsConnectionTest = supportsConnectionTest;
             LoadOrder = loadOrder;
         }

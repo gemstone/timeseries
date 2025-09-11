@@ -60,6 +60,9 @@ public class Phasor
 
     public int BaseKV { get; set; }
 
+    [DefaultValue(true)]
+    public bool Internal { get; set; }
+
     [DefaultValueExpression("DateTime.UtcNow")]
     public DateTime CreatedOn { get; set; }
 

@@ -2330,7 +2330,7 @@
       <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
       <remarks>
             Source tables are expected to have at least the following fields:
-            <code>
+            <code language="cs">
                  ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
                  SignalID    GUID        Unique identification for measurement
             </code></remarks>
@@ -4436,41 +4436,6 @@
             Gets all UI resource attribute information for adapters of type <typeparamref name="T" /> in the application directory.
             </summary>
     </member>
-    <member name="T:Gemstone.Timeseries.Adapters.AdapterCollection">
-      <summary>
-            Represents a collection of adpaters, provides a specialized method to retrieve `AdapterInfo` instances while cloning their connection parameters.
-            </summary>
-    </member>
-    <member name="M:Gemstone.Timeseries.Adapters.AdapterCollection.#ctor(System.Collections.Generic.IDictionary{System.Type,Gemstone.Timeseries.Adapters.AdapterInfo})">
-      <summary>
-        <markup>
-          <include item="SMCAutoDocConstructor">
-            <parameter>Gemstone.Timeseries.Adapters.AdapterCollection</parameter>
-          </include>
-        </markup>
-      </summary>
-      <param name="dictionary">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>dictionary</parameter>
-            <parameter>M:Gemstone.Timeseries.Adapters.AdapterCollection.#ctor(System.Collections.Generic.IDictionary{System.Type,Gemstone.Timeseries.Adapters.AdapterInfo})</parameter>
-          </include>
-        </markup>
-      </param>
-    </member>
-    <member name="M:Gemstone.Timeseries.Adapters.AdapterCollection.TryGetValue(System.Type,Gemstone.Timeseries.Adapters.AdapterInfo@)">
-      <summary>
-            Attempts to retrieve the <see cref="T:Gemstone.Timeseries.Adapters.AdapterInfo" /> associated with the specified <see cref="T:System.Type" /> key.
-            </summary>
-      <param name="key">The <see cref="T:System.Type" /> key to locate in the collection.</param>
-      <param name="value">When this method returns, contains the <see cref="T:Gemstone.Timeseries.Adapters.AdapterInfo" /> associated with the specified key, if the key
-            is found; otherwise, <see langword="null" />. This parameter is passed uninitialized.</param>
-      <returns>
-        <see langword="true" /> if the collection contains an element with the specified key; otherwise, <see langword="false" />.</returns>
-      <remarks>If the key is found, the returned <see cref="T:Gemstone.Timeseries.Adapters.AdapterInfo" /> is a copy with cloned
-            parameters.</remarks>
-    </member>
     <member name="T:Gemstone.Timeseries.Adapters.AdapterCollectionBase`1">
       <summary>
             Represents a collection of <see cref="T:Gemstone.Timeseries.Adapters.IAdapter" /> implementations.
@@ -4939,6 +4904,8 @@
             Represents an attribute that allows a method in an <see cref="T:Gemstone.Timeseries.Adapters.IAdapter" /> class to be exposed as
             an invokable command.
             </summary>
+      <param name="description">Assigns the description for this adapter command.</param>
+      <param name="uiAccessible">Assigns the UI accessible flag.</param>
       <remarks>
             Only public methods will be exposed as invokable.
             </remarks>
@@ -4949,39 +4916,16 @@
             </summary>
       <param name="description">Assigns the description for this adapter command.</param>
     </member>
-    <member name="M:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.#ctor(System.String,Gemstone.Security.AccessControl.ResourceAccessLevel[])">
-      <summary>
-            Creates a new <see cref="T:Gemstone.Timeseries.Adapters.AdapterCommandAttribute" /> with the specified <paramref name="description" /> value.
-            </summary>
-      <param name="description">Assigns the description for this adapter command.</param>
-      <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
-    </member>
     <member name="M:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.#ctor(System.String,System.Boolean)">
       <summary>
-            Creates a new <see cref="T:Gemstone.Timeseries.Adapters.AdapterCommandAttribute" /> with the specified <paramref name="description" /> value.
+            Represents an attribute that allows a method in an <see cref="T:Gemstone.Timeseries.Adapters.IAdapter" /> class to be exposed as
+            an invokable command.
             </summary>
       <param name="description">Assigns the description for this adapter command.</param>
       <param name="uiAccessible">Assigns the UI accessible flag.</param>
-    </member>
-    <member name="M:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.#ctor(System.String,System.Boolean,Gemstone.Security.AccessControl.ResourceAccessLevel[])">
-      <summary>
-            Creates a new <see cref="T:Gemstone.Timeseries.Adapters.AdapterCommandAttribute" /> with the specified <paramref name="description" /> value.
-            </summary>
-      <param name="description">Assigns the description for this adapter command.</param>
-      <param name="uiAccessible">Assigns the UI accessible flag.</param>
-      <param name="allowedResources">Assigns the resources which are allowed to invoke this adapter command.</param>
-    </member>
-    <member name="M:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.#ctor(System.String,System.String[])">
-      <summary>
-            Creates a new <see cref="T:Gemstone.Timeseries.Adapters.AdapterCommandAttribute" /> with the specified <paramref name="description" /> value.
-            </summary>
-      <param name="description">Assigns the description for this adapter command.</param>
-      <param name="resourceNames">Assigns the resources, by string name, which are allowed to invoke this adapter command.</param>
-    </member>
-    <member name="P:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.AllowedResources">
-      <summary>
-            Gets the resources which are allowed to invoke this adapter command.
-            </summary>
+      <remarks>
+            Only public methods will be exposed as invokable.
+            </remarks>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.AdapterCommandAttribute.Description">
       <summary>
@@ -5090,14 +5034,14 @@
             Marks a class as an adapter protocol.
             </summary>
     </member>
-    <member name="M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,System.String,System.Boolean,System.Int32)">
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32)">
       <summary>
             Creates a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute" /> class.
             </summary>
       <param name="acronym">Acronym for the adapter protocol.</param>
       <param name="name">Name of the adapter protocol.</param>
       <param name="type">Type of the adapter protocol.</param>
-      <param name="category">Category of the adapter protocol.</param>
+      <param name="visibility">UI Visibility of the protocol.</param>
       <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
       <param name="loadOrder">Load order of the adapter protocol.</param>
     </member>
@@ -5105,14 +5049,6 @@
       <summary>
             Gets the acronym for the adapter protocol.
             </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Category">
-      <summary>
-            Gets the category of the adapter protocol.
-            </summary>
-      <remarks>
-            Common categories include "Phasor", "Gateway", "Device", etc.
-            </remarks>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.LoadOrder">
       <summary>
@@ -5133,6 +5069,16 @@
       <summary>
             Gets the type of the adapter protocol.
             </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Visibility">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Visibility</parameter>
+          </include>
+        </markup>
+      </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.AdapterProtocolInfo">
       <summary>
@@ -5157,6 +5103,30 @@
       <summary>
             Gets the adapter type and its key attributes.
             </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.AdapterTypeInfoMap">
+      <summary>
+            Represents a collection of adapters providing specialized method to retrieve `AdapterInfo` instances
+            while cloning their connection parameters.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterTypeInfoMap.#ctor(System.Collections.Generic.IDictionary{System.Type,Gemstone.Timeseries.Adapters.AdapterInfo})">
+      <summary>
+            Creates a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.AdapterTypeInfoMap" /> class.
+            </summary>
+      <param name="dictionary">Source dictionary.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterTypeInfoMap.TryGetValue(System.Type,Gemstone.Timeseries.Adapters.AdapterInfo@)">
+      <summary>
+            Attempts to retrieve the <see cref="T:Gemstone.Timeseries.Adapters.AdapterInfo" /> associated with the specified <see cref="T:System.Type" /> key.
+            </summary>
+      <param name="key">The <see cref="T:System.Type" /> key to locate in the collection.</param>
+      <param name="value">When this method returns, contains the <see cref="T:Gemstone.Timeseries.Adapters.AdapterInfo" /> associated with the specified key, if the key
+            is found; otherwise, <see langword="null" />. This parameter is passed uninitialized.</param>
+      <returns>
+        <see langword="true" /> if the collection contains an element with the specified key; otherwise, <see langword="false" />.</returns>
+      <remarks>If the key is found, the returned <see cref="T:Gemstone.Timeseries.Adapters.AdapterInfo" /> is a copy with cloned
+            parameters.</remarks>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.AllAdaptersCollection">
       <summary>
@@ -8964,6 +8934,31 @@
             Gets the adapter type and its key attributes.
             </summary>
     </member>
+    <member name="T:Gemstone.Timeseries.Adapters.UIVisibility">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>T:Gemstone.Timeseries.Adapters.UIVisibility</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.UIVisibility.Hidden">
+      <summary>
+            Indicates that this protocol should be hidden from UI
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.UIVisibility.Input">
+      <summary>
+            Indicates that this protocol is for inputs.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.UIVisibility.Output">
+      <summary>
+            Indicates that this protocol is for outputs.
+            </summary>
+    </member>
     <member name="T:Gemstone.Timeseries.Configuration.BinaryFileConfigurationLoader">
       <summary>
             Represents a configuration loader that gets its configuration from a binary file.
@@ -9787,6 +9782,16 @@
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Model.Device.Internal">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Device.Internal</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Model.Device.IsConcentrator">
       <summary>
         <markup>
@@ -9993,6 +9998,11 @@
     <member name="P:Gemstone.Timeseries.Model.GlobalSettings.CompanyAcronym">
       <summary>
             Gets the company acronym for the host system.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.GlobalSettings.CompanyName">
+      <summary>
+            Gets the company name for the host system.
             </summary>
     </member>
     <member name="F:Gemstone.Timeseries.Model.GlobalSettings.Default">
@@ -10488,6 +10498,16 @@
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
             <parameter>P:Gemstone.Timeseries.Model.Phasor.ID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.Phasor.Internal">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Phasor.Internal</parameter>
           </include>
         </markup>
       </summary>

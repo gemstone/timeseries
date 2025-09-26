@@ -167,10 +167,10 @@ public static class TimeseriesStartupOperations
         int sttpsDataPublisherCount = Convert.ToInt32(database.Connection.ExecuteScalar(string.Format(DataPublisherCountFormat, "STTPS")));
 
         if (sttpDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTP", "None", "cachedMeasurementExpression={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}", 2, sttpDataPublisherEnabled ? 1 : 0));
+            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTP", "None", "cachedMeasurementExpression={FILTER ActiveMeasurements WHERE SignalType = ''STAT''}; commandChannel={port=7175}", 2, sttpDataPublisherEnabled ? 1 : 0));
 
         if (sttpsDataPublisherCount == 0)
-            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTPS", "TLS", "", 3, sttpsDataPublisherEnabled ? 1 : 0));
+            database.Connection.ExecuteNonQuery(string.Format(STTPDataPublisherInsertFormat, "STTPS", "TLS", "commandChannel={port=7177}", 3, sttpsDataPublisherEnabled ? 1 : 0));
     }
 
     /// <summary>

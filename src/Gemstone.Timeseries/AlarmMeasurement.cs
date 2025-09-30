@@ -30,8 +30,19 @@ namespace Gemstone.Timeseries;
 /// </summary>
 public class AlarmMeasurement : Measurement
 {
+    private Ticks? m_alarmTimestamp;
+
     /// <summary>
     /// Gets or sets Guid-based alarm ID.
     /// </summary>
     public Guid AlarmID { get; set; }
+
+    /// <summary>
+    /// Gets or sets alarm timestamp.
+    /// </summary>
+    public Ticks AlarmTimestamp
+    {
+        get => m_alarmTimestamp ?? Timestamp; 
+        set => m_alarmTimestamp = value;
+    }
 }

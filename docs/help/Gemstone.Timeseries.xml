@@ -205,6 +205,11 @@
             Gets or sets Guid-based alarm ID.
             </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.AlarmMeasurement.AlarmTimestamp">
+      <summary>
+            Gets or sets alarm timestamp.
+            </summary>
+    </member>
     <member name="T:Gemstone.Timeseries.AlarmOperation">
       <summary>
             Represents the operation to be performed
@@ -2330,7 +2335,7 @@
       <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
       <remarks>
             Source tables are expected to have at least the following fields:
-            <code language="cs">
+            <code>
                  ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
                  SignalID    GUID        Unique identification for measurement
             </code></remarks>

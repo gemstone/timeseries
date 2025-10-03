@@ -34,6 +34,27 @@ using Gemstone.Expressions.Model;
 
 namespace Gemstone.Timeseries.Model;
 
+/// <summary>
+/// Represents the alternative tag to select for a <see cref="Measurement"/>.
+/// </summary>
+public enum AlternativeTag
+{
+    /// <summary>
+    /// First alternative tag.
+    /// </summary>
+    AlternateTag = 1,
+
+    /// <summary>
+    /// Second alternative tag.
+    /// </summary>
+    AlternateTag2,
+
+    /// <summary>
+    /// Third alternative tag.
+    /// </summary>
+    AlternateTag3
+}
+
 public class Measurement
 {
     [Label("Point ID")]

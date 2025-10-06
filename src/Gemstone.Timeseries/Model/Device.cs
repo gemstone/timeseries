@@ -145,4 +145,13 @@ public class Device
             registry.RegisterSymbol("Global", GlobalSettings.Default);
 
     }
+
+    [Label("Alternate Acronym")]
+    public string? AlternateAcronym { get; set; } = "";
+
+    [Label("Alternate Acronym 2")]
+    public string? AlternateAcronym2 { get; set; } = "";
+
+    [Label("Alternate Acronym 3")]
+    public string? AlternateAcronym3 { get; set; } = "";
 }

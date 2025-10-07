@@ -9687,6 +9687,36 @@
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Model.Device.AlternateAcronym">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Device.AlternateAcronym</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.Device.AlternateAcronym2">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Device.AlternateAcronym2</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.Device.AlternateAcronym3">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Device.AlternateAcronym3</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Model.Device.CompanyID">
       <summary>
         <markup>

@@ -3933,7 +3933,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         section.UniqueAdaptersIDs = ("True", "Set to true if all runtime adapter ID's will be unique to allow for easier adapter specification");
         section.ProcessPriority = (ProcessPriorityClass.High, "Sets desired process priority: Normal, AboveNormal, High, RealTime");
         section.AllowRemoteRestart = ("True", "Controls ability to remotely restart the host service");
-        section.DefaultTheme = ("./Styles/bootstrap.min.css", "The bootstrap theme file to be used if no theme is specified by the user");
+        section.DefaultTheme = ("bootstrap.min.css", "The bootstrap theme file to be used if no theme is specified by the user");
         section.SystemFrequency = (60.0, "Defines the System frequency in Hz");
         section.DefaultFrameRate = (30, "Defines the default frame rate used for adapters in frames per second.");
 

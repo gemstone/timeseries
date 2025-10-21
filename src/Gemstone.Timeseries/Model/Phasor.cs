@@ -47,6 +47,12 @@ public class Phasor
     [StringLength(200)]
     public string Label { get; set; }
 
+    public string? AlternateLabel { get; set; }
+
+    public string? AlternateLabel2 { get; set; }
+
+    public string? AlternateLabel3 { get; set; }
+
     public char Type { get; set; }
 
     [DefaultValue('+')]

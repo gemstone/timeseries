@@ -28,6 +28,7 @@ using Gemstone.StringExtensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 
@@ -93,13 +94,13 @@ public enum DataType
     /// </summary>
     Enum,
     /// <summary>
-    /// Represents an <see cref="IMeasurement"/> data type.
+    /// Represents a <see cref="MeasurementKey[]"/> array data type.
     /// </summary>
-    IMeasurement,
+    MeasurementKeyArray,
     /// <summary>
-    /// Represents an <see cref="MeasurementKey"/> data type.
+    /// Represents and <see cref="IMeasurement[]"/> data type.
     /// </summary>
-    MeasurementKey
+    IMeasurementArray
 }
 
 /// <summary>
@@ -162,6 +163,26 @@ public class ConnectionParameter
     public bool IsVisibleToUI { get; init; } = true;
 
     /// <summary>
+    /// Gets a flag that indicates if the parameter is required.
+    /// </summary>
+    public bool IsRequired { get; init; } = true;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public int? LowerLimit { get; init; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public int? UpperLimit { get; init; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public int? DisplayOrder { get; init; }
+
+    /// <summary>
     /// Gets a <see cref="ConnectionParameter"/> instance from a <see cref="PropertyInfo"/>.
     /// </summary>
     public static ConnectionParameter GetConnectionParameter(PropertyInfo info)
@@ -175,7 +196,11 @@ public class ConnectionParameter
             DefaultValue = getDefaultValue(info)?.ToString() ?? "",
             AvailableValues = getAvailableValues(info),
             Label = getLabel(info),
-            IsVisibleToUI = !getIsHiddenToUI(info)
+            IsVisibleToUI = !getIsHiddenToUI(info),
+            IsRequired = getIsRequired(info),
+            LowerLimit = getLowerLimit(info),
+            UpperLimit = getUpperLimit(info),
+            DisplayOrder = getDisplayOrder(info)
         };
 
         static string getCategory(PropertyInfo value)
@@ -217,6 +242,8 @@ public class ConnectionParameter
                 { } type when type == typeof(double) => DataType.Double,
                 { } type when type == typeof(DateTime) => DataType.DateTime,
                 { } type when type == typeof(bool) => DataType.Boolean,
+                { } type when type == typeof(MeasurementKey[]) => DataType.MeasurementKeyArray,
+                { } type when type == typeof(IMeasurement[]) => DataType.IMeasurementArray,
                 { IsEnum: true } => DataType.Enum,
                 _ => DataType.String
             };
@@ -232,6 +259,18 @@ public class ConnectionParameter
             EditorBrowsableAttribute? attr = info.GetCustomAttribute<EditorBrowsableAttribute>();
             return attr?.State == EditorBrowsableState.Never;
         }
+
+        static bool getIsRequired(PropertyInfo info)
+        {
+            info.TryGetAttribute(out DefaultValueExpressionAttribute? expressionAttribute);
+            return expressionAttribute is null;
+        }
+
+        static int? getLowerLimit(PropertyInfo info) => info.TryGetAttribute(out RangeAttribute? range) ? (int)range.Minimum : null;
+
+        static int? getUpperLimit(PropertyInfo info) => info.TryGetAttribute(out RangeAttribute? range) ? (int)range.Maximum : null;
+
+        static int? getDisplayOrder(PropertyInfo info) => info.TryGetAttribute(out DisplayAttribute? displayOrder) ? displayOrder.Order : null;
     }
 
     /// <summary>

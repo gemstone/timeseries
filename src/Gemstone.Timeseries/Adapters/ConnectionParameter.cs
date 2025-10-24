@@ -23,8 +23,10 @@
 
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Expressions.Model;
+using Gemstone.Numeric.EE;
 using Gemstone.Reflection.MemberInfoExtensions;
 using Gemstone.StringExtensions;
+using Gemstone.Timeseries.Model.DataAnnotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -168,25 +170,37 @@ public class ConnectionParameter
     public bool IsRequired { get; init; } = true;
 
     /// <summary>
-    /// 
+    /// Gets the lower limit for parameter value.
     /// </summary>
     public int? LowerLimit { get; init; }
 
     /// <summary>
-    /// 
+    /// Gets the upper limit for parameter value.
     /// </summary>
     public int? UpperLimit { get; init; }
 
     /// <summary>
-    /// 
+    /// Gets the display order for the parameter. Parameters with the same display order will be displayed in the same row. Lower values are displayed first.
     /// </summary>
     public int? DisplayOrder { get; init; }
+
+    /// <summary>
+    /// Get the array of supported signal types for this parameter.
+    /// </summary>
+    public SignalType[]? SupportedSignalTypes { get; init; }
+
+    /// <summary>
+    /// Get the flag that indicates which which measurements to search for.
+    /// </summary>
+    public bool IsPhasor { get; init; }
 
     /// <summary>
     /// Gets a <see cref="ConnectionParameter"/> instance from a <see cref="PropertyInfo"/>.
     /// </summary>
     public static ConnectionParameter GetConnectionParameter(PropertyInfo info)
     {
+        var (signalTypes, isPhasor) = getSignalInfo(info);
+
         return new ConnectionParameter()
         {
             Name = info.Name,
@@ -200,7 +214,9 @@ public class ConnectionParameter
             IsRequired = getIsRequired(info),
             LowerLimit = getLowerLimit(info),
             UpperLimit = getUpperLimit(info),
-            DisplayOrder = getDisplayOrder(info)
+            DisplayOrder = getDisplayOrder(info),
+            SupportedSignalTypes = signalTypes,
+            IsPhasor = isPhasor
         };
 
         static string getCategory(PropertyInfo value)
@@ -271,6 +287,14 @@ public class ConnectionParameter
         static int? getUpperLimit(PropertyInfo info) => info.TryGetAttribute(out RangeAttribute? range) ? (int)range.Maximum : null;
 
         static int? getDisplayOrder(PropertyInfo info) => info.TryGetAttribute(out DisplayAttribute? displayOrder) ? displayOrder.Order : null;
+
+        static (SignalType[]? SignalTypes, bool IsPhasor) getSignalInfo(PropertyInfo info)
+        {
+            if (!info.TryGetAttribute(out FilterMeasurementsAttribute? attr))
+                return (null, false);
+
+            return (attr.SignalTypes, attr.IsPhasor);
+        }
     }
 
     /// <summary>

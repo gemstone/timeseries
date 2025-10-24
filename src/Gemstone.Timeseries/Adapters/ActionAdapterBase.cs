@@ -36,8 +36,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
+using Gemstone.Configuration;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
+using Gemstone.Expressions.Evaluator;
+using Gemstone.Expressions.Model;
 using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 
@@ -105,6 +108,18 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     #endregion
 
     #region [ Constructors ]
+
+    /// <summary>
+    /// Static constructor to make sure the Settings object is registered
+    /// </summary>
+    static ActionAdapterBase()
+    {
+        // Get default type registry
+        TypeRegistry registry = ValueExpressionParser.DefaultTypeRegistry;
+
+        // Register `Settings` object for static method access
+        registry.RegisterStaticType<Settings>();
+    }
 
     /// <summary>
     /// Creates a new <see cref="ActionAdapterBase"/>.
@@ -285,6 +300,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [ConnectionStringParameter]
     [Description("Defines the number of frames per second expected by the adapter.")]
     [Label("Frames Per Second")]
+    [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultFrameRate\"]")]
     public new int FramesPerSecond
     {
         get => base.FramesPerSecond;
@@ -303,6 +319,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [ConnectionStringParameter]
     [Description("Defines the allowed past time deviation tolerance, in seconds (can be sub-second).")]
     [Label("Lag Time")]
+    [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultLagTime\"]")]
     public new double LagTime
     {
         get => base.LagTime;
@@ -321,6 +338,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [ConnectionStringParameter]
     [Description("Defines the allowed future time deviation tolerance, in seconds (can be sub-second).")]
     [Label("Lead Time")]
+    [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultLeadTime\"]")]
     public new double LeadTime
     {
         get => base.LeadTime;

@@ -195,6 +195,11 @@ public class ConnectionParameter
     public bool IsPhasor { get; init; }
 
     /// <summary>
+    /// Gets a value indicating whether the application should use the alternate user interface form.
+    /// </summary>
+    public bool UseAlternateUI { get; init; }
+
+    /// <summary>
     /// Gets a <see cref="ConnectionParameter"/> instance from a <see cref="PropertyInfo"/>.
     /// </summary>
     public static ConnectionParameter GetConnectionParameter(PropertyInfo info)
@@ -216,7 +221,8 @@ public class ConnectionParameter
             UpperLimit = getUpperLimit(info),
             DisplayOrder = getDisplayOrder(info),
             SupportedSignalTypes = signalTypes,
-            IsPhasor = isPhasor
+            IsPhasor = isPhasor,
+            UseAlternateUI = getUseAlternateUI(info)
         };
 
         static string getCategory(PropertyInfo value)
@@ -286,7 +292,14 @@ public class ConnectionParameter
 
         static int? getUpperLimit(PropertyInfo info) => info.TryGetAttribute(out RangeAttribute? range) ? (int)range.Maximum : null;
 
-        static int? getDisplayOrder(PropertyInfo info) => info.TryGetAttribute(out DisplayAttribute? displayOrder) ? displayOrder.Order : null;
+        static int? getDisplayOrder(PropertyInfo info)
+        {
+            info.TryGetAttribute(out DisplayAttribute? displayOrder);
+            if (displayOrder is null)
+                return null;
+
+            return displayOrder.GetOrder();
+        }
 
         static (SignalType[]? SignalTypes, bool IsPhasor) getSignalInfo(PropertyInfo info)
         {
@@ -294,6 +307,14 @@ public class ConnectionParameter
                 return (null, false);
 
             return (attr.SignalTypes, attr.IsPhasor);
+        }
+
+        static bool getUseAlternateUI(PropertyInfo info)
+        {
+            if (!info.TryGetAttribute(out UseAlternateUIAttribute? attr))
+                return false;
+
+            return attr.UseAlternateUI;
         }
     }
 
@@ -473,14 +494,22 @@ public static class ConnectionParameterExtensions
     {
         return new ConnectionParameter()
         {
-            AvailableValues = original.AvailableValues,
+            Name = original.Name,
             Category = original.Category,
+            Description = original.Description,
             DataType = original.DataType,
+            AvailableValues = original.AvailableValues,
             DefaultValue = original.DefaultValue,
             Value = original.Value,
-            Name = original.Name,
             Label = original.Label,
-            IsVisibleToUI = original.IsVisibleToUI
+            IsVisibleToUI = original.IsVisibleToUI,
+            IsRequired = original.IsRequired,
+            LowerLimit = original.LowerLimit,
+            UpperLimit = original.UpperLimit,
+            DisplayOrder = original.DisplayOrder,
+            SupportedSignalTypes = original.SupportedSignalTypes,
+            IsPhasor = original.IsPhasor,
+            UseAlternateUI = original.UseAlternateUI
         };
     }
 }

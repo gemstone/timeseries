@@ -23,11 +23,14 @@
 
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Expressions.Model;
+using Gemstone.Numeric.EE;
 using Gemstone.Reflection.MemberInfoExtensions;
 using Gemstone.StringExtensions;
+using Gemstone.Timeseries.Model.DataAnnotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 
@@ -93,13 +96,13 @@ public enum DataType
     /// </summary>
     Enum,
     /// <summary>
-    /// Represents an <see cref="IMeasurement"/> data type.
+    /// Represents a <see cref="MeasurementKey[]"/> array data type.
     /// </summary>
-    IMeasurement,
+    MeasurementKeyArray,
     /// <summary>
-    /// Represents an <see cref="MeasurementKey"/> data type.
+    /// Represents and <see cref="IMeasurement[]"/> data type.
     /// </summary>
-    MeasurementKey
+    IMeasurementArray
 }
 
 /// <summary>
@@ -162,10 +165,47 @@ public class ConnectionParameter
     public bool IsVisibleToUI { get; init; } = true;
 
     /// <summary>
+    /// Gets a flag that indicates if the parameter is required.
+    /// </summary>
+    public bool IsRequired { get; init; } = true;
+
+    /// <summary>
+    /// Gets the lower limit for parameter value.
+    /// </summary>
+    public int? LowerLimit { get; init; }
+
+    /// <summary>
+    /// Gets the upper limit for parameter value.
+    /// </summary>
+    public int? UpperLimit { get; init; }
+
+    /// <summary>
+    /// Gets the display order for the parameter. Parameters with the same display order will be displayed in the same row. Lower values are displayed first.
+    /// </summary>
+    public int? DisplayOrder { get; init; }
+
+    /// <summary>
+    /// Get the array of supported signal types for this parameter.
+    /// </summary>
+    public SignalType[]? SupportedSignalTypes { get; init; }
+
+    /// <summary>
+    /// Get the flag that indicates which which measurements to search for.
+    /// </summary>
+    public bool IsPhasor { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating whether the application should use the alternate user interface form.
+    /// </summary>
+    public bool UseAlternateUI { get; init; }
+
+    /// <summary>
     /// Gets a <see cref="ConnectionParameter"/> instance from a <see cref="PropertyInfo"/>.
     /// </summary>
     public static ConnectionParameter GetConnectionParameter(PropertyInfo info)
     {
+        var (signalTypes, isPhasor) = getSignalInfo(info);
+
         return new ConnectionParameter()
         {
             Name = info.Name,
@@ -175,7 +215,14 @@ public class ConnectionParameter
             DefaultValue = getDefaultValue(info)?.ToString() ?? "",
             AvailableValues = getAvailableValues(info),
             Label = getLabel(info),
-            IsVisibleToUI = !getIsHiddenToUI(info)
+            IsVisibleToUI = !getIsHiddenToUI(info),
+            IsRequired = getIsRequired(info),
+            LowerLimit = getLowerLimit(info),
+            UpperLimit = getUpperLimit(info),
+            DisplayOrder = getDisplayOrder(info),
+            SupportedSignalTypes = signalTypes,
+            IsPhasor = isPhasor,
+            UseAlternateUI = getUseAlternateUI(info)
         };
 
         static string getCategory(PropertyInfo value)
@@ -217,6 +264,8 @@ public class ConnectionParameter
                 { } type when type == typeof(double) => DataType.Double,
                 { } type when type == typeof(DateTime) => DataType.DateTime,
                 { } type when type == typeof(bool) => DataType.Boolean,
+                { } type when type == typeof(MeasurementKey[]) => DataType.MeasurementKeyArray,
+                { } type when type == typeof(IMeasurement[]) => DataType.IMeasurementArray,
                 { IsEnum: true } => DataType.Enum,
                 _ => DataType.String
             };
@@ -231,6 +280,41 @@ public class ConnectionParameter
         {
             EditorBrowsableAttribute? attr = info.GetCustomAttribute<EditorBrowsableAttribute>();
             return attr?.State == EditorBrowsableState.Never;
+        }
+
+        static bool getIsRequired(PropertyInfo info)
+        {
+            info.TryGetAttribute(out DefaultValueExpressionAttribute? expressionAttribute);
+            return expressionAttribute is null;
+        }
+
+        static int? getLowerLimit(PropertyInfo info) => info.TryGetAttribute(out RangeAttribute? range) ? (int)range.Minimum : null;
+
+        static int? getUpperLimit(PropertyInfo info) => info.TryGetAttribute(out RangeAttribute? range) ? (int)range.Maximum : null;
+
+        static int? getDisplayOrder(PropertyInfo info)
+        {
+            info.TryGetAttribute(out DisplayAttribute? displayOrder);
+            if (displayOrder is null)
+                return null;
+
+            return displayOrder.GetOrder();
+        }
+
+        static (SignalType[]? SignalTypes, bool IsPhasor) getSignalInfo(PropertyInfo info)
+        {
+            if (!info.TryGetAttribute(out FilterMeasurementsAttribute? attr))
+                return (null, false);
+
+            return (attr.SignalTypes, attr.IsPhasor);
+        }
+
+        static bool getUseAlternateUI(PropertyInfo info)
+        {
+            if (!info.TryGetAttribute(out UseAlternateUIAttribute? attr))
+                return false;
+
+            return attr.UseAlternateUI;
         }
     }
 
@@ -410,14 +494,22 @@ public static class ConnectionParameterExtensions
     {
         return new ConnectionParameter()
         {
-            AvailableValues = original.AvailableValues,
+            Name = original.Name,
             Category = original.Category,
+            Description = original.Description,
             DataType = original.DataType,
+            AvailableValues = original.AvailableValues,
             DefaultValue = original.DefaultValue,
             Value = original.Value,
-            Name = original.Name,
             Label = original.Label,
-            IsVisibleToUI = original.IsVisibleToUI
+            IsVisibleToUI = original.IsVisibleToUI,
+            IsRequired = original.IsRequired,
+            LowerLimit = original.LowerLimit,
+            UpperLimit = original.UpperLimit,
+            DisplayOrder = original.DisplayOrder,
+            SupportedSignalTypes = original.SupportedSignalTypes,
+            IsPhasor = original.IsPhasor,
+            UseAlternateUI = original.UseAlternateUI
         };
     }
 }

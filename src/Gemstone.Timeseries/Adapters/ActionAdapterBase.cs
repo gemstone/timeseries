@@ -41,8 +41,8 @@ using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.Expressions.Evaluator;
 using Gemstone.Expressions.Model;
-using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
+// ReSharper disable NonReadonlyMemberInGetHashCode
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -90,16 +90,16 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is a collection of new measurements for host to process.
     /// </remarks>
-    public event EventHandler<EventArgs<ICollection<IMeasurement>>> NewMeasurements;
+    public event EventHandler<EventArgs<ICollection<IMeasurement>>>? NewMeasurements;
 
     // Fields
     private string m_name;
     private uint m_id;
-    private string m_connectionString;
+    private string? m_connectionString;
     private MeasurementKey[]? m_inputMeasurementKeys;
     private IMeasurement[]? m_outputMeasurements;
-    private List<string> m_inputSourceIDs;
-    private List<string> m_outputSourceIDs;
+    private List<string>? m_inputSourceIDs;
+    private List<string>? m_outputSourceIDs;
     private int m_minimumMeasurementsToUse;
     private DateTime m_startTimeConstraint;
     private DateTime m_stopTimeConstraint;
@@ -108,18 +108,6 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     #endregion
 
     #region [ Constructors ]
-
-    /// <summary>
-    /// Static constructor to make sure the Settings object is registered
-    /// </summary>
-    static ActionAdapterBase()
-    {
-        // Get default type registry
-        TypeRegistry registry = ValueExpressionParser.DefaultTypeRegistry;
-
-        // Register `Settings` object for static method access
-        registry.RegisterStaticType<Settings>();
-    }
 
     /// <summary>
     /// Creates a new <see cref="ActionAdapterBase"/>.
@@ -233,7 +221,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </remarks>
     public virtual string ConnectionString
     {
-        get => m_connectionString;
+        get => m_connectionString ?? string.Empty;
         set
         {
             m_connectionString = value;
@@ -251,7 +239,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <remarks>
     /// For example, this could return IP or host name of source connection.
     /// </remarks>
-    public virtual string ConnectionInfo => null;
+    public virtual string? ConnectionInfo => null;
 
     /// <summary>
     /// Gets or sets <see cref="DataSet"/> based data source available to this <see cref="ActionAdapterBase"/>.
@@ -276,7 +264,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </summary>
     /// <remarks>
     /// Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-    /// adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start input demands,
+    /// adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start input demands,
     /// as an example, this would be <c>false</c> for an action adapter that calculated measurement, but <c>true</c> for an action adapter used to archive inputs.
     /// </remarks>
     public virtual bool RespectInputDemands { get; set; }
@@ -286,7 +274,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </summary>
     /// <remarks>
     /// Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-    /// adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start output demands,
+    /// adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start output demands,
     /// as an example, this would be <c>true</c> for an action adapter that calculated measurement, but <c>false</c> for an action adapter used to archive inputs.
     /// </remarks>
     public virtual bool RespectOutputDemands { get; set; }
@@ -308,7 +296,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     }
 
     /// <summary>
-    /// Gets or sets the allowed past time deviation tolerance, in seconds (can be sub-second).
+    /// Gets or sets the allowed past-time deviation tolerance, in seconds (can be sub-second).
     /// </summary>
     /// <remarks>
     /// <para>Defines the time sensitivity to past measurement timestamps.</para>
@@ -401,7 +389,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> apply no filter.
     /// </remarks>
-    public virtual string[] InputSourceIDs
+    public virtual string[]? InputSourceIDs
     {
         get => m_inputSourceIDs?.ToArray();
         set
@@ -428,7 +416,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// This allows an adapter to associate itself with entire collections of measurements based on the source of the measurement keys.
     /// Set to <c>null</c> apply no filter.
     /// </remarks>
-    public virtual string[] OutputSourceIDs
+    public virtual string[]? OutputSourceIDs
     {
         get => m_outputSourceIDs?.ToArray();
         set
@@ -525,7 +513,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
             const int MaxMeasurementsToShow = 10;
 
             StringBuilder status = new();
-            DataSet dataSource = DataSource;
+            DataSet? dataSource = DataSource;
 
             status.AppendLine($"       Data source defined: {dataSource is not null}");
 
@@ -583,7 +571,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
                 for (int i = 0; i < Math.Min(OutputMeasurements.Length, MaxMeasurementsToShow); i++)
                 {
                     status.Append(OutputMeasurements[i].ToString().TruncateRight(40).PadLeft(40));
-                    status.Append(" ");
+                    status.Append(' ');
                     status.AppendLine(OutputMeasurements[i].ID.ToString());
                 }
 
@@ -701,8 +689,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
             AllowSortsByArrival = setting.ParseBoolean();
 
         InputMeasurementKeys = settings.TryGetValue(nameof(InputMeasurementKeys), out setting) ?
-            AdapterBase.ParseInputMeasurementKeys(DataSource, true, setting) :
-            [];
+            AdapterBase.ParseInputMeasurementKeys(DataSource, true, setting) : [];
 
         if (settings.TryGetValue(nameof(OutputMeasurements), out setting))
             OutputMeasurements = AdapterBase.ParseOutputMeasurements(DataSource, true, setting);
@@ -755,8 +742,8 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
         RespectInputDemands = settings.TryGetValue(nameof(RespectInputDemands), out setting) && setting.ParseBoolean();
         RespectOutputDemands = !settings.TryGetValue(nameof(RespectOutputDemands), out setting) || setting.ParseBoolean();
 
-        bool startTimeDefined = settings.TryGetValue(nameof(StartTimeConstraint), out string startTime);
-        bool stopTimeDefined = settings.TryGetValue(nameof(StopTimeConstraint), out string stopTime);
+        bool startTimeDefined = settings.TryGetValue(nameof(StartTimeConstraint), out string? startTime);
+        bool stopTimeDefined = settings.TryGetValue(nameof(StopTimeConstraint), out string? stopTime);
 
         if (startTimeDefined || stopTimeDefined)
         {
@@ -790,8 +777,10 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// Stops the <see cref="ActionAdapterBase"/>.
     /// </summary>
     [AdapterCommand("Stops the action adapter.")]
-    public override void Stop() =>
+    public override void Stop()
+    {
         base.Stop();
+    }
 
     /// <summary>
     /// Examines the concentrator frame queue state of the <see cref="ActionAdapterBase"/>.
@@ -825,8 +814,10 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [AdapterCommand("Manually sets the initialized state of the action adapter.")]
     [Label("Set Initialized State")]
     [Parameter(nameof(initialized), "Initialized", "Manually sets the initialized state of the action adapter.")]
-    public virtual void SetInitializedState(bool initialized) =>
+    public virtual void SetInitializedState(bool initialized)
+    {
         Initialized = initialized;
+    }
 
     /// <summary>
     /// Gets a short one-line status of this <see cref="ActionAdapterBase"/>.
@@ -938,7 +929,10 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// </summary>
     /// <returns>A hash code for the current <see cref="ActionAdapterBase"/>.</returns>
     // ReSharper disable once NonReadonlyMemberInGetHashCode
-    public override int GetHashCode() => m_hashCode;
+    public override int GetHashCode()
+    {
+        return m_hashCode;
+    }
 
     /// <summary>
     /// Attempts to retrieve the minimum needed number of measurements from the frame (as specified by MinimumMeasurementsToUse)
@@ -1053,8 +1047,10 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     }
 
     // We cache hash code during construction or after element value change to speed usage
-    private void GenHashCode() =>
+    private void GenHashCode()
+    {
         m_hashCode = (Name + ID).GetHashCode();
+    }
 
     #endregion
 }

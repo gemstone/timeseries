@@ -24,6 +24,7 @@
 // ReSharper disable CommentTypo
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -33,8 +34,10 @@ using System.Linq;
 using System.Runtime;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Gemstone.Caching;
 using Gemstone.Configuration;
 using Gemstone.Data;
 using Gemstone.Data.DataSetExtensions;
@@ -43,6 +46,7 @@ using Gemstone.IO;
 using Gemstone.Net.Security;
 using Gemstone.Security.Cryptography;
 using Gemstone.StringExtensions;
+using Gemstone.StringExtensions.StringMatcher;
 using Gemstone.Threading;
 using Gemstone.Threading.Collections;
 using Gemstone.Threading.SynchronizedOperations;
@@ -94,6 +98,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
 
     // Constants
     private const int DefaultConfigurationBackups = 5;
+    private const int MaxLogMessageQueueSize = 1000;
 
     // Fields
     private IaonSession? m_iaonSession;
@@ -115,6 +120,10 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     private RunTimeLog? m_runTimeLog;
     private readonly ILogger m_logger;
 
+    private double? m_maxFilteredStatusMessageCacheRange;
+    private readonly ConcurrentDictionary<string, List<(DateTime Time, string Message)>> m_filteredStatusMessages;
+    private readonly Queue<(DateTime Time, string Message)> m_statusLog;
+
     //private ServiceHelper m_serviceHelper;
     //private ServerBase m_remotingServer;
 
@@ -130,6 +139,8 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     protected ServiceHostBase(ILogger logger)
     {
         m_logger = logger;
+        m_filteredStatusMessages = new();
+        m_statusLog = new(MaxLogMessageQueueSize);
         //s_serviceHost = new WeakReference<ServiceHostBase>(this);
     }
 
@@ -661,6 +672,9 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                 m_runTimeLog.Dispose();
                 m_runTimeLog = null;
             }
+
+            // Dispose Filtered Status Messages
+            m_filteredStatusMessages.Clear();
 
             //m_serviceHelper.ServiceStarting -= ServiceStartingHandler;
             //m_serviceHelper.ServiceStarted -= ServiceStartedHandler;
@@ -1394,6 +1408,72 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     private void StatusMessageHandler(object? sender, EventArgs<string, UpdateType> e)
     {
         DisplayStatusMessage(e.Argument1, e.Argument2);
+        m_statusLog.Enqueue((DateTime.UtcNow, e.Argument1));
+
+        ThreadPool.QueueUserWorkItem(state =>
+        {
+            try
+            {
+                string message = state as string;
+
+                if (string.IsNullOrWhiteSpace(message))
+                    return;
+
+                // Check new status message against each filtered status message cache
+                foreach (KeyValuePair<string, List<(DateTime Time, string Message)>> kvp in m_filteredStatusMessages)
+                {
+                    string cacheName = kvp.Key;
+
+                    // Attempt to get associated StringMatcher from memory cache (fails if cache is expired)
+                    if (MemoryCache<StringMatcher>.TryGet(cacheName, out StringMatcher messageMatcher))
+                    {
+                        if (!messageMatcher.IsMatch(message))
+                            continue;
+
+                        // Access to filtered message cache synchronized by associated StringMatcher instance
+                        lock (messageMatcher)
+                        {
+                            List<(DateTime timestamp, string message)> filteredMessages = kvp.Value;
+                            DateTime currentTimestamp = DateTime.UtcNow;
+
+                            // Add new matching message to filtered status messages
+                            filteredMessages.Add((currentTimestamp, message));
+
+                            // Parse range from cache name "{matchMode}:{filter}:{(caseSensitive ? 1 : 0)}-{range}"
+                            int lastDashIndex = cacheName.LastIndexOf('-');
+
+                            if (lastDashIndex < 0)
+                                continue;
+
+                            if (!double.TryParse(cacheName.Substring(lastDashIndex + 1), out double range))
+                                continue;
+
+                            // Remove messages that are outside of range
+                            List<int> indexesToRemove = new();
+
+                            for (int i = 0; i < filteredMessages.Count; i++)
+                            {
+                                if ((currentTimestamp - filteredMessages[i].timestamp).TotalMinutes > range)
+                                    indexesToRemove.Add(i);
+                            }
+
+                            for (int i = indexesToRemove.Count - 1; i >= 0; i--)
+                                filteredMessages.RemoveAt(indexesToRemove[i]);
+                        }
+                    }
+                    else
+                    {
+                        // StringMatcher memory cache expired, remove associated filtered status message cache
+                        m_filteredStatusMessages.TryRemove(cacheName, out List<(DateTime, string)> _);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.SwallowException(ex, "Status message event filtering exception");
+            }
+        },
+        e.Argument1);
     }
 
     /// <summary>
@@ -3686,6 +3766,78 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         LogException(args.Argument);
     }
 
+    /// <inheritdoc />
+    public string[] GetFilteredStatusMessages(StringMatchingMode matchMode, string filter, bool caseSensitive = false, double range = 15.0D)
+    {
+        if (range <= 0.0D)
+            throw new ArgumentOutOfRangeException(nameof(range), "Range must be greater than zero minutes.");
+
+        if (range > (m_maxFilteredStatusMessageCacheRange ??= GetMaxFilteredStatusMessageCacheRange()))
+            throw new ArgumentOutOfRangeException(nameof(range), $"Range must be less than or equal to {m_maxFilteredStatusMessageCacheRange:N2} minutes.");
+
+        string cacheName = $"{matchMode}:{filter}:{(caseSensitive ? 1 : 0)}-{range}";
+        bool addedNewCache = false;
+        
+        // Memory ca`che expires after one minute if not accessed
+        StringMatcher messageMatcher = MemoryCache<StringMatcher>.GetOrAdd(cacheName, () =>
+        {
+            addedNewCache = true;
+            return new StringMatcher(matchMode, filter, caseSensitive);
+        });
+
+        // Synchronize calls for the same cache, first call will initialize status messages from log
+        lock (messageMatcher)
+        {
+            List<(DateTime timeStamp, string message)> filteredMessages;
+
+            if (!addedNewCache)
+                return m_filteredStatusMessages.TryGetValue(cacheName, out filteredMessages) ?
+                    filteredMessages.Select(message => message.message).ToArray() :
+                    [];
+
+            filteredMessages = new List<(DateTime timeStamp, string message)>();
+            DateTime minTimestamp = DateTime.MaxValue;
+            DateTime maxTimestamp = DateTime.MinValue;
+
+            List<(DateTime, string)> statusLog = m_statusLog.ToList();
+            // Process status log in reverse order to get most recent messages first
+            statusLog.Reverse();
+
+            // Load initial set of status messages from cached status log
+            foreach ((DateTime ts, string logRecord) in statusLog)
+            {
+                // Parse timestamp (local time) in brackets from beginning of log record
+                Match match = Regex.Match(logRecord, @"^\[(?<Timestamp>.*?)\]");
+
+                if (!match.Success || !DateTime.TryParse(match.Groups["Timestamp"].Value, CultureInfo.DefaultThreadCurrentCulture, DateTimeStyles.AssumeLocal, out DateTime timestamp))
+                    continue;
+
+                timestamp = timestamp.ToUniversalTime();
+
+                string message = logRecord.Substring(match.Length).Trim();
+
+                if (string.IsNullOrWhiteSpace(message) || !messageMatcher.IsMatch(message))
+                    continue;
+
+                if (timestamp < minTimestamp)
+                    minTimestamp = timestamp;
+
+                if (timestamp > maxTimestamp)
+                    maxTimestamp = timestamp;
+
+                if ((maxTimestamp - minTimestamp).TotalMinutes > range)
+                    break;
+
+                filteredMessages.Insert(0, (timestamp, message));
+            }
+
+            m_filteredStatusMessages[cacheName] = filteredMessages;
+
+            return filteredMessages.Select(m => m.message).ToArray();
+            
+        }
+    }
+
     #endregion
 
     #endregion
@@ -3959,5 +4111,10 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         MultipleDestinationExporter.DefineSettings(settings, "StatusExporter");
     }
 
+    private static double GetMaxFilteredStatusMessageCacheRange()
+    {
+        SettingsSection section = Settings.Instance[Settings.SystemSettingsCategory];
+        return (double?)section["MaxFilteredStatusMessageCacheRange"] ?? 1000.0D;
+    }
     #endregion
 }

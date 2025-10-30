@@ -145,7 +145,7 @@ public interface IClientSubscription : IActionAdapter
 public static class IClientSubscriptionExtensions
 {
     // Define cache of dynamically defined event handlers associated with each client subscription
-    private static readonly ConcurrentDictionary<IClientSubscription, EventHandler<EventArgs<string, UpdateType>>?> s_statusMessageHandlers = new();
+    private static readonly ConcurrentDictionary<IClientSubscription, EventHandler<EventArgs<string, MessageLevel>>?> s_statusMessageHandlers = new();
     private static readonly ConcurrentDictionary<IClientSubscription, EventHandler<EventArgs<Exception>>?> s_processExceptionHandlers = new();
     private static readonly ConcurrentDictionary<IClientSubscription, EventHandler?> s_processingCompletedHandlers = new();
 
@@ -177,9 +177,9 @@ public static class IClientSubscriptionExtensions
         };
 
         // Setup default bubbling event handlers associated with the client session adapter
-        void statusMessageHandler(object? sender, EventArgs<string, UpdateType> e)
+        void statusMessageHandler(object? sender, EventArgs<string, MessageLevel> e)
         {
-            if (e.Argument2 == UpdateType.Information)
+            if (e.Argument2 ==  MessageLevel.Info)
                 clientSubscription.OnStatusMessage(MessageLevel.Info, e.Argument1);
             else
                 clientSubscription.OnStatusMessage(MessageLevel.Warning, $"0x{(int)e.Argument2}{e.Argument1}");
@@ -201,13 +201,13 @@ public static class IClientSubscriptionExtensions
         session.ProcessingComplete += processingCompletedHandler;
 
         // Send the first message indicating a new temporal session is being established
-        statusMessageHandler(null, new EventArgs<string, UpdateType>(
+        statusMessageHandler(null, new EventArgs<string, MessageLevel>(
             // ReSharper disable once UseStringInterpolation
             string.Format("Initializing temporal session for host \"{0}\" spanning {1:yyyy-MM-dd HH:mm:ss.fff} to {2:yyyy-MM-dd HH:mm:ss.fff} processing data {3}...",
                 clientSubscription.Name.ToNonNullString("unknown"), clientSubscription.StartTimeConstraint, clientSubscription.StopTimeConstraint,
                 clientSubscription.ProcessingInterval == 0 ? "as fast as possible" :
                 clientSubscription.ProcessingInterval == -1 ? "at the default rate" : $"at {clientSubscription.ProcessingInterval}ms intervals"),
-            UpdateType.Information));
+            MessageLevel.Info));
 
         // Duplicate current real-time session configuration for adapters that report temporal support
         session.DataSource = IaonSession.ExtractTemporalConfiguration(clientSubscription.DataSource ?? new DataSet());
@@ -272,7 +272,7 @@ public static class IClientSubscriptionExtensions
         if (session is not null)
         {
             // Remove and detach from event handlers
-            if (s_statusMessageHandlers.TryRemove(adapter, out EventHandler<EventArgs<string, UpdateType>>? statusMessageFunction))
+            if (s_statusMessageHandlers.TryRemove(adapter, out EventHandler<EventArgs<string, MessageLevel>>? statusMessageFunction))
                 session.StatusMessage -= statusMessageFunction;
 
             if (s_processExceptionHandlers.TryRemove(adapter, out EventHandler<EventArgs<Exception>>? processExceptionFunction))

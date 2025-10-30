@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
@@ -52,6 +53,7 @@ using Gemstone.Threading.Collections;
 using Gemstone.Threading.SynchronizedOperations;
 using Gemstone.Timeseries.Adapters;
 using Gemstone.Timeseries.Configuration;
+using Gemstone.Timeseries.Model;
 using Gemstone.Timeseries.Reports;
 using Gemstone.Timeseries.Statistics;
 using Gemstone.Units;
@@ -121,8 +123,9 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     private readonly ILogger m_logger;
 
     private double? m_maxFilteredStatusMessageCacheRange;
-    private readonly ConcurrentDictionary<string, List<(DateTime Time, string Message)>> m_filteredStatusMessages;
-    private readonly Queue<(DateTime Time, string Message)> m_statusLog;
+    private readonly ConcurrentDictionary<string, List<UILogMessage>> m_filteredStatusMessages;
+    private readonly Queue<UILogMessage> m_statusLog;
+    private readonly Regex m_logSourceMatcher;
 
     //private ServiceHelper m_serviceHelper;
     //private ServerBase m_remotingServer;
@@ -141,6 +144,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         m_logger = logger;
         m_filteredStatusMessages = new();
         m_statusLog = new(MaxLogMessageQueueSize);
+        m_logSourceMatcher = new Regex(@"^\[(?<Source>[^\]]+)\]\s*(?:\[(?<SecondSource>[^\]]+)\])?.+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         //s_serviceHost = new WeakReference<ServiceHostBase>(this);
     }
 
@@ -295,7 +299,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to set default culture due to exception, defaulting to \"{1}\": {0}", UpdateType.Alarm, ex.Message, CultureInfo.CurrentCulture.Name.ToNonNullNorEmptyString("Undetermined"));
+            DisplayStatusMessage("Failed to set default culture due to exception, defaulting to \"{1}\": {0}", MessageLevel.Error, ex.Message, CultureInfo.CurrentCulture.Name.ToNonNullNorEmptyString("Undetermined"));
             LogException(ex);
         }
 
@@ -313,7 +317,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to create configuration cache directory \"{0}\" due to exception: {1}", UpdateType.Alarm, cachePath, ex.Message);
+            DisplayStatusMessage("Failed to create configuration cache directory \"{0}\" due to exception: {1}", MessageLevel.Error, cachePath, ex.Message);
             LogException(ex);
         }
 
@@ -323,7 +327,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to set current directory to execution path \"{0}\" due to exception: {1}", UpdateType.Alarm, servicePath, ex.Message);
+            DisplayStatusMessage("Failed to set current directory to execution path \"{0}\" due to exception: {1}", MessageLevel.Error, servicePath, ex.Message);
             LogException(ex);
         }
 
@@ -389,7 +393,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             if (!success)
             {
                 string message = $"Failed to set maximum thread pool size to {targetMaxThreadPoolSize} worker threads and {targetMaxIOPortThreads} I/O port threads.";
-                DisplayStatusMessage(message, UpdateType.Alarm);
+                DisplayStatusMessage(message, MessageLevel.Error);
                 LogException(new InvalidOperationException(message));
             }
 
@@ -398,7 +402,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             if (!success)
             {
                 string message = $"Failed to set minimum thread pool size to {targetMinThreadPoolSize} worker threads and {targetMinIOPortThreads} I/O port threads.";
-                DisplayStatusMessage(message, UpdateType.Alarm);
+                DisplayStatusMessage(message, MessageLevel.Error);
                 LogException(new InvalidOperationException(message));
             }
         }
@@ -423,9 +427,9 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             FilePath = m_cachedXmlConfigurationFile
         };
 
-        m_configurationLoader.StatusMessage += (_, args) => DisplayStatusMessage(args.Argument, UpdateType.Information);
-        m_binaryCacheConfigurationLoader.StatusMessage += (_, args) => DisplayStatusMessage(args.Argument, UpdateType.Information);
-        m_xmlCacheConfigurationLoader.StatusMessage += (_, args) => DisplayStatusMessage(args.Argument, UpdateType.Information);
+        m_configurationLoader.StatusMessage += (_, args) => DisplayStatusMessage(args.Argument, MessageLevel.Info);
+        m_binaryCacheConfigurationLoader.StatusMessage += (_, args) => DisplayStatusMessage(args.Argument, MessageLevel.Info);
+        m_xmlCacheConfigurationLoader.StatusMessage += (_, args) => DisplayStatusMessage(args.Argument, MessageLevel.Info);
 
         m_configurationLoader.ProcessException += ConfigurationLoader_ProcessException;
         m_binaryCacheConfigurationLoader.ProcessException += ConfigurationLoader_ProcessException;
@@ -484,7 +488,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         },
         ex =>
         {
-            DisplayStatusMessage("Failed to load reporting process: {0}", UpdateType.Warning, ex.Message);
+            DisplayStatusMessage("Failed to load reporting process: {0}", MessageLevel.Warning, ex.Message);
             LogException(ex);
         });
 
@@ -889,7 +893,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                 // Initialize and start all session adapters
                 m_iaonSession?.Initialize();
 
-                DisplayStatusMessage("System initialization complete.", UpdateType.Information);
+                DisplayStatusMessage("System initialization complete.", MessageLevel.Info);
 
                 try
                 {
@@ -904,14 +908,14 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             }
             else
             {
-                DisplayStatusMessage("System initialization failed due to unavailable configuration.", UpdateType.Alarm);
+                DisplayStatusMessage("System initialization failed due to unavailable configuration.", MessageLevel.Error);
             }
 
             // Log current thread pool size
             ThreadPool.GetMinThreads(out int minWorkerThreads, out int minIOThreads);
             ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxIOThreads);
 
-            DisplayStatusMessage("Thread pool size: minimum {0} worker {1} I/O, maximum {2} worker {3} I/O", UpdateType.Information, minWorkerThreads, minIOThreads, maxWorkerThreads, maxIOThreads);
+            DisplayStatusMessage("Thread pool size: minimum {0} worker {1} I/O, maximum {2} worker {3} I/O", MessageLevel.Info, minWorkerThreads, minIOThreads, maxWorkerThreads, maxIOThreads);
         })));
     }
 
@@ -935,7 +939,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
 
             if (type == ConfigurationType.ToString())
             {
-                DisplayStatusMessage("Loading system configuration...", UpdateType.Information);
+                DisplayStatusMessage("Loading system configuration...", MessageLevel.Info);
                 configuration = GetConfigurationDataSet();
 
                 // Update data source on all adapters in all collections
@@ -947,7 +951,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                 {
                     case "Augmented":
                     {
-                        DisplayStatusMessage("Augmenting current system configuration...", UpdateType.Information);
+                        DisplayStatusMessage("Augmenting current system configuration...", MessageLevel.Info);
                         configuration = AugmentConfigurationDataSet(DataSource);
 
                         // Update data source on all adapters in all collections
@@ -958,7 +962,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                     }
                     case "BinaryCache":
                     {
-                        DisplayStatusMessage("Loading binary cached configuration...", UpdateType.Information);
+                        DisplayStatusMessage("Loading binary cached configuration...", MessageLevel.Info);
                         configuration = GetBinaryCachedConfigurationDataSet();
 
                         // Update data source on all adapters in all collections
@@ -969,7 +973,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                     }
                     case "XmlCache":
                     {
-                        DisplayStatusMessage("Loading XML cached configuration...", UpdateType.Information);
+                        DisplayStatusMessage("Loading XML cached configuration...", MessageLevel.Info);
                         configuration = GetXMLCachedConfigurationDataSet();
 
                         // Update data source on all adapters in all collections
@@ -998,7 +1002,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                 }
                 catch (Exception ex)
                 {
-                    DisplayStatusMessage("Failed to execute callback for ReloadConfig request of type {0}: {1}", UpdateType.Alarm, type, ex.Message);
+                    DisplayStatusMessage("Failed to execute callback for ReloadConfig request of type {0}: {1}", MessageLevel.Error, type, ex.Message);
                     LogException(ex);
                 }
             }
@@ -1068,7 +1072,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                 if (configuration is not null)
                 {
                     // Existing configuration is available so we attempt to augment that
-                    DisplayStatusMessage("Attempting to augment existing configuration data set...", UpdateType.Information);
+                    DisplayStatusMessage("Attempting to augment existing configuration data set...", MessageLevel.Info);
                     configuration = AugmentConfigurationDataSet(configuration.Copy());
                 }
                 else
@@ -1080,7 +1084,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                     if (binaryCache is not null)
                     {
                         // Binary cached configuration is available, so we attempt to augment that
-                        DisplayStatusMessage("Attempting to augment binary cached configuration data set...", UpdateType.Information);
+                        DisplayStatusMessage("Attempting to augment binary cached configuration data set...", MessageLevel.Info);
                         configuration = AugmentConfigurationDataSet(binaryCache.Copy());
                     }
                     else
@@ -1092,7 +1096,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                         if (xmlCache is not null)
                         {
                             // XML cached configuration is available, so we attempt to augment that
-                            DisplayStatusMessage("Attempting to augment XML cached configuration data set...", UpdateType.Information);
+                            DisplayStatusMessage("Attempting to augment XML cached configuration data set...", MessageLevel.Info);
                             configuration = AugmentConfigurationDataSet(xmlCache.Copy());
                         }
                     }
@@ -1124,7 +1128,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             }
             catch (Exception ex)
             {
-                DisplayStatusMessage($"Failed to add primary key to ActiveMeasurements: {ex.Message}", UpdateType.Warning);
+                DisplayStatusMessage($"Failed to add primary key to ActiveMeasurements: {ex.Message}", MessageLevel.Warning);
                 LogException(ex);
             }
 
@@ -1140,14 +1144,14 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage(ex.Message, UpdateType.Alarm);
+            DisplayStatusMessage(ex.Message, MessageLevel.Error);
             LogException(ex);
 
             // Most of the methods used above have a try-catch implemented to display helpful error messages
             // and prevent this code from executing. This should only execute when using a database configuration
             // as the primary configuration source and only if the system is unable to open a connection to the
             // database. In that case, we simply attempt to load the cached configuration and use that instead
-            DisplayStatusMessage("Failed to open a connection to the database. Falling back on cached configuration...", UpdateType.Warning);
+            DisplayStatusMessage("Failed to open a connection to the database. Falling back on cached configuration...", MessageLevel.Warning);
 
             configuration ??= GetBinaryCachedConfigurationDataSet() ?? GetXMLCachedConfigurationDataSet();
 
@@ -1167,7 +1171,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to load {0} configuration due to exception: {1}", UpdateType.Warning, ConfigurationType, ex.Message);
+            DisplayStatusMessage("Failed to load {0} configuration due to exception: {1}", MessageLevel.Warning, ConfigurationType, ex.Message);
             LogException(ex);
             return null;
         }
@@ -1181,7 +1185,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to load cached binary configuration due to exception: {0}", UpdateType.Alarm, ex.Message);
+            DisplayStatusMessage("Failed to load cached binary configuration due to exception: {0}", MessageLevel.Error, ex.Message);
             LogException(ex);
             return null;
         }
@@ -1195,7 +1199,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to load cached XML configuration due to exception: {0}", UpdateType.Alarm, ex.Message);
+            DisplayStatusMessage("Failed to load cached XML configuration due to exception: {0}", MessageLevel.Error, ex.Message);
             LogException(ex);
             return null;
         }
@@ -1213,7 +1217,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to augment configuration due to exception: {0}", UpdateType.Warning, ex.Message);
+            DisplayStatusMessage("Failed to augment configuration due to exception: {0}", MessageLevel.Warning, ex.Message);
             LogException(ex);
             return null;
         }
@@ -1235,7 +1239,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Unable to propagate configuration data set to adapters due to exception: {0}", UpdateType.Alarm, ex.Message);
+            DisplayStatusMessage("Unable to propagate configuration data set to adapters due to exception: {0}", MessageLevel.Error, ex.Message);
             LogException(ex);
             return false;
         }
@@ -1278,11 +1282,11 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             using (FileStream configurationFileStream = File.OpenWrite(m_cachedBinaryConfigurationFile))
                 configuration.SerializeToStream(configurationFileStream);
 
-            DisplayStatusMessage("Successfully cached current configuration to binary.", UpdateType.Information);
+            DisplayStatusMessage("Successfully cached current configuration to binary.", MessageLevel.Info);
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to cache last known configuration due to exception: {0}", UpdateType.Alarm, ex.Message);
+            DisplayStatusMessage("Failed to cache last known configuration due to exception: {0}", MessageLevel.Error, ex.Message);
             LogException(ex);
         }
 
@@ -1297,11 +1301,11 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             // Cache XML serialized version of data set
             configuration.WriteXml(m_cachedXmlConfigurationFile, XmlWriteMode.WriteSchema);
 
-            DisplayStatusMessage("Successfully cached current configuration to XML.", UpdateType.Information);
+            DisplayStatusMessage("Successfully cached current configuration to XML.", MessageLevel.Info);
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to cache last known configuration due to exception: {0}", UpdateType.Alarm, ex.Message);
+            DisplayStatusMessage("Failed to cache last known configuration due to exception: {0}", MessageLevel.Error, ex.Message);
             LogException(ex);
         }
     }
@@ -1328,7 +1332,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to create extra backup {0} configurations due to exception: {1}", UpdateType.Warning, configType, ex.Message);
+            DisplayStatusMessage("Failed to create extra backup {0} configurations due to exception: {1}", MessageLevel.Warning, configType, ex.Message);
             LogException(ex);
         }
 
@@ -1347,7 +1351,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         }
         catch (Exception ex)
         {
-            DisplayStatusMessage("Failed to backup last known cached {0} configuration due to exception: {1}", UpdateType.Warning, configType, ex.Message);
+            DisplayStatusMessage("Failed to backup last known cached {0} configuration due to exception: {1}", MessageLevel.Warning, configType, ex.Message);
             LogException(ex);
         }
     }
@@ -1382,7 +1386,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
 
     //    if (requestHandler is null)
     //    {
-    //        DisplayStatusMessage($"Command \"{request.Command}\" is not supported\r\n\r\n", UpdateType.Alarm);
+    //        DisplayStatusMessage($"Command \"{request.Command}\" is not supported\r\n\r\n", MessageLevel.Error);
     //    }
     //    else
     //    {
@@ -1405,55 +1409,80 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     /// <remarks>
     /// The time-series framework <see cref="IaonSession"/> uses this event to report adapter status messages (e.g., to a log file or console window).
     /// </remarks>
-    private void StatusMessageHandler(object? sender, EventArgs<string, UpdateType> e)
+    private void StatusMessageHandler(object? sender, EventArgs<string, MessageLevel> e)
     {
         DisplayStatusMessage(e.Argument1, e.Argument2);
-        m_statusLog.Enqueue((DateTime.UtcNow, e.Argument1));
+        // Parse out source if available
+
+        Match sourceMatch = m_logSourceMatcher.Match(e.Argument1);
+        UILogMessage message = new()
+        {
+            TimeStamp = DateTime.UtcNow,
+            Message = e.Argument1,
+            Level = e.Argument2,
+            Source = ""
+        };
+
+        if (sourceMatch.Success && !string.IsNullOrEmpty(sourceMatch.Groups["Source"].Value))
+            message.Source = $"[{sourceMatch.Groups["Source"].Value}]";
+
+        if (sourceMatch.Success && !string.IsNullOrEmpty(sourceMatch.Groups["SecondSource"].Value))
+            message.Source += $" [{sourceMatch.Groups["SecondSource"].Value}]";
+
+        message.Message = message.Message.Replace(message.Source,"").Trim();
+
+        m_statusLog.Enqueue(message);
 
         ThreadPool.QueueUserWorkItem(state =>
         {
             try
             {
-                string message = state as string;
+                UILogMessage message = (UILogMessage)state!;
 
-                if (string.IsNullOrWhiteSpace(message))
+                if (string.IsNullOrWhiteSpace(message.Message))
                     return;
 
                 // Check new status message against each filtered status message cache
-                foreach (KeyValuePair<string, List<(DateTime Time, string Message)>> kvp in m_filteredStatusMessages)
+                foreach (KeyValuePair<string, List<UILogMessage>> kvp in m_filteredStatusMessages)
                 {
                     string cacheName = kvp.Key;
 
                     // Attempt to get associated StringMatcher from memory cache (fails if cache is expired)
                     if (MemoryCache<StringMatcher>.TryGet(cacheName, out StringMatcher messageMatcher))
                     {
-                        if (!messageMatcher.IsMatch(message))
+                        // Parse range from cache name "{matchMode}:{filter}:{(caseSensitive ? 1 : 0)}:{minLevel}-{range}"
+                        int lastDashIndex = cacheName.LastIndexOf('-');
+
+                        if (lastDashIndex < 0)
+                            continue;
+
+                        if (!double.TryParse(cacheName.Substring(lastDashIndex + 1), out double range))
+                            continue;
+
+                        int minLevelStartIndex = cacheName.LastIndexOf(':');
+
+                        if (!int.TryParse(cacheName.Substring(minLevelStartIndex + 1,(lastDashIndex - minLevelStartIndex - 1)), out int minLevel))
+                            continue;
+
+                        if (!messageMatcher.IsMatch(message.Source + " " + message.Message) || (int)message.Level < minLevel )
                             continue;
 
                         // Access to filtered message cache synchronized by associated StringMatcher instance
                         lock (messageMatcher)
                         {
-                            List<(DateTime timestamp, string message)> filteredMessages = kvp.Value;
+                            List<UILogMessage> filteredMessages = kvp.Value;
                             DateTime currentTimestamp = DateTime.UtcNow;
 
                             // Add new matching message to filtered status messages
-                            filteredMessages.Add((currentTimestamp, message));
+                            filteredMessages.Add(message);
 
-                            // Parse range from cache name "{matchMode}:{filter}:{(caseSensitive ? 1 : 0)}-{range}"
-                            int lastDashIndex = cacheName.LastIndexOf('-');
-
-                            if (lastDashIndex < 0)
-                                continue;
-
-                            if (!double.TryParse(cacheName.Substring(lastDashIndex + 1), out double range))
-                                continue;
-
+                            
                             // Remove messages that are outside of range
                             List<int> indexesToRemove = new();
 
                             for (int i = 0; i < filteredMessages.Count; i++)
                             {
-                                if ((currentTimestamp - filteredMessages[i].timestamp).TotalMinutes > range)
+                                if ((currentTimestamp - filteredMessages[i].TimeStamp).TotalMinutes > range)
                                     indexesToRemove.Add(i);
                             }
 
@@ -1464,7 +1493,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                     else
                     {
                         // StringMatcher memory cache expired, remove associated filtered status message cache
-                        m_filteredStatusMessages.TryRemove(cacheName, out List<(DateTime, string)> _);
+                        m_filteredStatusMessages.TryRemove(cacheName, out List<UILogMessage> _);
                     }
                 }
             }
@@ -1472,8 +1501,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             {
                 Logger.SwallowException(ex, "Status message event filtering exception");
             }
-        },
-        e.Argument1);
+        }, message);
     }
 
     /// <summary>
@@ -1566,7 +1594,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     ///// <param name="e">Event arguments containing the exception to report.</param>
     //protected virtual void StatusLogExceptionHandler(object sender, EventArgs<Exception> e)
     //{
-    //    DisplayStatusMessage($"Status log file exception: {e.Argument.Message}", UpdateType.Alarm);
+    //    DisplayStatusMessage($"Status log file exception: {e.Argument.Message}", MessageLevel.Error);
     //    LogExceptionHandler(sender, e);
     //}
 
@@ -1577,7 +1605,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     ///// <param name="e">Event arguments containing the exception to report.</param>
     //protected virtual void ErrorLogExceptionHandler(object sender, EventArgs<Exception> e)
     //{
-    //    DisplayStatusMessage($"Error log file exception: {e.Argument.Message}", UpdateType.Alarm);
+    //    DisplayStatusMessage($"Error log file exception: {e.Argument.Message}", MessageLevel.Error);
     //    LogExceptionHandler(sender, e);
     //}
 
@@ -1588,7 +1616,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     ///// <param name="e">Event arguments containing the exception to report.</param>
     //protected virtual void ConnectionErrorLogExceptionHandler(object sender, EventArgs<Exception> e)
     //{
-    //    DisplayStatusMessage($"Connection log file exception: {e.Argument.Message}", UpdateType.Alarm);
+    //    DisplayStatusMessage($"Connection log file exception: {e.Argument.Message}", MessageLevel.Error);
     //    LogExceptionHandler(sender, e);
     //}
 
@@ -2377,9 +2405,9 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     //        }
     //        else
     //        {
-    //            DisplayStatusMessage("Initializing all adapters in {0}...", UpdateType.Information, collection.Name);
+    //            DisplayStatusMessage("Initializing all adapters in {0}...", MessageLevel.Info, collection.Name);
     //            collection.Initialize();
-    //            DisplayStatusMessage("{0} initialization complete.", UpdateType.Information, collection.Name);
+    //            DisplayStatusMessage("{0} initialization complete.", MessageLevel.Info, collection.Name);
     //            SendResponse(requestInfo, true);
     //        }
     //    }
@@ -3355,7 +3383,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     //    }
     //    else
     //    {
-    //        DisplayStatusMessage("Attempting to re-authenticate network shares for health and status exports...", UpdateType.Information);
+    //        DisplayStatusMessage("Attempting to re-authenticate network shares for health and status exports...", MessageLevel.Info);
 
     //        try
     //        {
@@ -3400,7 +3428,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     //    {
     //        if (m_allowRemoteRestart)
     //        {
-    //            DisplayStatusMessage("Attempting to restart host service...", UpdateType.Information);
+    //            DisplayStatusMessage("Attempting to restart host service...", MessageLevel.Info);
 
     //            try
     //            {
@@ -3435,7 +3463,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     //        }
     //        else
     //        {
-    //            DisplayStatusMessage("Remote restart request denied, this is currently disallowed in the system configuration.", UpdateType.Warning);
+    //            DisplayStatusMessage("Remote restart request denied, this is currently disallowed in the system configuration.", MessageLevel.Warning);
     //        }
     //    }
     //}
@@ -3629,7 +3657,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     //    catch (Exception ex)
     //    {
     //        LogException(ex);
-    //        m_serviceHelper.UpdateStatus(requestInfo.Sender.ClientID, UpdateType.Alarm, $"Failed to send client response due to an exception: {ex.Message}\r\n\r\n");
+    //        m_serviceHelper.UpdateStatus(requestInfo.Sender.ClientID, MessageLevel.Error, $"Failed to send client response due to an exception: {ex.Message}\r\n\r\n");
     //    }
     //}
 
@@ -3643,12 +3671,12 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     //{
     //    try
     //    {
-    //        m_serviceHelper.UpdateStatus(requestInfo.Sender.ClientID, UpdateType.Information, $"{status}\r\n\r\n", args);
+    //        m_serviceHelper.UpdateStatus(requestInfo.Sender.ClientID, MessageLevel.Info, $"{status}\r\n\r\n", args);
     //    }
     //    catch (Exception ex)
     //    {
     //        LogException(ex);
-    //        m_serviceHelper.UpdateStatus(requestInfo.Sender.ClientID, UpdateType.Alarm, $"Failed to update client status \"{status.ToNonNullString()}\" due to an exception: {ex.Message}\r\n\r\n");
+    //        m_serviceHelper.UpdateStatus(requestInfo.Sender.ClientID, MessageLevel.Error, $"Failed to update client status \"{status.ToNonNullString()}\" due to an exception: {ex.Message}\r\n\r\n");
     //    }
     //}
 
@@ -3657,7 +3685,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     /// </summary>
     /// <param name="status">Status message to send to all clients.</param>
     /// <param name="type"><see cref="UpdateType"/> of message to send.</param>
-    protected virtual void DisplayStatusMessage(string status, UpdateType type)
+    protected virtual void DisplayStatusMessage(string status, MessageLevel type)
     {
         DisplayStatusMessage(status, type, true);
     }
@@ -3668,7 +3696,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     /// <param name="status">Status message to send to all clients.</param>
     /// <param name="type"><see cref="UpdateType"/> of message to send.</param>
     /// <param name="publishToLog">Determines if messages should be sent logging engine.</param>
-    protected virtual void DisplayStatusMessage(string status, UpdateType type, bool publishToLog)
+    protected virtual void DisplayStatusMessage(string status, MessageLevel type, bool publishToLog)
     {
         try
         {
@@ -3683,13 +3711,17 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
 
             switch (type)
             {
-                case UpdateType.Information:
+#if DEBUG
+                case MessageLevel.Debug:
+#endif
+                case MessageLevel.Info:
                     m_logger.LogInformation(status);
                     break;
-                case UpdateType.Warning:
+                case MessageLevel.Warning:
                     m_logger.LogWarning(status);
                     break;
-                case UpdateType.Alarm:
+                case MessageLevel.Error:
+                case MessageLevel.Critical:
                     m_logger.LogError(status);
                     break;
             }
@@ -3697,7 +3729,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         catch (Exception ex)
         {
             LogException(ex);
-            //m_serviceHelper.UpdateStatus(UpdateType.Alarm, $"Failed to update client status \"{status.ToNonNullString()}\" due to an exception: {ex.Message}\r\n\r\n");
+            //m_serviceHelper.UpdateStatus(MessageLevel.Error, $"Failed to update client status \"{status.ToNonNullString()}\" due to an exception: {ex.Message}\r\n\r\n");
         }
     }
 
@@ -3707,7 +3739,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     /// <param name="status">Formatted status message to send to all clients.</param>
     /// <param name="type"><see cref="UpdateType"/> of message to send.</param>
     /// <param name="args">Arguments of the formatted status message.</param>
-    protected virtual void DisplayStatusMessage(string status, UpdateType type, params object[] args)
+    protected virtual void DisplayStatusMessage(string status, MessageLevel type, params object[] args)
     {
         DisplayStatusMessage(status, type, true, args);
     }
@@ -3719,7 +3751,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     /// <param name="type"><see cref="UpdateType"/> of message to send.</param>
     /// <param name="publishToLog">Determines if messages should be sent logging engine.</param>
     /// <param name="args">Arguments of the formatted status message.</param>
-    protected virtual void DisplayStatusMessage(string status, UpdateType type, bool publishToLog, params object[] args)
+    protected virtual void DisplayStatusMessage(string status, MessageLevel type, bool publishToLog, params object[] args)
     {
         try
         {
@@ -3728,7 +3760,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         catch (Exception ex)
         {
             LogException(ex);
-            //m_serviceHelper.UpdateStatus(UpdateType.Alarm, $"Failed to update client status \"{status.ToNonNullString()}\" due to an exception: {ex.Message}\r\n\r\n");
+            //m_serviceHelper.UpdateStatus(MessageLevel.Error, $"Failed to update client status \"{status.ToNonNullString()}\" due to an exception: {ex.Message}\r\n\r\n");
         }
     }
 
@@ -3762,12 +3794,12 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     // Processes exceptions coming from the configuration loaders.
     private void ConfigurationLoader_ProcessException(object? sender, EventArgs<Exception> args)
     {
-        DisplayStatusMessage(args.Argument.Message, UpdateType.Warning);
+        DisplayStatusMessage(args.Argument.Message, MessageLevel.Warning);
         LogException(args.Argument);
     }
 
     /// <inheritdoc />
-    public string[] GetFilteredStatusMessages(StringMatchingMode matchMode, string filter, bool caseSensitive = false, double range = 15.0D)
+    public UILogMessage[] GetFilteredStatusMessages(StringMatchingMode matchMode, string filter, bool caseSensitive = false, double range = 15.0D, MessageLevel minLevel = MessageLevel.Info)
     {
         if (range <= 0.0D)
             throw new ArgumentOutOfRangeException(nameof(range), "Range must be greater than zero minutes.");
@@ -3775,7 +3807,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         if (range > (m_maxFilteredStatusMessageCacheRange ??= GetMaxFilteredStatusMessageCacheRange()))
             throw new ArgumentOutOfRangeException(nameof(range), $"Range must be less than or equal to {m_maxFilteredStatusMessageCacheRange:N2} minutes.");
 
-        string cacheName = $"{matchMode}:{filter}:{(caseSensitive ? 1 : 0)}-{range}";
+        string cacheName = $"{matchMode}:{filter}:{(caseSensitive ? 1 : 0)}:{(int)minLevel}-{range}";
         bool addedNewCache = false;
         
         // Memory ca`che expires after one minute if not accessed
@@ -3788,52 +3820,43 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         // Synchronize calls for the same cache, first call will initialize status messages from log
         lock (messageMatcher)
         {
-            List<(DateTime timeStamp, string message)> filteredMessages;
+            List<UILogMessage> filteredMessages;
 
             if (!addedNewCache)
                 return m_filteredStatusMessages.TryGetValue(cacheName, out filteredMessages) ?
-                    filteredMessages.Select(message => message.message).ToArray() :
+                    filteredMessages.ToArray() :
                     [];
 
-            filteredMessages = new List<(DateTime timeStamp, string message)>();
+            filteredMessages = new List<UILogMessage>();
             DateTime minTimestamp = DateTime.MaxValue;
             DateTime maxTimestamp = DateTime.MinValue;
 
-            List<(DateTime, string)> statusLog = m_statusLog.ToList();
+            List<UILogMessage> statusLog = m_statusLog.ToList();
             // Process status log in reverse order to get most recent messages first
             statusLog.Reverse();
 
             // Load initial set of status messages from cached status log
-            foreach ((DateTime ts, string logRecord) in statusLog)
+            foreach (UILogMessage message in statusLog)
             {
                 // Parse timestamp (local time) in brackets from beginning of log record
-                Match match = Regex.Match(logRecord, @"^\[(?<Timestamp>.*?)\]");
-
-                if (!match.Success || !DateTime.TryParse(match.Groups["Timestamp"].Value, CultureInfo.DefaultThreadCurrentCulture, DateTimeStyles.AssumeLocal, out DateTime timestamp))
+                if (string.IsNullOrWhiteSpace(message.Message) || !messageMatcher.IsMatch(message.Source + " " + message.Message) || message.Level < minLevel)
                     continue;
 
-                timestamp = timestamp.ToUniversalTime();
+                if (message.TimeStamp < minTimestamp)
+                    minTimestamp = message.TimeStamp;
 
-                string message = logRecord.Substring(match.Length).Trim();
-
-                if (string.IsNullOrWhiteSpace(message) || !messageMatcher.IsMatch(message))
-                    continue;
-
-                if (timestamp < minTimestamp)
-                    minTimestamp = timestamp;
-
-                if (timestamp > maxTimestamp)
-                    maxTimestamp = timestamp;
+                if (message.TimeStamp > maxTimestamp)
+                    maxTimestamp = message.TimeStamp;
 
                 if ((maxTimestamp - minTimestamp).TotalMinutes > range)
                     break;
 
-                filteredMessages.Insert(0, (timestamp, message));
+                filteredMessages.Insert(0, message);
             }
 
             m_filteredStatusMessages[cacheName] = filteredMessages;
 
-            return filteredMessages.Select(m => m.message).ToArray();
+            return filteredMessages.ToArray();
             
         }
     }

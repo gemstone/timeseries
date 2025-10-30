@@ -285,7 +285,8 @@ public class ConnectionParameter
         static bool getIsRequired(PropertyInfo info)
         {
             info.TryGetAttribute(out DefaultValueExpressionAttribute? expressionAttribute);
-            return expressionAttribute is null;
+            info.TryGetAttribute(out DefaultValueAttribute? defValAttribute);
+            return expressionAttribute is null && defValAttribute is null;
         }
 
         static int? getLowerLimit(PropertyInfo info) => info.TryGetAttribute(out RangeAttribute? range) ? (int)range.Minimum : null;

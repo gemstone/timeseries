@@ -102,7 +102,15 @@ public enum DataType
     /// <summary>
     /// Represents and <see cref="IMeasurement[]"/> data type.
     /// </summary>
-    IMeasurementArray
+    IMeasurementArray,
+    /// <summary>
+    /// Represents a <see cref="MeasurementKey"/>
+    /// </summary>
+    MeasurementKey,
+    /// <summary>
+    /// Represents a <see cref="IMeasurement"/>
+    /// </summary>
+    IMeasurement
 }
 
 /// <summary>
@@ -187,7 +195,7 @@ public class ConnectionParameter
     /// <summary>
     /// Get the array of supported signal types for this parameter.
     /// </summary>
-    public SignalType[]? SupportedSignalTypes { get; init; }
+    public string[]? SupportedSignalTypes { get; init; }
 
     /// <summary>
     /// Get the flag that indicates which which measurements to search for.
@@ -220,7 +228,7 @@ public class ConnectionParameter
             LowerLimit = getLowerLimit(info),
             UpperLimit = getUpperLimit(info),
             DisplayOrder = getDisplayOrder(info),
-            SupportedSignalTypes = signalTypes,
+            SupportedSignalTypes = signalTypes?.Select(sig => sig.ToString()).ToArray(),
             IsPhasor = isPhasor,
             UseAlternateUI = getUseAlternateUI(info)
         };
@@ -266,6 +274,8 @@ public class ConnectionParameter
                 { } type when type == typeof(bool) => DataType.Boolean,
                 { } type when type == typeof(MeasurementKey[]) => DataType.MeasurementKeyArray,
                 { } type when type == typeof(IMeasurement[]) => DataType.IMeasurementArray,
+                { } type when type == typeof(IMeasurement) => DataType.IMeasurement,
+                { } type when type == typeof(MeasurementKey) => DataType.MeasurementKey,
                 { IsEnum: true } => DataType.Enum,
                 _ => DataType.String
             };

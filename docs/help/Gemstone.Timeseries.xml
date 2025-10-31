@@ -3411,7 +3411,7 @@
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.ActionAdapterBase.LagTime">
       <summary>
-            Gets or sets the allowed past time deviation tolerance, in seconds (can be sub-second).
+            Gets or sets the allowed past-time deviation tolerance, in seconds (can be sub-second).
             </summary>
       <remarks>
         <para>Defines the time sensitivity to past measurement timestamps.</para>
@@ -3542,7 +3542,7 @@
             </summary>
       <remarks>
             Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-            adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start input demands,
+            adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start input demands,
             as an example, this would be <c>false</c> for an action adapter that calculated measurement, but <c>true</c> for an action adapter used to archive inputs.
             </remarks>
     </member>
@@ -3552,7 +3552,7 @@
             </summary>
       <remarks>
             Action adapters are in the curious position of being able to both consume and produce points, as such the user needs to be able to control how their
-            adapter will behave concerning routing demands when the adapter is setup to connect on demand. In the case of respecting auto-start output demands,
+            adapter will behave concerning routing demands when the adapter is set up to connect on demand. In the case of respecting auto-start output demands,
             as an example, this would be <c>true</c> for an action adapter that calculated measurement, but <c>false</c> for an action adapter used to archive inputs.
             </remarks>
     </member>
@@ -5322,6 +5322,11 @@
             Gets the description of the parameter.
             </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.DisplayOrder">
+      <summary>
+            Gets the display order for the parameter. Parameters with the same display order will be displayed in the same row. Lower values are displayed first.
+            </summary>
+    </member>
     <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameter.GetConnectionParameter(System.Reflection.PropertyInfo)">
       <summary>
             Gets a <see cref="T:Gemstone.Timeseries.Adapters.ConnectionParameter" /> instance from a <see cref="T:System.Reflection.PropertyInfo" />.
@@ -5344,6 +5349,16 @@
         </markup>
       </returns>
     </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.IsPhasor">
+      <summary>
+            Get the flag that indicates which which measurements to search for.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.IsRequired">
+      <summary>
+            Gets a flag that indicates if the parameter is required.
+            </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.IsVisibleToUI">
       <summary>
             Gets whether this parameter should be visible in the UI.
@@ -5352,6 +5367,11 @@
     <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Label">
       <summary>
             Gets or sets the label of the parameter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.LowerLimit">
+      <summary>
+            Gets the lower limit for parameter value.
             </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Name">
@@ -5372,6 +5392,21 @@
           </include>
         </markup>
       </returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.SupportedSignalTypes">
+      <summary>
+            Get the array of supported signal types for this parameter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.UpperLimit">
+      <summary>
+            Gets the upper limit for parameter value.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.UseAlternateUI">
+      <summary>
+            Gets a value indicating whether the application should use the alternate user interface form.
+            </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.Value">
       <summary>
@@ -5587,14 +5622,14 @@
             Represents an <see cref="F:Gemstone.Timeseries.Adapters.DataType.Enum" /> data type.
             </summary>
     </member>
-    <member name="F:Gemstone.Timeseries.Adapters.DataType.IMeasurement">
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.MeasurementKeyArray">
       <summary>
-            Represents an <see cref="F:Gemstone.Timeseries.Adapters.DataType.IMeasurement" /> data type.
+            Represents a <see cref="!:MeasurementKey[]" /> array data type.
             </summary>
     </member>
-    <member name="F:Gemstone.Timeseries.Adapters.DataType.MeasurementKey">
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.IMeasurementArray">
       <summary>
-            Represents an <see cref="F:Gemstone.Timeseries.Adapters.DataType.MeasurementKey" /> data type.
+            Represents and <see cref="!:IMeasurement[]" /> data type.
             </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.FacileActionAdapterBase">
@@ -8340,7 +8375,7 @@
         <para>
             It is important that consumers "resume" connection cycle if processing fails (e.g., connection
             to archive is lost). Here is an example:
-            <example><code>
+            <example><code language="cs">
             protected virtual void ProcessMeasurements(IMeasurement[] measurements)
             {
                 try
@@ -10487,6 +10522,36 @@
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Model.Phasor.AlternateLabel">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Phasor.AlternateLabel</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.Phasor.AlternateLabel2">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Phasor.AlternateLabel2</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.Phasor.AlternateLabel3">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.Phasor.AlternateLabel3</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Model.Phasor.BaseKV">
       <summary>
         <markup>
@@ -11033,6 +11098,66 @@
           </include>
         </markup>
       </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute">
+      <summary>
+            Specifies filtering criteria for measurements based on signal types and an optional phasor flag.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute.#ctor(Gemstone.Numeric.EE.SignalType[])">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute</parameter>
+          </include>
+        </markup>
+      </summary>
+      <param name="signalTypes">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>signalTypes</parameter>
+            <parameter>M:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute.#ctor(Gemstone.Numeric.EE.SignalType[])</parameter>
+          </include>
+        </markup>
+      </param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute.#ctor(System.Boolean,Gemstone.Numeric.EE.SignalType[])">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute</parameter>
+          </include>
+        </markup>
+      </summary>
+      <param name="isPhasor">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>isPhasor</parameter>
+            <parameter>M:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute.#ctor(System.Boolean,Gemstone.Numeric.EE.SignalType[])</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="signalTypes">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>signalTypes</parameter>
+            <parameter>M:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute.#ctor(System.Boolean,Gemstone.Numeric.EE.SignalType[])</parameter>
+          </include>
+        </markup>
+      </param>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute.IsPhasor">
+      <summary>
+            Flag that indicates which which measurements to search for.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute.SignalTypes">
+      <summary>
+            Array of supported SignalTypes.
+            </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Reports.CompletenessReportingProcess">
       <summary>

@@ -126,6 +126,8 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     private readonly ConcurrentDictionary<string, List<UILogMessage>> m_filteredStatusMessages;
     private readonly Queue<UILogMessage> m_statusLog;
     private readonly Regex m_logSourceMatcher;
+    private readonly object m_logLock;
+    private uint m_logMessageIndex;
 
     //private ServiceHelper m_serviceHelper;
     //private ServerBase m_remotingServer;
@@ -144,6 +146,9 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         m_logger = logger;
         m_filteredStatusMessages = new();
         m_statusLog = new(MaxLogMessageQueueSize);
+        m_logLock = new object();
+        m_logMessageIndex = 0;
+
         m_logSourceMatcher = new Regex(@"^\[(?<Source>[^\]]+)\]\s*(?:\[(?<SecondSource>[^\]]+)\])?.+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         //s_serviceHost = new WeakReference<ServiceHostBase>(this);
     }
@@ -3633,7 +3638,16 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     
                 message.Message = message.Message.Replace(message.Source, "").Trim();
             }
-            m_statusLog.Enqueue(message);
+
+            lock (m_logLock)
+            {
+                if (m_logMessageIndex > uint.MaxValue - 1)
+                    m_logMessageIndex = 0;
+                else
+                    m_logMessageIndex++;
+                message.Index = m_logMessageIndex;
+                m_statusLog.Enqueue(message);
+            }
 
             ThreadPool.QueueUserWorkItem(state =>
             {

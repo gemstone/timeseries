@@ -1412,96 +1412,6 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     private void StatusMessageHandler(object? sender, EventArgs<string, MessageLevel> e)
     {
         DisplayStatusMessage(e.Argument1, e.Argument2);
-        // Parse out source if available
-
-        Match sourceMatch = m_logSourceMatcher.Match(e.Argument1);
-        UILogMessage message = new()
-        {
-            TimeStamp = DateTime.UtcNow,
-            Message = e.Argument1,
-            Level = e.Argument2,
-            Source = ""
-        };
-
-        if (sourceMatch.Success && !string.IsNullOrEmpty(sourceMatch.Groups["Source"].Value))
-            message.Source = $"[{sourceMatch.Groups["Source"].Value}]";
-
-        if (sourceMatch.Success && !string.IsNullOrEmpty(sourceMatch.Groups["SecondSource"].Value))
-            message.Source += $" [{sourceMatch.Groups["SecondSource"].Value}]";
-
-        message.Message = message.Message.Replace(message.Source,"").Trim();
-
-        m_statusLog.Enqueue(message);
-
-        ThreadPool.QueueUserWorkItem(state =>
-        {
-            try
-            {
-                UILogMessage message = (UILogMessage)state!;
-
-                if (string.IsNullOrWhiteSpace(message.Message))
-                    return;
-
-                // Check new status message against each filtered status message cache
-                foreach (KeyValuePair<string, List<UILogMessage>> kvp in m_filteredStatusMessages)
-                {
-                    string cacheName = kvp.Key;
-
-                    // Attempt to get associated StringMatcher from memory cache (fails if cache is expired)
-                    if (MemoryCache<StringMatcher>.TryGet(cacheName, out StringMatcher messageMatcher))
-                    {
-                        // Parse range from cache name "{matchMode}:{filter}:{(caseSensitive ? 1 : 0)}:{minLevel}-{range}"
-                        int lastDashIndex = cacheName.LastIndexOf('-');
-
-                        if (lastDashIndex < 0)
-                            continue;
-
-                        if (!double.TryParse(cacheName.Substring(lastDashIndex + 1), out double range))
-                            continue;
-
-                        int minLevelStartIndex = cacheName.LastIndexOf(':');
-
-                        if (!int.TryParse(cacheName.Substring(minLevelStartIndex + 1,(lastDashIndex - minLevelStartIndex - 1)), out int minLevel))
-                            continue;
-
-                        if (!messageMatcher.IsMatch(message.Source + " " + message.Message) || (int)message.Level < minLevel )
-                            continue;
-
-                        // Access to filtered message cache synchronized by associated StringMatcher instance
-                        lock (messageMatcher)
-                        {
-                            List<UILogMessage> filteredMessages = kvp.Value;
-                            DateTime currentTimestamp = DateTime.UtcNow;
-
-                            // Add new matching message to filtered status messages
-                            filteredMessages.Add(message);
-
-                            
-                            // Remove messages that are outside of range
-                            List<int> indexesToRemove = new();
-
-                            for (int i = 0; i < filteredMessages.Count; i++)
-                            {
-                                if ((currentTimestamp - filteredMessages[i].TimeStamp).TotalMinutes > range)
-                                    indexesToRemove.Add(i);
-                            }
-
-                            for (int i = indexesToRemove.Count - 1; i >= 0; i--)
-                                filteredMessages.RemoveAt(indexesToRemove[i]);
-                        }
-                    }
-                    else
-                    {
-                        // StringMatcher memory cache expired, remove associated filtered status message cache
-                        m_filteredStatusMessages.TryRemove(cacheName, out List<UILogMessage> _);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.SwallowException(ex, "Status message event filtering exception");
-            }
-        }, message);
     }
 
     /// <summary>
@@ -3701,6 +3611,99 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         try
         {
             status = status.Replace("{", "{{").Replace("}", "}}");
+
+            // Parse out source if available
+
+            Match sourceMatch = m_logSourceMatcher.Match(status);
+            UILogMessage message = new()
+            {
+                TimeStamp = DateTime.UtcNow,
+                Message = status,
+                Level = type,
+                Source = ""
+            };
+
+            if (sourceMatch.Success)
+            {
+                if (!string.IsNullOrEmpty(sourceMatch.Groups["Source"].Value))
+                    message.Source = $"[{sourceMatch.Groups["Source"].Value}]";
+
+                if (!string.IsNullOrEmpty(sourceMatch.Groups["SecondSource"].Value))
+                    message.Source += $" [{sourceMatch.Groups["SecondSource"].Value}]";
+    
+                message.Message = message.Message.Replace(message.Source, "").Trim();
+            }
+            m_statusLog.Enqueue(message);
+
+            ThreadPool.QueueUserWorkItem(state =>
+            {
+                try
+                {
+                    UILogMessage message = (UILogMessage)state!;
+
+                    if (string.IsNullOrWhiteSpace(message.Message))
+                        return;
+
+                    // Check new status message against each filtered status message cache
+                    foreach (KeyValuePair<string, List<UILogMessage>> kvp in m_filteredStatusMessages)
+                    {
+                        string cacheName = kvp.Key;
+
+                        // Attempt to get associated StringMatcher from memory cache (fails if cache is expired)
+                        if (MemoryCache<StringMatcher>.TryGet(cacheName, out StringMatcher messageMatcher))
+                        {
+                            // Parse range from cache name "{matchMode}:{filter}:{(caseSensitive ? 1 : 0)}:{minLevel}-{range}"
+                            int lastDashIndex = cacheName.LastIndexOf('-');
+
+                            if (lastDashIndex < 0)
+                                continue;
+
+                            if (!double.TryParse(cacheName.Substring(lastDashIndex + 1), out double range))
+                                continue;
+
+                            int minLevelStartIndex = cacheName.LastIndexOf(':');
+
+                            if (!int.TryParse(cacheName.Substring(minLevelStartIndex + 1, (lastDashIndex - minLevelStartIndex - 1)), out int minLevel))
+                                continue;
+
+                            if (!messageMatcher.IsMatch(message.Source + " " + message.Message) || (int)message.Level < minLevel)
+                                continue;
+
+                            // Access to filtered message cache synchronized by associated StringMatcher instance
+                            lock (messageMatcher)
+                            {
+                                List<UILogMessage> filteredMessages = kvp.Value;
+                                DateTime currentTimestamp = DateTime.UtcNow;
+
+                                // Add new matching message to filtered status messages
+                                filteredMessages.Add(message);
+
+
+                                // Remove messages that are outside of range
+                                List<int> indexesToRemove = new();
+
+                                for (int i = 0; i < filteredMessages.Count; i++)
+                                {
+                                    if ((currentTimestamp - filteredMessages[i].TimeStamp).TotalMinutes > range)
+                                        indexesToRemove.Add(i);
+                                }
+
+                                for (int i = indexesToRemove.Count - 1; i >= 0; i--)
+                                    filteredMessages.RemoveAt(indexesToRemove[i]);
+                            }
+                        }
+                        else
+                        {
+                            // StringMatcher memory cache expired, remove associated filtered status message cache
+                            m_filteredStatusMessages.TryRemove(cacheName, out List<UILogMessage> _);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.SwallowException(ex, "Status message event filtering exception");
+                }
+            }, message);
 
             //m_serviceHelper.UpdateStatus(type, publishToLog, $"{status}\r\n\r\n");
 

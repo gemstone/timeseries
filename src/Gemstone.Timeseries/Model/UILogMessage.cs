@@ -51,4 +51,12 @@ public class UILogMessage
     /// The <see cref="MessageLevel"/> associates with this <see cref="UILogMessage"/>.
     /// </summary>
     public MessageLevel Level { get; set; }
+
+    /// <summary>
+    /// numeric index used to uniquly idenitfy messages.
+    /// </summary>
+    /// <remarks>
+    /// This is expected to overflow, so only (<see cref="TimeStamp"/>,<see cref="Index"/>) pair is guaranteed to be unique.
+    /// </remarks>
+    public uint Index { get; set; }
 }

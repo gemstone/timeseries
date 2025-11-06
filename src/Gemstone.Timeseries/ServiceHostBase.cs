@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
@@ -108,6 +107,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     public event EventHandler<EventArgs<UILogMessage>>? StatusMessage;
 
     #endregion
+
     #region [ Members ]
 
     // Constants

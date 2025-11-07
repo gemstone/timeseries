@@ -289,6 +289,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [Description("Defines the number of frames per second expected by the adapter.")]
     [Label("Frames Per Second")]
     [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultFrameRate\"]")]
+    [Category("Frame Timing")]
     public new int FramesPerSecond
     {
         get => base.FramesPerSecond;
@@ -308,6 +309,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [Description("Defines the allowed past time deviation tolerance, in seconds (can be sub-second).")]
     [Label("Lag Time")]
     [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultLagTime\"]")]
+    [Category("Frame Timing")]
     public new double LagTime
     {
         get => base.LagTime;
@@ -327,6 +329,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     [Description("Defines the allowed future time deviation tolerance, in seconds (can be sub-second).")]
     [Label("Lead Time")]
     [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultLeadTime\"]")]
+    [Category("Frame Timing")]
     public new double LeadTime
     {
         get => base.LeadTime;

@@ -312,7 +312,7 @@ public static class AdapterCache
                                 LabelAttribute? labelAttr = ma.method.GetCustomAttribute<LabelAttribute>();
                                 string labelText = labelAttr?.Label ?? ma.method.Name;
                                 return (ma.method, ma.attribute, Label: labelText, paramMap);
-                            })
+                            }).DistinctBy(e => e.method.Name)
                             .ToArray();
 
                         return new AdapterCommandInfo

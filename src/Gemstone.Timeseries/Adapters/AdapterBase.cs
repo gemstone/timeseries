@@ -37,6 +37,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
+using Gemstone.Configuration;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.Security.AccessControl;
@@ -586,6 +587,9 @@ public abstract class AdapterBase : IAdapter
     public virtual void Initialize()
     {
         Initialized = false;
+
+        ConnectionStringParser<ConnectionStringParameterAttribute> parser = new();
+        parser.ParseConnectionString(ConnectionString, this);
 
         Dictionary<string, string> settings = Settings;
 
@@ -1185,7 +1189,7 @@ public abstract class AdapterBase : IAdapter
     public static MeasurementKey[] ParseInputMeasurementKeys(DataSet? dataSource, bool allowSelect, string value, string measurementTable = "ActiveMeasurements", string[] measurementColumns = null)
     {
         if (measurementColumns is null)
-            measurementColumns = new[] {"PointTag","ID"};
+            measurementColumns = new[] { "PointTag", "ID" };
 
         List<MeasurementKey> keys = [];
         MeasurementKey key;
@@ -1226,7 +1230,7 @@ public abstract class AdapterBase : IAdapter
                         //key = MeasurementKey.LookUpOrCreate(row["SignalID"].ToNonNullString(Guid.Empty.ToString()).ConvertToType<Guid>(), row[nameof(ID)].ToString());
 
                         //if (key != MeasurementKey.Undefined)
-                            //keys.Add(key);
+                        //keys.Add(key);
                     }
                 }
                 //else
@@ -1273,7 +1277,7 @@ public abstract class AdapterBase : IAdapter
                             if (filteredRows.Length > 0)
                                 break;
                         }
-                        
+
                         if (filteredRows.Length > 0)
                             key = MeasurementKey.LookUpOrCreate(filteredRows[0]["SignalID"].ToNonNullString(Guid.Empty.ToString()).ConvertToType<Guid>(), filteredRows[0][nameof(ID)].ToString());
                     }

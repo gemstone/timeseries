@@ -41,6 +41,7 @@ using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
+using Gemstone.Expressions.Model;
 using Gemstone.Threading;
 using Gemstone.Timeseries.Adapters;
 using Gemstone.Units;
@@ -199,6 +200,11 @@ public abstract class ConcentratorBase : IDisposable
         /// <summary>
         /// Gets frames per second for this <see cref="FrameRateTimer"/>.
         /// </summary>
+        [ConnectionStringParameter]
+        [Description("Defines the number of frames per second expected by the adapter.")]
+        [Label("Frames Per Second")]
+        [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultFrameRate\"]")]
+        [Category("Frame Timing")]
         public int FramesPerSecond { get; }
 
         /// <summary>
@@ -525,6 +531,11 @@ public abstract class ConcentratorBase : IDisposable
     /// <para>This becomes the amount of delay introduced by the concentrator to allow time for data to flow into the system.</para>
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">LagTime must be greater than zero, but it can be less than one.</exception>
+    [ConnectionStringParameter]
+    [Description("Defines the allowed past time deviation tolerance, in seconds (can be sub-second).")]
+    [Label("Lag Time")]
+    [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultLagTime\"]")]
+    [Category("Frame Timing")]
     public double LagTime
     {
         get => m_lagTime;
@@ -554,6 +565,11 @@ public abstract class ConcentratorBase : IDisposable
     /// <para>This becomes the tolerated +/- accuracy of the local clock to real-time.</para>
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">LeadTime must be greater than zero, but it can be less than one.</exception>
+    [ConnectionStringParameter]
+    [Description("Defines the allowed future time deviation tolerance, in seconds (can be sub-second).")]
+    [Label("Lead Time")]
+    [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultLeadTime\"]")]
+    [Category("Frame Timing")]
     public double LeadTime
     {
         get => m_leadTime;

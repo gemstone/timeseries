@@ -659,77 +659,18 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     {
         Initialized = false;
 
+        ConnectionStringParser<ConnectionStringParameterAttribute> parser = new();
+        parser.ParseConnectionString(ConnectionString, this);
+
         Dictionary<string, string> settings = Settings;
-        const string ErrorMessage = "{0} is missing from Settings - Example: framesPerSecond=30; lagTime=3; leadTime=1";
-
-        // Load required parameters
-        if (!settings.TryGetValue(nameof(FramesPerSecond), out string? setting))
-            throw new ArgumentException(string.Format(ErrorMessage, nameof(FramesPerSecond)));
-
-        base.FramesPerSecond = int.Parse(setting);
-
-        if (!settings.TryGetValue(nameof(LagTime), out setting))
-            throw new ArgumentException(string.Format(ErrorMessage, nameof(LagTime)));
-
-        base.LagTime = double.Parse(setting);
-
-        if (!settings.TryGetValue(nameof(LeadTime), out setting))
-            throw new ArgumentException(string.Format(ErrorMessage, nameof(LeadTime)));
-
-        base.LeadTime = double.Parse(setting);
 
         // Load optional parameters
-        if (settings.TryGetValue(nameof(UsePrecisionTimer), out setting))
-            UsePrecisionTimer = setting.ParseBoolean();
 
-        if (settings.TryGetValue(nameof(UseLocalClockAsRealTime), out setting))
-            UseLocalClockAsRealTime = setting.ParseBoolean();
-
-        if (settings.TryGetValue(nameof(IgnoreBadTimestamps), out setting))
-            IgnoreBadTimestamps = setting.ParseBoolean();
-
-        if (settings.TryGetValue(nameof(AllowSortsByArrival), out setting))
-            AllowSortsByArrival = setting.ParseBoolean();
-
-        InputMeasurementKeys = settings.TryGetValue(nameof(InputMeasurementKeys), out setting) ?
+        InputMeasurementKeys = settings.TryGetValue(nameof(InputMeasurementKeys), out string? setting) ?
             AdapterBase.ParseInputMeasurementKeys(DataSource, true, setting) : [];
 
         if (settings.TryGetValue(nameof(OutputMeasurements), out setting))
             OutputMeasurements = AdapterBase.ParseOutputMeasurements(DataSource, true, setting);
-
-        if (settings.TryGetValue(nameof(MinimumMeasurementsToUse), out setting))
-            MinimumMeasurementsToUse = int.Parse(setting);
-
-        if (settings.TryGetValue(nameof(TimeResolution), out setting))
-            TimeResolution = long.Parse(setting);
-
-        if (settings.TryGetValue(nameof(RoundToNearestTimestamp), out setting))
-            RoundToNearestTimestamp = setting.ParseBoolean();
-
-        if (settings.TryGetValue(nameof(AllowPreemptivePublishing), out setting))
-            AllowPreemptivePublishing = setting.ParseBoolean();
-
-        if (settings.TryGetValue(nameof(PerformTimestampReasonabilityCheck), out setting))
-            PerformTimestampReasonabilityCheck = setting.ParseBoolean();
-
-        if (settings.TryGetValue(nameof(ProcessByReceivedTimestamp), out setting))
-            ProcessByReceivedTimestamp = setting.ParseBoolean();
-
-        if (settings.TryGetValue(nameof(MaximumPublicationTimeout), out setting))
-            MaximumPublicationTimeout = int.Parse(setting);
-
-        if (settings.TryGetValue(nameof(DownsamplingMethod), out setting))
-        {
-            if (Enum.TryParse(setting, true, out DownsamplingMethod method))
-            {
-                DownsamplingMethod = method;
-            }
-            else
-            {
-                OnStatusMessage(MessageLevel.Info, $"No down-sampling method labeled \"{setting}\" exists, \"{nameof(DownsamplingMethod.LastReceived)}\" method was selected.", flags: MessageFlags.UsageIssue);
-                DownsamplingMethod = DownsamplingMethod.LastReceived;
-            }
-        }
 
         if (settings.TryGetValue(nameof(InputSourceIDs), out setting))
             InputSourceIDs = setting.Split(',');

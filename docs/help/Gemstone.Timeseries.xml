@@ -8375,7 +8375,7 @@
         <para>
             It is important that consumers "resume" connection cycle if processing fails (e.g., connection
             to archive is lost). Here is an example:
-            <example><code language="cs">
+            <example><code>
             protected virtual void ProcessMeasurements(IMeasurement[] measurements)
             {
                 try

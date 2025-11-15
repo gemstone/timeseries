@@ -2982,40 +2982,40 @@
       <param name="settings">Settings instance used to hold configuration.</param>
       <param name="settingsCategory">The config file settings category under which the settings are defined.</param>
     </member>
-    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.UpdateType)">
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.Diagnostics.MessageLevel)">
       <summary>
             Displays a broadcast message to all subscribed clients.
             </summary>
       <param name="status">Status message to send to all clients.</param>
       <param name="type">
-        <see cref="T:Gemstone.UpdateType" /> of message to send.</param>
+        <see cref="!:UpdateType" /> of message to send.</param>
     </member>
-    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.UpdateType,System.Boolean)">
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.Diagnostics.MessageLevel,System.Boolean)">
       <summary>
             Displays a broadcast message to all subscribed clients.
             </summary>
       <param name="status">Status message to send to all clients.</param>
       <param name="type">
-        <see cref="T:Gemstone.UpdateType" /> of message to send.</param>
+        <see cref="!:UpdateType" /> of message to send.</param>
       <param name="publishToLog">Determines if messages should be sent logging engine.</param>
     </member>
-    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.UpdateType,System.Boolean,System.Object[])">
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.Diagnostics.MessageLevel,System.Boolean,System.Object[])">
       <summary>
             Displays a broadcast message to all subscribed clients.
             </summary>
       <param name="status">Formatted status message to send to all clients.</param>
       <param name="type">
-        <see cref="T:Gemstone.UpdateType" /> of message to send.</param>
+        <see cref="!:UpdateType" /> of message to send.</param>
       <param name="publishToLog">Determines if messages should be sent logging engine.</param>
       <param name="args">Arguments of the formatted status message.</param>
     </member>
-    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.UpdateType,System.Object[])">
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.DisplayStatusMessage(System.String,Gemstone.Diagnostics.MessageLevel,System.Object[])">
       <summary>
             Displays a broadcast message to all subscribed clients.
             </summary>
       <param name="status">Formatted status message to send to all clients.</param>
       <param name="type">
-        <see cref="T:Gemstone.UpdateType" /> of message to send.</param>
+        <see cref="!:UpdateType" /> of message to send.</param>
       <param name="args">Arguments of the formatted status message.</param>
     </member>
     <member name="M:Gemstone.Timeseries.ServiceHostBase.Dispose">
@@ -3033,6 +3033,69 @@
       <summary>
             Gets reference to the <see cref="T:Gemstone.Timeseries.Adapters.FilterAdapterCollection" />.
             </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.GetFilteredStatusMessages(Gemstone.StringExtensions.StringMatcher.StringMatchingMode,System.String,System.Boolean,System.Double,Gemstone.Diagnostics.MessageLevel)">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.GetFilteredStatusMessages(Gemstone.StringExtensions.StringMatcher.StringMatchingMode,System.String,System.Boolean,System.Double,Gemstone.Diagnostics.MessageLevel)</parameter>
+          </include>
+        </markup>
+      </summary>
+      <param name="matchMode">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>matchMode</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.GetFilteredStatusMessages(Gemstone.StringExtensions.StringMatcher.StringMatchingMode,System.String,System.Boolean,System.Double,Gemstone.Diagnostics.MessageLevel)</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="filter">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>filter</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.GetFilteredStatusMessages(Gemstone.StringExtensions.StringMatcher.StringMatchingMode,System.String,System.Boolean,System.Double,Gemstone.Diagnostics.MessageLevel)</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="caseSensitive">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>caseSensitive</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.GetFilteredStatusMessages(Gemstone.StringExtensions.StringMatcher.StringMatchingMode,System.String,System.Boolean,System.Double,Gemstone.Diagnostics.MessageLevel)</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="range">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>range</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.GetFilteredStatusMessages(Gemstone.StringExtensions.StringMatcher.StringMatchingMode,System.String,System.Boolean,System.Double,Gemstone.Diagnostics.MessageLevel)</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="minLevel">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>minLevel</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.GetFilteredStatusMessages(Gemstone.StringExtensions.StringMatcher.StringMatchingMode,System.String,System.Boolean,System.Double,Gemstone.Diagnostics.MessageLevel)</parameter>
+          </include>
+        </markup>
+      </param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Timeseries.ServiceHostBase.GetFilteredStatusMessages(Gemstone.StringExtensions.StringMatcher.StringMatchingMode,System.String,System.Boolean,System.Double,Gemstone.Diagnostics.MessageLevel)</parameter>
+          </include>
+        </markup>
+      </returns>
     </member>
     <member name="M:Gemstone.Timeseries.ServiceHostBase.Initialize(System.String)">
       <summary>
@@ -3086,6 +3149,14 @@
             </summary>
       <param name="cancellationToken">Indicates that the start process has been aborted.</param>
       <returns>A <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous Start operation.</returns>
+    </member>
+    <member name="E:Gemstone.Timeseries.ServiceHostBase.StatusMessage">
+      <summary>
+            Provides status messages to consumer.
+            </summary>
+      <remarks>
+        <see cref="F:Gemstone.EventArgs`1.Argument" /> is new status message.
+            </remarks>
     </member>
     <member name="M:Gemstone.Timeseries.ServiceHostBase.StopAsync(System.Threading.CancellationToken)">
       <summary>
@@ -5632,6 +5703,14 @@
             Represents and <see cref="!:IMeasurement[]" /> data type.
             </summary>
     </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.MeasurementKey">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.MeasurementKey" /></summary>
+    </member>
+    <member name="F:Gemstone.Timeseries.Adapters.DataType.IMeasurement">
+      <summary>
+            Represents a <see cref="F:Gemstone.Timeseries.Adapters.DataType.IMeasurement" /></summary>
+    </member>
     <member name="T:Gemstone.Timeseries.Adapters.FacileActionAdapterBase">
       <summary>
             Represents the base class for simple, non-time-aligned, action adapters.
@@ -6553,23 +6632,23 @@
       <param name="e">
         <see cref="T:System.EventArgs" />, if any.</param>
     </member>
-    <member name="M:Gemstone.Timeseries.Adapters.IaonSession.OnStatusMessage(System.Object,System.String,Gemstone.UpdateType)">
+    <member name="M:Gemstone.Timeseries.Adapters.IaonSession.OnStatusMessage(System.Object,System.String,Gemstone.Diagnostics.MessageLevel)">
       <summary>
             Raises the <see cref="E:Gemstone.Timeseries.Adapters.IaonSession.StatusMessage" /> event.
             </summary>
       <param name="sender">Object source raising the event.</param>
       <param name="status">New status message.</param>
       <param name="type">
-        <see cref="T:Gemstone.UpdateType" /> of status message.</param>
+        <see cref="!:UpdateType" /> of status message.</param>
     </member>
-    <member name="M:Gemstone.Timeseries.Adapters.IaonSession.OnStatusMessage(System.Object,System.String,Gemstone.UpdateType,System.Object[])">
+    <member name="M:Gemstone.Timeseries.Adapters.IaonSession.OnStatusMessage(System.Object,System.String,Gemstone.Diagnostics.MessageLevel,System.Object[])">
       <summary>
             Raises the <see cref="E:Gemstone.Timeseries.Adapters.IaonSession.StatusMessage" /> event with a formatted status message.
             </summary>
       <param name="sender">Object source raising the event.</param>
       <param name="formattedStatus">Formatted status message.</param>
       <param name="type">
-        <see cref="T:Gemstone.UpdateType" /> of status message.</param>
+        <see cref="T:Gemstone.Diagnostics.MessageLevel" /> of status message.</param>
       <param name="args">Arguments for <paramref name="formattedStatus" />.</param>
       <remarks>
             This overload combines string.Format and SendStatusMessage for convenience.
@@ -6667,7 +6746,7 @@
             Provides status messages to consumer.
             </summary>
       <remarks>
-        <see cref="F:Gemstone.EventArgs`2.Argument1" /> is the new status message.<br /><see cref="F:Gemstone.EventArgs`2.Argument2" /> is the message <see cref="T:Gemstone.UpdateType" />.
+        <see cref="F:Gemstone.EventArgs`2.Argument1" /> is the new status message.<br /><see cref="F:Gemstone.EventArgs`2.Argument2" /> is the message <see cref="T:Gemstone.Diagnostics.MessageLevel" />.
             </remarks>
     </member>
     <member name="M:Gemstone.Timeseries.Adapters.IaonSession.StatusMessageHandler(System.Object,Gemstone.EventArgs{System.String})">
@@ -11098,6 +11177,40 @@
           </include>
         </markup>
       </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Model.UILogMessage">
+      <summary>
+            Defines a log message send by the System
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.UILogMessage.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Model.UILogMessage</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.UILogMessage.Level">
+      <summary>
+            The <see cref="T:Gemstone.Diagnostics.MessageLevel" /> associates with this <see cref="T:Gemstone.Timeseries.Model.UILogMessage" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.UILogMessage.Message">
+      <summary>
+            The message content.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.UILogMessage.Source">
+      <summary>
+            The source of the log message. For Adapters this is the Adapter Name. For system messages it is an empty string.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.UILogMessage.TimeStamp">
+      <summary>
+            The Timestamp associated with the message.
+            </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute">
       <summary>

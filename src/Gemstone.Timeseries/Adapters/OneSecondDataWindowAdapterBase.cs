@@ -87,7 +87,7 @@ public abstract class OneSecondDataWindowAdapterBase : ActionAdapterBase
     /// <remarks>
     /// If your adapter needs to receive all measurements, you must explicitly set InputMeasurementKeys to null.
     /// </remarks>
-    [ConnectionStringParameter]
+    [ConnectionStringParameter(IgnoreWhenParsing = true)]
     [Description("Defines primary keys of input measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [DefaultValue(null)]
     public override MeasurementKey[]? InputMeasurementKeys

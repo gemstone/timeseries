@@ -141,7 +141,7 @@ public abstract class FacileActionAdapterBase : AdapterBase, IActionAdapter
     /// <summary>
     /// Gets or sets primary keys of input measurements the <see cref="FacileActionAdapterBase"/> expects, if any.
     /// </summary>
-    [ConnectionStringParameter]
+    [ConnectionStringParameter(IgnoreWhenParsing = true)]
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [Label("Input Measurement Keys")]

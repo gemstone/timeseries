@@ -9,7 +9,21 @@ using Gemstone.Data.Model;
 namespace Gemstone.Timeseries.Model;
 public class PhasorValues
 {
-
+    public string AlternateLabel
+    {
+        get;
+        set;
+    }
+    public string AlternateLabel2
+    {
+        get;
+        set;
+    }
+    public string AlternateLabel3
+    {
+        get;
+        set;
+    }
     public string Device
     {
         get;

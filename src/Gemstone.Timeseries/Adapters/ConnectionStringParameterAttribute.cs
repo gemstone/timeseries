@@ -26,6 +26,7 @@
 //******************************************************************************************************
 
 using System;
+using Gemstone.Configuration;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -33,6 +34,8 @@ namespace Gemstone.Timeseries.Adapters;
 /// Marks a parameter as being a connection string parameter used to configure an <see cref="IAdapter"/>.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class ConnectionStringParameterAttribute : Attribute
+public sealed class ConnectionStringParameterAttribute : Attribute, ConnectionStringParser<ConnectionStringParameterAttribute>.IIgnorableParameter
 {
+    /// <inheritdoc/>
+    public bool IgnoreWhenParsing { get; set; }
 }

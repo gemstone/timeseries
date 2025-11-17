@@ -124,7 +124,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// <summary>
     /// Gets or sets output measurements that the <see cref="IndependentActionAdapterManagerBase{TAdapter}"/> will produce, if any.
     /// </summary>
-    [ConnectionStringParameter]
+    [ConnectionStringParameter(IgnoreWhenParsing = true)]
     [Description("Defines primary keys of output measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [DefaultValue(null)]
     public override IMeasurement[] OutputMeasurements

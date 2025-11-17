@@ -108,7 +108,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
     /// <summary>
     /// Gets or sets primary keys of input measurements for the <see cref="IndependentActionAdapterManagerBase{TAdapter}"/>.
     /// </summary>
-    [ConnectionStringParameter]
+    [ConnectionStringParameter(IgnoreWhenParsing = true)]
     [Description("Defines primary keys of input measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [DefaultValue(null)]
     public override MeasurementKey[] InputMeasurementKeys

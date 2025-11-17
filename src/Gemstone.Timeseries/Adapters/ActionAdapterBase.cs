@@ -342,7 +342,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <remarks>
     /// If your adapter needs to receive all measurements, you must explicitly set InputMeasurementKeys to null.
     /// </remarks>
-    [ConnectionStringParameter]
+    [ConnectionStringParameter(IgnoreWhenParsing = true)]
     [DefaultValue(null)]
     [Description("Defines primary keys of input measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     public virtual MeasurementKey[]? InputMeasurementKeys

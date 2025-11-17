@@ -319,7 +319,7 @@ public abstract class AdapterBase : IAdapter
     /// <summary>
     /// Gets or sets output measurements that the <see cref="AdapterBase"/> will produce, if any.
     /// </summary>
-    [ConnectionStringParameter]
+    [ConnectionStringParameter(IgnoreWhenParsing = true)]
     [DefaultValue(null)]
     [Description("Defines primary keys of output measurements the adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     [Label("Output Measurements")]

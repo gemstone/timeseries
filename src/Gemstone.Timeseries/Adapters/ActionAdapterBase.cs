@@ -372,7 +372,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <summary>
     /// Gets or sets output measurements that the action adapter will produce, if any.
     /// </summary>
-    [ConnectionStringParameter]
+    [ConnectionStringParameter(IgnoreWhenParsing = true)]
     [DefaultValue(null)]
     [Description("Defines primary keys of output measurements the action adapter expects; can be one of a filter expression, measurement key, point tag or Guid.")]
     public virtual IMeasurement[]? OutputMeasurements

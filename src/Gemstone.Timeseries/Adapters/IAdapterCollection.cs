@@ -27,6 +27,7 @@
 
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -65,7 +66,7 @@ public interface IAdapterCollection : IAdapter, IList<IAdapter>
     /// <param name="name">Name of adapter to get.</param>
     /// <param name="adapter">Adapter reference if found; otherwise null.</param>
     /// <returns><c>true</c> if adapter with the specified <paramref name="name"/> was found; otherwise <c>false</c>.</returns>
-    bool TryGetAdapterByName(string name, out IAdapter? adapter);
+    bool TryGetAdapterByName(string name, [NotNullWhen(true)] out IAdapter? adapter);
 
     /// <summary>
     /// Attempts to create an <see cref="IAdapter"/> from the specified <see cref="DataRow"/>.

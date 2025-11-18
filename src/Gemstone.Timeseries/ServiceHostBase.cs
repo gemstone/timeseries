@@ -1490,13 +1490,14 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
                 return;
             }
 
-            if (!adapters.TryGetAnyAdapterByName(acronym, out IAdapter? adapter, out _))
+            if (!adapters.TryGetAnyAdapterByName(acronym, out IAdapter? adapter, out IAdapterCollection? collection))
             {
                 LogException(new InvalidOperationException($"Failed to find adapter with acronym \"{acronym}\""));
                 return;
             }
 
-            adapter?.Initialize();
+            if (!collection.TryInitializeAdapterByID(adapter.ID))
+                LogException(new InvalidOperationException($"Failed to initialize adapter with acronym \"{acronym}\""));
         })));
     }
 

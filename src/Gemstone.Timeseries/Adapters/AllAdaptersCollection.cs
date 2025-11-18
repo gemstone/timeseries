@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using Gemstone.Diagnostics;
 using Gemstone.StringExtensions;
 
@@ -258,7 +259,7 @@ public class AllAdaptersCollection : AdapterCollectionBase<IAdapterCollection>
     /// <param name="adapter">Adapter reference if found; otherwise null.</param>
     /// <param name="adapterCollection">Adapter collection reference if <paramref name="adapter"/> is found; otherwise null.</param>
     /// <returns><c>true</c> if adapter with the specified <paramref name="name"/> was found; otherwise <c>false</c>.</returns>
-    public bool TryGetAnyAdapterByName(string name, out IAdapter? adapter, out IAdapterCollection? adapterCollection)
+    public bool TryGetAnyAdapterByName(string name, [NotNullWhen(true)] out IAdapter? adapter, [NotNullWhen(true)] out IAdapterCollection? adapterCollection)
     {
         lock (this)
         {

@@ -5624,6 +5624,12 @@
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionStringParameterAttribute.IgnoreWhenParsing">
+      <summary>
+            Gets a value that determines whether the connection string parameter should
+            be ignored by the <see cref="T:Gemstone.Configuration.ConnectionStringParser`1" />.
+            </summary>
+    </member>
     <member name="T:Gemstone.Timeseries.Adapters.DataType">
       <summary>
             Defines the basic data types for connection parameters.
@@ -10786,6 +10792,36 @@
         <markup>
           <include item="SMCAutoDocConstructor">
             <parameter>Gemstone.Timeseries.Model.PhasorValues</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.AlternateLabel">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.AlternateLabel</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.AlternateLabel2">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.AlternateLabel2</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.PhasorValues.AlternateLabel3">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.PhasorValues.AlternateLabel3</parameter>
           </include>
         </markup>
       </summary>

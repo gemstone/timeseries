@@ -75,7 +75,7 @@ public class Measurement
     [StringLength(200)]
     public string SignalReference { get; set; } = "";
 
-    [DefaultValue(30.0D)]
+    [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultFrameRate\"]")]
     public double? FramesPerSecond { get; set; }
 
     [DefaultValue(0.0D)]

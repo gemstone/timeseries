@@ -81,8 +81,10 @@ public class Device
     [Label("Vendor Device")]
     public int? VendorDeviceID { get; set; }
 
+    [DefaultValueExpression("Convert.ToDecimal(Settings.Instance[\"GeospatialDisplayServer\"][\"DefaultLongitude\"])")]
     public decimal Longitude { get; set; }
 
+    [DefaultValueExpression("Convert.ToDecimal(Settings.Instance[\"GeospatialDisplayServer\"][\"DefaultLatitude\"])")]
     public decimal Latitude { get; set; }
 
     [Label("Interconnection")]

@@ -58,12 +58,24 @@ namespace Gemstone.Timeseries.Adapters
     }
 
     /// <summary>
+    /// Allows filtering to specific Applications.
+    /// </summary>
+    public enum Application
+    {
+        OpenHistorian,
+        OpenPDC,
+        WaveApps
+    }
+
+    /// <summary>
     /// Marks a class as an adapter protocol.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public class AdapterProtocolAttribute : Attribute
     {
-        /// <summary>
+        private static readonly Application[] DefaultApplications = new Application[] { Application.OpenHistorian, Application.OpenPDC };
+
+        /// <summary>a 
         /// Gets the acronym for the adapter protocol.
         /// </summary>
         public string Acronym { get; }
@@ -91,6 +103,8 @@ namespace Gemstone.Timeseries.Adapters
 
         public UIVisibility Visibility { get; }
 
+        public Application[] Applications { get; }
+
         /// <summary>
         /// Creates a new instance of the <see cref="AdapterProtocolAttribute"/> class.
         /// </summary>
@@ -100,7 +114,8 @@ namespace Gemstone.Timeseries.Adapters
         /// <param name="visibility">UI Visibility of the protocol.</param>
         /// <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
         /// <param name="loadOrder">Load order of the adapter protocol.</param>
-        public AdapterProtocolAttribute(string acronym, string name, ProtocolType type, UIVisibility visibility, bool supportsConnectionTest = true, int loadOrder = 0)
+        /// <param name="applications">Applications that support this protocol in the UI.</param>
+        public AdapterProtocolAttribute(string acronym, string name, ProtocolType type, UIVisibility visibility, bool supportsConnectionTest = true, int loadOrder = 0, Application[] applications = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(acronym);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -111,6 +126,7 @@ namespace Gemstone.Timeseries.Adapters
             Visibility = visibility;
             SupportsConnectionTest = supportsConnectionTest;
             LoadOrder = loadOrder;
+            Applications = applications ?? DefaultApplications;
         }
     }
 

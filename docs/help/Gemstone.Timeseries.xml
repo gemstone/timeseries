@@ -5110,7 +5110,7 @@
             Marks a class as an adapter protocol.
             </summary>
     </member>
-    <member name="M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32)">
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[])">
       <summary>
             Creates a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute" /> class.
             </summary>
@@ -5120,11 +5120,22 @@
       <param name="visibility">UI Visibility of the protocol.</param>
       <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
       <param name="loadOrder">Load order of the adapter protocol.</param>
+      <param name="applications">Applications that support this protocol in the UI.</param>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Acronym">
-      <summary>
+      <summary>a 
             Gets the acronym for the adapter protocol.
             </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Applications">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Applications</parameter>
+          </include>
+        </markup>
+      </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.LoadOrder">
       <summary>
@@ -5345,6 +5356,11 @@
       <remarks>
             This method traverses all collections looking for an adapter with the specified ID.
             </remarks>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.Application">
+      <summary>
+            Allows filtering to specific Applications.
+            </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.ConnectionParameter">
       <summary>

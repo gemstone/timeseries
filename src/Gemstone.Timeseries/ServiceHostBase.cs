@@ -4061,6 +4061,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         section.DefaultFrameRate = (30, "Defines the default frame rate used for adapters in frames per second.");
         section.DefaultLeadTime = (10.0D, "Defines the default lead time used for adapters in seconds.");
         section.DefaultLagTime = (10.0D, "Defines the default lag time used for adapters in seconds.");
+        section.PointTagNameExpression = ("{CompanyAcronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:{VendorAcronym}{SignalType.Abbreviation}[?{SignalType.Source}!=Phasor[?{SignalIndex}!=-1[{SignalIndex}]]]", "Defines the expression used for point tag naming.");
 
         ThreadPool.GetMinThreads(out int minWorkerThreads, out int minIOPortThreads);
         section.MinThreadPoolWorkerThreads = (minWorkerThreads, "Defines the minimum number of allowed thread pool worker threads");

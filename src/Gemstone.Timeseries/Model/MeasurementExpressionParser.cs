@@ -62,6 +62,11 @@ public class MeasurementExpressionParser
 
     private TemplatedExpressionParser m_parser;
 
+    /// <summary>
+    /// Additional Variable available in this instance.
+    /// </summary>
+    public Dictionary<string, string> Substitutions { set; private get; }
+
     #endregion
 
     #region [ Constructors ]
@@ -73,6 +78,7 @@ public class MeasurementExpressionParser
     public MeasurementExpressionParser(TemplatedExpressionParser expressionParser)
     {
         m_parser = expressionParser;
+        Substitutions = new Dictionary<string, string>();
     }
 
     /// <summary>
@@ -85,6 +91,7 @@ public class MeasurementExpressionParser
         { 
             TemplatedExpression = expression
         };
+        Substitutions = new Dictionary<string, string>();
     }
 
     #endregion
@@ -147,6 +154,9 @@ public class MeasurementExpressionParser
             { "{BaseKV}", baseKV.ToString() }
         };
 
+        foreach(KeyValuePair<string, string> substitution in Substitutions)
+            substitutions.Add(substitution.Key, substitution.Value);
+
         // Define signal type field value replacements
         DataColumnCollection columns = s_signalTypes.First().Value.Table.Columns;
 
@@ -173,6 +183,7 @@ public class MeasurementExpressionParser
 
         return m_parser.Execute(substitutions);
     }
+
 
     private static int GuessBaseKV(string? label, string deviceAcronym, string signalTypeAcronym)
     {

@@ -113,21 +113,26 @@ public class MeasurementExpressionParser
         s_interconnections ??= InitializeInterconnections();
         s_Vendors ??= IntializeVendor();
 
-        if (!s_signalTypes.TryGetValue(signalTypeAcronym, out DataRow? signalTypeValues))
+        DataRow? signalTypeValues = null, companyValues = null, interconnectionValues = null, vendorValues = null;
+
+        if (!string.IsNullOrWhiteSpace(signalTypeAcronym) && !s_signalTypes.TryGetValue(signalTypeAcronym, out signalTypeValues))
             throw new ArgumentOutOfRangeException(nameof(signalTypeAcronym), $"No database definition was found for signal type \"{signalTypeAcronym}\"");
+        
 
-        if (!s_companies.TryGetValue(companyAcronym, out DataRow? companyValues))
-            throw new ArgumentOutOfRangeException(nameof(signalTypeAcronym), $"No database definition was found for company \"{companyAcronym}\"");
+        if (!string.IsNullOrWhiteSpace(companyAcronym) && !s_companies.TryGetValue(companyAcronym, out companyValues))
+            throw new ArgumentOutOfRangeException(nameof(companyAcronym), $"No database definition was found for company \"{companyAcronym}\"");
 
-        if (!s_interconnections.TryGetValue(interconnectionAcronym, out DataRow? interconnectionValues))
+        if (!string.IsNullOrWhiteSpace(interconnectionAcronym) && !s_interconnections.TryGetValue(interconnectionAcronym, out interconnectionValues))
             throw new ArgumentOutOfRangeException(nameof(interconnectionAcronym), $"No database definition was found for interconnection \"{interconnectionAcronym}\"");
 
-        if (!s_Vendors.TryGetValue(vendorAcronym, out DataRow? vendorValues))
-            throw new ArgumentOutOfRangeException(nameof(interconnectionAcronym), $"No database definition was found for vendor \"{vendorAcronym}\"");
+        if (!string.IsNullOrWhiteSpace(vendorAcronym) && !s_Vendors.TryGetValue(vendorAcronym, out vendorValues))
+            throw new ArgumentOutOfRangeException(nameof(vendorAcronym), $"No database definition was found for vendor \"{vendorAcronym}\"");
 
 
         // Validate key acronyms
         label ??= "";
+        deviceAcronym ??= "";
+        signalTypeAcronym ??= "";
 
         if (baseKV == 0)
             baseKV = GuessBaseKV(label, deviceAcronym, signalTypeAcronym);
@@ -143,28 +148,28 @@ public class MeasurementExpressionParser
         };
 
         // Define signal type field value replacements
-        DataColumnCollection columns = signalTypeValues.Table.Columns;
+        DataColumnCollection columns = s_signalTypes.First().Value.Table.Columns;
 
         for (int i = 0; i < columns.Count; i++)
-            substitutions.Add($"{{SignalType.{columns[i].ColumnName}}}", signalTypeValues[i].ToNonNullString());
+            substitutions.Add($"{{SignalType.{columns[i].ColumnName}}}", signalTypeValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define company field value replacements
-        columns = companyValues.Table.Columns;
+        columns = s_companies.First().Value.Table.Columns;
 
         for (int i = 0; i < columns.Count; i++)
-            substitutions.Add($"{{Company.{columns[i].ColumnName}}}", companyValues[i].ToNonNullString());
+            substitutions.Add($"{{Company.{columns[i].ColumnName}}}", companyValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define interconnection field value replacements
-        columns = interconnectionValues.Table.Columns;
+        columns = s_interconnections.First().Value.Table.Columns;
 
         for (int i = 0; i < columns.Count; i++)
-            substitutions.Add($"{{Interconnection.{columns[i].ColumnName}}}", interconnectionValues[i].ToNonNullString());
+            substitutions.Add($"{{Interconnection.{columns[i].ColumnName}}}", interconnectionValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define vendor field value replacements
-        columns = vendorValues.Table.Columns;
+        columns = s_Vendors.First().Value.Table.Columns;
 
         for (int i = 0; i < columns.Count; i++)
-            substitutions.Add($"{{Vendor.{columns[i].ColumnName}}}", vendorValues[i].ToNonNullString());
+            substitutions.Add($"{{Vendor.{columns[i].ColumnName}}}", vendorValues?[i]?.ToNonNullString() ?? string.Empty);
 
         return m_parser.Execute(substitutions);
     }

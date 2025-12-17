@@ -114,18 +114,17 @@ public class MeasurementExpressionParser
     [MethodImpl(MethodImplOptions.Synchronized)]
     public string Execute(string? companyAcronym, string? deviceAcronym, string? vendorAcronym, string? signalTypeAcronym, string? interconnectionAcronym, string? label = null, int signalIndex = -1, char phase = '_', int baseKV = 0)
     {
-        // Initialize dictionary
-        s_signalTypes ??= InitializeSignalTypes();
-        s_companies ??= InitializeCompanies();
-        s_interconnections ??= InitializeInterconnections();
-        s_vendors ??= IntializeVendors();
+        // Set dictionaries
+        s_signalTypes = InitializeSignalTypes();
+        s_companies = InitializeCompanies();
+        s_interconnections = InitializeInterconnections();
+        s_Vendors = IntializeVendors();
 
         DataRow? signalTypeValues = null, companyValues = null, interconnectionValues = null, vendorValues = null;
 
         if (!string.IsNullOrWhiteSpace(signalTypeAcronym) && !s_signalTypes.TryGetValue(signalTypeAcronym, out signalTypeValues))
             throw new ArgumentOutOfRangeException(nameof(signalTypeAcronym), $"No database definition was found for signal type \"{signalTypeAcronym}\"");
         
-
         if (!string.IsNullOrWhiteSpace(companyAcronym) && !s_companies.TryGetValue(companyAcronym, out companyValues))
             throw new ArgumentOutOfRangeException(nameof(companyAcronym), $"No database definition was found for company \"{companyAcronym}\"");
 
@@ -134,7 +133,6 @@ public class MeasurementExpressionParser
 
         if (!string.IsNullOrWhiteSpace(vendorAcronym) && !s_vendors.TryGetValue(vendorAcronym, out vendorValues))
             throw new ArgumentOutOfRangeException(nameof(vendorAcronym), $"No database definition was found for vendor \"{vendorAcronym}\"");
-
 
         // Validate key acronyms
         label ??= "";

@@ -63,7 +63,7 @@ public class MeasurementExpressionParser
     private TemplatedExpressionParser m_parser;
 
     /// <summary>
-    /// Additional Variable available in this instance.
+    /// Additional variables available in this instance.
     /// </summary>
     public Dictionary<string, string> Substitutions { set; private get; }
 
@@ -118,7 +118,7 @@ public class MeasurementExpressionParser
         s_signalTypes ??= InitializeSignalTypes();
         s_companies ??= InitializeCompanies();
         s_interconnections ??= InitializeInterconnections();
-        s_Vendors ??= IntializeVendor();
+        s_vendors ??= IntializeVendors();
 
         DataRow? signalTypeValues = null, companyValues = null, interconnectionValues = null, vendorValues = null;
 
@@ -132,7 +132,7 @@ public class MeasurementExpressionParser
         if (!string.IsNullOrWhiteSpace(interconnectionAcronym) && !s_interconnections.TryGetValue(interconnectionAcronym, out interconnectionValues))
             throw new ArgumentOutOfRangeException(nameof(interconnectionAcronym), $"No database definition was found for interconnection \"{interconnectionAcronym}\"");
 
-        if (!string.IsNullOrWhiteSpace(vendorAcronym) && !s_Vendors.TryGetValue(vendorAcronym, out vendorValues))
+        if (!string.IsNullOrWhiteSpace(vendorAcronym) && !s_vendors.TryGetValue(vendorAcronym, out vendorValues))
             throw new ArgumentOutOfRangeException(nameof(vendorAcronym), $"No database definition was found for vendor \"{vendorAcronym}\"");
 
 
@@ -176,7 +176,7 @@ public class MeasurementExpressionParser
             substitutions.Add($"{{Interconnection.{columns[i].ColumnName}}}", interconnectionValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define vendor field value replacements
-        columns = s_Vendors.First().Value.Table.Columns;
+        columns = s_vendors.First().Value.Table.Columns;
 
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{Vendor.{columns[i].ColumnName}}}", vendorValues?[i]?.ToNonNullString() ?? string.Empty);
@@ -191,7 +191,7 @@ public class MeasurementExpressionParser
         {
             // Calls to CreatePointTag are commonly made in sequence for all measurements, then calls stop, so
             // we create an expiring memory cache with a map of first phasor tags associated with each device
-            Dictionary<string, string?> firstPhasorPointTagCache = MemoryCache<Dictionary<string, string?>>.GetOrAdd(nameof(GuessBaseKV), () => new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase));
+            Dictionary<string, string?> firstPhasorPointTagCache = MemoryCache<Dictionary<string, string?>>.GetOrAdd($"{nameof(MeasurementExpressionParser)}-{nameof(GuessBaseKV)}", () => new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase));
 
             label = firstPhasorPointTagCache.GetOrAdd(deviceAcronym, _ =>
             {
@@ -241,7 +241,7 @@ public class MeasurementExpressionParser
     private static Dictionary<string, DataRow>? s_signalTypes;
     private static Dictionary<string, DataRow>? s_companies;
     private static Dictionary<string, DataRow>? s_interconnections;
-    private static Dictionary<string, DataRow>? s_Vendors;
+    private static Dictionary<string, DataRow>? s_vendors;
 
 
     private static readonly string[] s_commonVoltageLevels = CommonVoltageLevels.Values;
@@ -297,7 +297,7 @@ public class MeasurementExpressionParser
         return interconnections;
     }
 
-    private static Dictionary<string, DataRow> IntializeVendor()
+    private static Dictionary<string, DataRow> IntializeVendors()
     {
         // It is expected that when a point tag is needing to be created that the database will be available
         using AdoDataConnection database = new(ConfigSettings.Default);
@@ -313,5 +313,6 @@ public class MeasurementExpressionParser
 
         return vendors;
     }
+
     #endregion
 }

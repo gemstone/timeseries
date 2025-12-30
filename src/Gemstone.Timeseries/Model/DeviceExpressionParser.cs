@@ -43,13 +43,13 @@ namespace Gemstone.Timeseries.Model;
 /// <para>
 /// As an example, this parser can use a templated expression of the form:
 /// <code>
-/// {Device.Acronym}_{Device.Name}
+/// {Device.Acronym}:{Device.ID}
 /// </code>
 /// then replace the tokens with actual values and properly evaluate the expressions.
-/// Example results could look like: GPA_SHELBY-PA1:IPHA and GPA_SHELBY:FREQ
+/// Example results could look like: GPA_PMU:41
 /// </para>
 /// <para>
-/// Parser also supports more complex C# style expressions using the "eval{}" function, e.g.:
+/// Parser also supports more complex C# style expressions using the "eval{}" function
 /// </para>
 /// </remarks>
 public class DeviceExpressionParser

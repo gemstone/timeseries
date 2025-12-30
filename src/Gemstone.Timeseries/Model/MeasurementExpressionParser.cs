@@ -88,7 +88,7 @@ public class MeasurementExpressionParser
     public MeasurementExpressionParser(string expression)
     {
         m_parser = new TemplatedExpressionParser()
-        { 
+        {
             TemplatedExpression = expression
         };
         Substitutions = new Dictionary<string, string>();
@@ -112,27 +112,45 @@ public class MeasurementExpressionParser
     /// <param name="baseKV">Nominal kV of line associated with phasor.</param>
     /// <returns>A new strting created using the configured expression.</returns>
     [MethodImpl(MethodImplOptions.Synchronized)]
-    public string Execute(string? companyAcronym, string? deviceAcronym, string? vendorAcronym, string? signalTypeAcronym, string? interconnectionAcronym, string? label = null, int signalIndex = -1, char phase = '_', int baseKV = 0)
+    public string Execute(string? companyAcronym, string? deviceAcronym, string? vendorAcronym, string? signalTypeAcronym, string? interconnectionAcronym, string? label = null, int signalIndex = -1, char phase = '_', int baseKV = 0, int? pointID = -1)
     {
         // Set dictionaries
-        s_signalTypes = InitializeSignalTypes();
-        s_companies = InitializeCompanies();
-        s_interconnections = InitializeInterconnections();
-        s_vendors = IntializeVendors();
+        Dictionary<string, DataRow> signalTypes = GetSignalTypes();
+        Dictionary<string, DataRow> companies = GetCompanies();
+        Dictionary<string, DataRow> interconnections = GetInterconnections();
+        Dictionary<string, DataRow> vendors = GetVendor();
+        Dictionary<string, DataRow> devices = GetDevices();
 
-        DataRow? signalTypeValues = null, companyValues = null, interconnectionValues = null, vendorValues = null;
+        Measurement? measurement = null;
 
-        if (!string.IsNullOrWhiteSpace(signalTypeAcronym) && !s_signalTypes.TryGetValue(signalTypeAcronym, out signalTypeValues))
+        bool addDeviceSubs = true;
+
+        if (pointID is not null && pointID > 0)
+        {
+            using AdoDataConnection connection = new(ConfigSettings.Default);
+            {
+                TableOperations<Measurement> measurementOps = new(connection);
+                measurement = measurementOps.QueryRecordWhere("PointID = {0}", pointID);
+            }
+        }
+
+        DataRow? signalTypeValues = null, companyValues = null, interconnectionValues = null, vendorValues = null, deviceValues = null;
+
+        if (!string.IsNullOrWhiteSpace(signalTypeAcronym) && !signalTypes.TryGetValue(signalTypeAcronym, out signalTypeValues))
             throw new ArgumentOutOfRangeException(nameof(signalTypeAcronym), $"No database definition was found for signal type \"{signalTypeAcronym}\"");
-        
-        if (!string.IsNullOrWhiteSpace(companyAcronym) && !s_companies.TryGetValue(companyAcronym, out companyValues))
+
+        if (!string.IsNullOrWhiteSpace(companyAcronym) && !companies.TryGetValue(companyAcronym, out companyValues))
             throw new ArgumentOutOfRangeException(nameof(companyAcronym), $"No database definition was found for company \"{companyAcronym}\"");
 
-        if (!string.IsNullOrWhiteSpace(interconnectionAcronym) && !s_interconnections.TryGetValue(interconnectionAcronym, out interconnectionValues))
+        if (!string.IsNullOrWhiteSpace(interconnectionAcronym) && !interconnections.TryGetValue(interconnectionAcronym, out interconnectionValues))
             throw new ArgumentOutOfRangeException(nameof(interconnectionAcronym), $"No database definition was found for interconnection \"{interconnectionAcronym}\"");
 
-        if (!string.IsNullOrWhiteSpace(vendorAcronym) && !s_vendors.TryGetValue(vendorAcronym, out vendorValues))
+        if (!string.IsNullOrWhiteSpace(vendorAcronym) && !vendors.TryGetValue(vendorAcronym, out vendorValues))
             throw new ArgumentOutOfRangeException(nameof(vendorAcronym), $"No database definition was found for vendor \"{vendorAcronym}\"");
+
+        //Dont throw here as this method is used before a device is created sometimes
+        if (!string.IsNullOrWhiteSpace(deviceAcronym) && !devices.TryGetValue(deviceAcronym, out deviceValues))
+            addDeviceSubs = false;
 
         // Validate key acronyms
         label ??= "";
@@ -152,36 +170,57 @@ public class MeasurementExpressionParser
             { "{BaseKV}", baseKV.ToString() }
         };
 
-        foreach(KeyValuePair<string, string> substitution in Substitutions)
+        // Add additional fields if pointID is provided
+        if (measurement is not null)
+        {
+            substitutions.Add("PointTag", measurement.PointTag);
+            substitutions.Add("SignalReference", measurement.SignalReference);
+            substitutions.Add("AlternateTag", measurement.AlternateTag ?? "");
+            substitutions.Add("AlternateTag2", measurement.AlternateTag2 ?? "");
+            substitutions.Add("AlternateTag3", measurement.AlternateTag3 ?? "");
+
+            if (measurement.FramesPerSecond is not null)
+                substitutions.Add("FramesPerSecond", measurement.FramesPerSecond.ToString()!);
+        }
+
+        foreach (KeyValuePair<string, string> substitution in Substitutions)
             substitutions.Add(substitution.Key, substitution.Value);
 
         // Define signal type field value replacements
-        DataColumnCollection columns = s_signalTypes.First().Value.Table.Columns;
+        DataColumnCollection columns = signalTypes.First().Value.Table.Columns;
 
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{SignalType.{columns[i].ColumnName}}}", signalTypeValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define company field value replacements
-        columns = s_companies.First().Value.Table.Columns;
+        columns = companies.First().Value.Table.Columns;
 
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{Company.{columns[i].ColumnName}}}", companyValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define interconnection field value replacements
-        columns = s_interconnections.First().Value.Table.Columns;
+        columns = interconnections.First().Value.Table.Columns;
 
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{Interconnection.{columns[i].ColumnName}}}", interconnectionValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define vendor field value replacements
-        columns = s_vendors.First().Value.Table.Columns;
+        columns = vendors.First().Value.Table.Columns;
 
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{Vendor.{columns[i].ColumnName}}}", vendorValues?[i]?.ToNonNullString() ?? string.Empty);
 
+        // Define device field value replacements
+        if (addDeviceSubs)
+        {
+            columns = devices.First().Value.Table.Columns;
+
+            for (int i = 0; i < columns.Count; i++)
+                substitutions.Add($"{{Device.{columns[i].ColumnName}}}", deviceValues?[i]?.ToNonNullString() ?? string.Empty);
+        }
+
         return m_parser.Execute(substitutions);
     }
-
 
     private static int GuessBaseKV(string? label, string deviceAcronym, string signalTypeAcronym)
     {
@@ -235,16 +274,9 @@ public class MeasurementExpressionParser
     #endregion
 
     #region [ Static ]
-
-    private static Dictionary<string, DataRow>? s_signalTypes;
-    private static Dictionary<string, DataRow>? s_companies;
-    private static Dictionary<string, DataRow>? s_interconnections;
-    private static Dictionary<string, DataRow>? s_vendors;
-
-
     private static readonly string[] s_commonVoltageLevels = CommonVoltageLevels.Values;
 
-    private static Dictionary<string, DataRow> InitializeSignalTypes()
+    private static Dictionary<string, DataRow> GetSignalTypes()
     {
         // It is expected that when a point tag is needing to be created that the database will be available
         using AdoDataConnection database = new(ConfigSettings.Default);
@@ -261,7 +293,24 @@ public class MeasurementExpressionParser
         return signalTypes;
     }
 
-    private static Dictionary<string, DataRow> InitializeCompanies()
+    private static Dictionary<string, DataRow> GetDevices()
+    {
+        // It is expected that when a point tag is needing to be created that the database will be available
+        using AdoDataConnection database = new(ConfigSettings.Default);
+        Dictionary<string, DataRow> devices = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Device").AsEnumerable())
+        {
+            if (row is null)
+                continue;
+
+            devices.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+        }
+
+        return devices;
+    }
+
+    private static Dictionary<string, DataRow> GetCompanies()
     {
         // It is expected that when a point tag is needing to be created that the database will be available
         using AdoDataConnection database = new(ConfigSettings.Default);
@@ -278,7 +327,7 @@ public class MeasurementExpressionParser
         return companies;
     }
 
-    private static Dictionary<string, DataRow> InitializeInterconnections()
+    private static Dictionary<string, DataRow> GetInterconnections()
     {
         // It is expected that when a point tag is needing to be created that the database will be available
         using AdoDataConnection database = new(ConfigSettings.Default);
@@ -295,7 +344,7 @@ public class MeasurementExpressionParser
         return interconnections;
     }
 
-    private static Dictionary<string, DataRow> IntializeVendors()
+    private static Dictionary<string, DataRow> GetVendor()
     {
         // It is expected that when a point tag is needing to be created that the database will be available
         using AdoDataConnection database = new(ConfigSettings.Default);

@@ -4072,6 +4072,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         //private const string DefaultPointTagNameExpression = "{Company.Acronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:[?{Phase}=A[PhaseA_]][?{Phase}=B[PhaseB_]][?{Phase}=C[PhaseC_]][?{Phase}=+[PosSeq_]][?{Phase}=-[NegSeq_]][?{Phase}=0[ZeroSeq_]][?{SignalType.Acronym}!=STAT[{SignalType.LongAcronym}]][?{SignalType.Acronym}=STAT[{SignalType.Suffix}]][?{SignalType.Source}!=Phasor[?{SignalIndex}!=-1[{SignalIndex}]]]";
 
         section.PointTagNameExpression = ("{Company.Acronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:{Vendor.Acronym}{SignalType.Abbreviation}[?{SignalType.Source}!=Phasor[?{SignalIndex}!=-1[{SignalIndex}]]]", "Defines the expression used for point tag naming.");
+        section.ExportProfilesDirectory = ("C:\\ProgramData\\openHistorian", "Defines the directory where Export Profile records will be stored.");
 
         ThreadPool.GetMinThreads(out int minWorkerThreads, out int minIOPortThreads);
         section.MinThreadPoolWorkerThreads = (minWorkerThreads, "Defines the minimum number of allowed thread pool worker threads");

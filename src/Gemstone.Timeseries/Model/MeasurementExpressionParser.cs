@@ -118,7 +118,7 @@ public class MeasurementExpressionParser
         s_signalTypes = InitializeSignalTypes();
         s_companies = InitializeCompanies();
         s_interconnections = InitializeInterconnections();
-        s_Vendors = IntializeVendors();
+        s_vendors = IntializeVendors();
 
         DataRow? signalTypeValues = null, companyValues = null, interconnectionValues = null, vendorValues = null;
 

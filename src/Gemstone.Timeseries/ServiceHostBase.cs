@@ -4061,6 +4061,16 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         section.DefaultFrameRate = (30, "Defines the default frame rate used for adapters in frames per second.");
         section.DefaultLeadTime = (10.0D, "Defines the default lead time used for adapters in seconds.");
         section.DefaultLagTime = (10.0D, "Defines the default lag time used for adapters in seconds.");
+
+        // Classic with condensed phase information
+        //private const string DefaultPointTagNameExpression = "{Company.Acronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:[?{Vendor.Acronym}!=[{VendorAcronym}_]][?{Phase}=A[APH]][?{Phase}=B[BPH]][?{Phase}=C[CPH]][?{Phase}=+[PSQ]][?{Phase}=-[NSQ]][?{Phase}=0[ZSQ]]{SignalType.Abbreviation}[?{SignalType.Source}!=Phasor[?{SignalIndex}!=-1[{SignalIndex}]]]";
+
+        // Verbose
+        //private const string DefaultPointTagNameExpression = "{Company.Acronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:[?{Vendor.Acronym}!=[{Vendor.Acronym}_]][?{Phase}=A[PhaseA_]][?{Phase}=B[PhaseB_]][?{Phase}=C[PhaseC_]][?{Phase}=+[PosSeq_]][?{Phase}=-[NegSeq_]][?{Phase}=0[ZeroSeq_]][?{SignalType.Acronym}!=STAT[{SignalType.LongAcronym}]][?{SignalType.Acronym}=STAT[{SignalType.Suffix}]][?{SignalType.Source}!=Phasor[?{SignalIndex}!=-1[{SignalIndex}]]]";
+
+        // Verbose without vendor information
+        //private const string DefaultPointTagNameExpression = "{Company.Acronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:[?{Phase}=A[PhaseA_]][?{Phase}=B[PhaseB_]][?{Phase}=C[PhaseC_]][?{Phase}=+[PosSeq_]][?{Phase}=-[NegSeq_]][?{Phase}=0[ZeroSeq_]][?{SignalType.Acronym}!=STAT[{SignalType.LongAcronym}]][?{SignalType.Acronym}=STAT[{SignalType.Suffix}]][?{SignalType.Source}!=Phasor[?{SignalIndex}!=-1[{SignalIndex}]]]";
+
         section.PointTagNameExpression = ("{Company.Acronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:{Vendor.Acronym}{SignalType.Abbreviation}[?{SignalType.Source}!=Phasor[?{SignalIndex}!=-1[{SignalIndex}]]]", "Defines the expression used for point tag naming.");
 
         ThreadPool.GetMinThreads(out int minWorkerThreads, out int minIOPortThreads);

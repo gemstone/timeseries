@@ -97,18 +97,34 @@ public class DeviceExpressionParser
     /// <summary>
     /// Create a new expression using the provided expression.
     /// </summary>
-    /// <param name="deviceID"></param>
-    /// <returns>A new strting created using the configured expression.</returns>
+    /// <param name="deviceName">Name of the device.</param>
+    /// <param name="deviceAcronym">Acronym of the device.</param>
+    /// <param name="parentID">ID of the parent device.</param>
+    /// <param name="companyID">ID of the company.</param>
+    /// <param name="vendorDeviceID">ID of the vendor device.</param>
+    /// <param name="interconnectionID">ID of the interconnection.</param>
+    /// <returns>A new string created using the configured expression.</returns>
     [MethodImpl(MethodImplOptions.Synchronized)]
-    public string Execute(int deviceID)
+    public string Execute(
+        string deviceName,
+        string deviceAcronym,
+        int? parentID,
+        int? companyID,
+        int? vendorDeviceID,
+        int? interconnectionID
+        )
     {
-        // Set dictionaries
-        Dictionary<int, DataRow> companies = GetCompanies();
-        Dictionary<int, DataRow> interconnections = GetInterconnections();
-        Dictionary<int, DataRow> vendors = GetVendors();
-        Dictionary<int, DataRow> vendorDevices = GetVendorDevices();
+        // Update static fields
+        SetCompanies();
+        SetInterconnections();
+        SetVendors();
+        SetVendorDevices();
 
-        Device? device = null;
+        Dictionary<int, DataRow> companies = s_companies ?? [];
+        Dictionary<int, DataRow> interconnections = s_interconnections ?? [];
+        Dictionary<int, DataRow> vendors = s_vendors ?? [];
+        Dictionary<int, DataRow> vendorDevices = s_vendorDevices ?? [];
+
         Device? parentDevice = null;
 
         DataRow? companyValues = null, interconnectionValues = null, vendorValues = null, vendorDeviceValues = null;
@@ -116,19 +132,12 @@ public class DeviceExpressionParser
         using AdoDataConnection connection = new(ConfigSettings.Default);
         {
             TableOperations<Device> deviceTable = new(connection);
-            device = deviceTable.QueryRecordWhere("ID = {0}", deviceID);
-
-            if (device is null)
-                throw new ArgumentOutOfRangeException(nameof(deviceID), $"No device was found with ID \"{deviceID}\"");
-
-            parentDevice = deviceTable.QueryRecordWhere("ID = {0}", device.ParentID);
-
-
+            parentDevice = deviceTable.QueryRecordWhere("ID = {0}", parentID);
         }
 
         //VendorDevice validation
-        if (device.VendorDeviceID is not null && device.VendorDeviceID != -1 && !vendorDevices.TryGetValue((int)device.VendorDeviceID, out vendorDeviceValues))
-            throw new Exception($"No database definition was found for {device.Acronym}'s vendor device");
+        if (vendorDeviceID is not null && vendorDeviceID != -1 && !vendorDevices.TryGetValue((int)vendorDeviceID, out vendorDeviceValues))
+            throw new Exception($"No database definition was found for {deviceAcronym}'s vendor device");
 
         //Vendor validation
         if (vendorDeviceValues is not null)
@@ -137,56 +146,52 @@ public class DeviceExpressionParser
             int vendorID = CastToInt(vendorIDVal) ?? -1;
 
             if (vendorID != -1 && !vendors.TryGetValue(vendorID, out vendorValues))
-                throw new Exception($"No database definition was found for {device.Acronym}'s vendor");
+                throw new Exception($"No database definition was found for {deviceAcronym}'s vendor");
         }
 
         //Company validation
-        if (device.CompanyID is not null && device.CompanyID != -1 && !companies.TryGetValue((int)device.CompanyID, out companyValues))
-            throw new Exception($"No database definition was found for {device.Acronym}'s company");
+        if (companyID is not null && companyID != -1 && !companies.TryGetValue((int)companyID, out companyValues))
+            throw new Exception($"No database definition was found for {deviceAcronym}'s company");
 
         //Interconnection validation
-        if (device.InterconnectionID is not null && device.InterconnectionID != -1 && !interconnections.TryGetValue((int)device.InterconnectionID, out interconnectionValues))
-            throw new Exception($"No database definition was found for {device.Acronym}'s interconnection");
+        if (interconnectionID is not null && interconnectionID != -1 && !interconnections.TryGetValue((int)interconnectionID, out interconnectionValues))
+            throw new Exception($"No database definition was found for {deviceAcronym}'s interconnection");
 
         // Define fixed parameter replacements
         Dictionary<string, string> substitutions = new()
         {
-            { "{Device.Acronym}", device.Acronym },
-            { "{Device.Name}", device.Name },
-            { "{Device.ID}", device.ID.ToString()}
+            { "{Acronym}", deviceAcronym },
+            { "{Name}", deviceName },
         };
 
         // Define parent device replacements
         if (parentDevice is not null)
         {
-            substitutions.Add("{Device.ParentAcronym}", parentDevice.Acronym);
-            substitutions.Add("{Device.ParentName}", parentDevice.Name);
+            substitutions.Add("{ParentDevice.Acronym}", parentDevice.Acronym);
+            substitutions.Add("{ParentDevice.Name}", parentDevice.Name);
         }
 
+        // Define additional substitutions
         foreach (KeyValuePair<string, string> substitution in Substitutions)
             substitutions.Add(substitution.Key, substitution.Value);
 
         // Define company field value replacements
         DataColumnCollection columns = companies.First().Value.Table.Columns;
-
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{Company.{columns[i].ColumnName}}}", companyValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define interconnection field value replacements
         columns = interconnections.First().Value.Table.Columns;
-
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{Interconnection.{columns[i].ColumnName}}}", interconnectionValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define vendor device field value replacements
         columns = vendorDevices.First().Value.Table.Columns;
-
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{VendorDevice.{columns[i].ColumnName}}}", vendorDeviceValues?[i]?.ToNonNullString() ?? string.Empty);
 
         // Define vendor field value replacements
         columns = vendors.First().Value.Table.Columns;
-
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{Vendor.{columns[i].ColumnName}}}", vendorValues?[i]?.ToNonNullString() ?? string.Empty);
 
@@ -197,75 +202,107 @@ public class DeviceExpressionParser
 
     #region [ Static ]
 
+    private static Dictionary<int, DataRow>? s_companies;
+    private static Dictionary<int, DataRow>? s_interconnections;
+    private static Dictionary<int, DataRow>? s_vendors;
+    private static Dictionary<int, DataRow>? s_vendorDevices;
 
-    private static Dictionary<int, DataRow> GetCompanies()
+    private static void SetCompanies()
     {
-        // It is expected that when a point tag is needing to be created that the database will be available
-        using AdoDataConnection database = new(ConfigSettings.Default);
-        Dictionary<int, DataRow> companies = new();
-
-        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Company").AsEnumerable())
+        try
         {
-            if (row is null)
-                continue;
+            // It is expected that when a point tag is needing to be created that the database will be available
+            using AdoDataConnection database = new(ConfigSettings.Default);
+            Dictionary<int, DataRow> companies = new();
 
-            object idVal = row["ID"];
-            companies.AddOrUpdate(CastToInt(idVal) ?? -1, row);
+            foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Company").AsEnumerable())
+            {
+                if (row is null)
+                    continue;
+
+                object idVal = row["ID"];
+                companies.AddOrUpdate(CastToInt(idVal) ?? -1, row);
+            }
+
+            s_companies = companies;
         }
-
-        return companies;
+        catch
+        {
+            // Swallow
+        }
     }
 
-    private static Dictionary<int, DataRow> GetInterconnections()
+    private static void SetInterconnections()
     {
-        // It is expected that when a point tag is needing to be created that the database will be available
-        using AdoDataConnection database = new(ConfigSettings.Default);
-        Dictionary<int, DataRow> interconnections = new();
-
-        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Interconnection").AsEnumerable())
+        try
         {
-            if (row is null)
-                continue;
+            // It is expected that when a point tag is needing to be created that the database will be available
+            using AdoDataConnection database = new(ConfigSettings.Default);
+            Dictionary<int, DataRow> interconnections = new();
 
-            object idVal = row["ID"];
-            interconnections.AddOrUpdate(CastToInt(idVal) ?? -1, row);
+            foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Interconnection").AsEnumerable())
+            {
+                if (row is null)
+                    continue;
+
+                object idVal = row["ID"];
+                interconnections.AddOrUpdate(CastToInt(idVal) ?? -1, row);
+            }
+
+            s_interconnections = interconnections;
         }
-
-        return interconnections;
+        catch
+        {
+            // Swallow
+        }
     }
 
-    private static Dictionary<int, DataRow> GetVendors()
+    private static void SetVendors()
     {
-        // It is expected that when a point tag is needing to be created that the database will be available
-        using AdoDataConnection database = new(ConfigSettings.Default);
-        Dictionary<int, DataRow> vendors = new();
-
-        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Vendor").AsEnumerable())
+        try
         {
-            if (row is null)
-                continue;
+            // It is expected that when a point tag is needing to be created that the database will be available
+            using AdoDataConnection database = new(ConfigSettings.Default);
+            Dictionary<int, DataRow> vendors = new();
 
-            object idVal = row["ID"];
-            vendors.AddOrUpdate(CastToInt(idVal) ?? -1, row);
+            foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Vendor").AsEnumerable())
+            {
+                if (row is null)
+                    continue;
+
+                object idVal = row["ID"];
+                vendors.AddOrUpdate(CastToInt(idVal) ?? -1, row);
+            }
+
+            s_vendors = vendors;
         }
-
-        return vendors;
+        catch
+        {
+            // Swallow
+        }
     }
 
-    private static Dictionary<int, DataRow> GetVendorDevices()
+    private static void SetVendorDevices()
     {
-        using AdoDataConnection database = new(ConfigSettings.Default);
-        Dictionary<int, DataRow> vendorDevices = new();
-
-        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM VendorDevice").AsEnumerable())
+        try
         {
-            if (row is null)
-                continue;
+            using AdoDataConnection database = new(ConfigSettings.Default);
+            Dictionary<int, DataRow> vendorDevices = new();
 
-            vendorDevices.AddOrUpdate(CastToInt(row["ID"]) ?? -1, row);
+            foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM VendorDevice").AsEnumerable())
+            {
+                if (row is null)
+                    continue;
+
+                vendorDevices.AddOrUpdate(CastToInt(row["ID"]) ?? -1, row);
+            }
+
+            s_vendorDevices = vendorDevices;
         }
-
-        return vendorDevices;
+        catch
+        {
+            // Swallow
+        }
     }
 
     private static int? CastToInt(object val)

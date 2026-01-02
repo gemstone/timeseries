@@ -110,6 +110,7 @@ public class MeasurementExpressionParser
     /// <param name="signalIndex">Signal index of the expression, if any.</param>
     /// <param name="phase">Signal phase of the point, if any.</param>
     /// <param name="baseKV">Nominal kV of line associated with phasor.</param>
+    /// <param name="framesPerSecond">Frames per second to use for the expression.</param>
     /// <returns>A new strting created using the configured expression.</returns>
     [MethodImpl(MethodImplOptions.Synchronized)]
     public string Execute(
@@ -121,7 +122,9 @@ public class MeasurementExpressionParser
         string? label = null, 
         int signalIndex = -1, 
         char phase = '_', 
-        int baseKV = 0)
+        int baseKV = 0,
+        double? framesPerSecond = null
+    )
     {
         // Set dictionaries
         SetSignalTypes();
@@ -165,7 +168,8 @@ public class MeasurementExpressionParser
             { "{Label}", label },
             { "{SignalIndex}", signalIndex.ToString() },
             { "{Phase}", phase.ToString() },
-            { "{BaseKV}", baseKV.ToString() }
+            { "{BaseKV}", baseKV.ToString() },
+            { "{FramesPerSecond}", framesPerSecond?.ToString() ?? string.Empty }
         };
 
         // Define additional substitutions

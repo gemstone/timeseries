@@ -112,27 +112,29 @@ public class MeasurementExpressionParser
     /// <param name="baseKV">Nominal kV of line associated with phasor.</param>
     /// <returns>A new strting created using the configured expression.</returns>
     [MethodImpl(MethodImplOptions.Synchronized)]
-    public string Execute(string? companyAcronym, string? deviceAcronym, string? vendorAcronym, string? signalTypeAcronym, string? interconnectionAcronym, string? label = null, int signalIndex = -1, char phase = '_', int baseKV = 0, int? pointID = -1)
+    public string Execute(
+        string? companyAcronym, 
+        string? deviceAcronym, 
+        string? vendorAcronym, 
+        string? signalTypeAcronym, 
+        string? interconnectionAcronym, 
+        string? label = null, 
+        int signalIndex = -1, 
+        char phase = '_', 
+        int baseKV = 0)
     {
         // Set dictionaries
-        Dictionary<string, DataRow> signalTypes = GetSignalTypes();
-        Dictionary<string, DataRow> companies = GetCompanies();
-        Dictionary<string, DataRow> interconnections = GetInterconnections();
-        Dictionary<string, DataRow> vendors = GetVendor();
-        Dictionary<string, DataRow> devices = GetDevices();
+        SetSignalTypes();
+        SetCompanies(); 
+        SetInterconnections();
+        SetVendors();
+        SetDevices();
 
-        Measurement? measurement = null;
-
-        bool addDeviceSubs = true;
-
-        if (pointID is not null && pointID > 0)
-        {
-            using AdoDataConnection connection = new(ConfigSettings.Default);
-            {
-                TableOperations<Measurement> measurementOps = new(connection);
-                measurement = measurementOps.QueryRecordWhere("PointID = {0}", pointID);
-            }
-        }
+        Dictionary<string, DataRow> signalTypes = s_signalTypes ?? [];
+        Dictionary<string, DataRow> companies = s_companies ?? [];
+        Dictionary<string, DataRow> interconnections = s_interconnections ?? [];
+        Dictionary<string, DataRow> vendors = s_vendors ?? [];
+        Dictionary<string, DataRow> devices = s_devices ?? [];
 
         DataRow? signalTypeValues = null, companyValues = null, interconnectionValues = null, vendorValues = null, deviceValues = null;
 
@@ -147,10 +149,6 @@ public class MeasurementExpressionParser
 
         if (!string.IsNullOrWhiteSpace(vendorAcronym) && !vendors.TryGetValue(vendorAcronym, out vendorValues))
             throw new ArgumentOutOfRangeException(nameof(vendorAcronym), $"No database definition was found for vendor \"{vendorAcronym}\"");
-
-        //Dont throw here as this method is used before a device is created sometimes
-        if (!string.IsNullOrWhiteSpace(deviceAcronym) && !devices.TryGetValue(deviceAcronym, out deviceValues))
-            addDeviceSubs = false;
 
         // Validate key acronyms
         label ??= "";
@@ -170,19 +168,7 @@ public class MeasurementExpressionParser
             { "{BaseKV}", baseKV.ToString() }
         };
 
-        // Add additional fields if pointID is provided
-        if (measurement is not null)
-        {
-            substitutions.Add("PointTag", measurement.PointTag);
-            substitutions.Add("SignalReference", measurement.SignalReference);
-            substitutions.Add("AlternateTag", measurement.AlternateTag ?? "");
-            substitutions.Add("AlternateTag2", measurement.AlternateTag2 ?? "");
-            substitutions.Add("AlternateTag3", measurement.AlternateTag3 ?? "");
-
-            if (measurement.FramesPerSecond is not null)
-                substitutions.Add("FramesPerSecond", measurement.FramesPerSecond.ToString()!);
-        }
-
+        // Define additional substitutions
         foreach (KeyValuePair<string, string> substitution in Substitutions)
             substitutions.Add(substitution.Key, substitution.Value);
 
@@ -209,15 +195,6 @@ public class MeasurementExpressionParser
 
         for (int i = 0; i < columns.Count; i++)
             substitutions.Add($"{{Vendor.{columns[i].ColumnName}}}", vendorValues?[i]?.ToNonNullString() ?? string.Empty);
-
-        // Define device field value replacements
-        if (addDeviceSubs)
-        {
-            columns = devices.First().Value.Table.Columns;
-
-            for (int i = 0; i < columns.Count; i++)
-                substitutions.Add($"{{Device.{columns[i].ColumnName}}}", deviceValues?[i]?.ToNonNullString() ?? string.Empty);
-        }
 
         return m_parser.Execute(substitutions);
     }
@@ -276,89 +253,130 @@ public class MeasurementExpressionParser
     #region [ Static ]
     private static readonly string[] s_commonVoltageLevels = CommonVoltageLevels.Values;
 
-    private static Dictionary<string, DataRow> GetSignalTypes()
+    private static Dictionary<string, DataRow> s_signalTypes;
+    private static Dictionary<string, DataRow> s_devices;
+    private static Dictionary<string, DataRow> s_companies;
+    private static Dictionary<string, DataRow> s_interconnections;
+    private static Dictionary<string, DataRow> s_vendors;
+
+    private static void SetSignalTypes()
     {
-        // It is expected that when a point tag is needing to be created that the database will be available
-        using AdoDataConnection database = new(ConfigSettings.Default);
-        Dictionary<string, DataRow> signalTypes = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM SignalType").AsEnumerable())
+        try
         {
-            if (row is null)
-                continue;
+            // It is expected that when a point tag is needing to be created that the database will be available
+            using AdoDataConnection database = new(ConfigSettings.Default);
+            Dictionary<string, DataRow> signalTypes = new(StringComparer.OrdinalIgnoreCase);
 
-            signalTypes.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM SignalType").AsEnumerable())
+            {
+                if (row is null)
+                    continue;
+
+                signalTypes.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            }
+
+            s_signalTypes = signalTypes;
         }
+        catch
+        {
 
-        return signalTypes;
+        }
     }
 
-    private static Dictionary<string, DataRow> GetDevices()
+    private static void SetDevices()
     {
-        // It is expected that when a point tag is needing to be created that the database will be available
-        using AdoDataConnection database = new(ConfigSettings.Default);
-        Dictionary<string, DataRow> devices = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Device").AsEnumerable())
+        try
         {
-            if (row is null)
-                continue;
+            // It is expected that when a point tag is needing to be created that the database will be available
+            using AdoDataConnection database = new(ConfigSettings.Default);
+            Dictionary<string, DataRow> devices = new(StringComparer.OrdinalIgnoreCase);
 
-            devices.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Device").AsEnumerable())
+            {
+                if (row is null)
+                    continue;
+
+                devices.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            }
+
+            s_devices =  devices;
         }
+        catch
+        {
 
-        return devices;
+        }
     }
 
-    private static Dictionary<string, DataRow> GetCompanies()
+    private static void SetCompanies()
     {
-        // It is expected that when a point tag is needing to be created that the database will be available
-        using AdoDataConnection database = new(ConfigSettings.Default);
-        Dictionary<string, DataRow> companies = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Company").AsEnumerable())
+        try
         {
-            if (row is null)
-                continue;
+            // It is expected that when a point tag is needing to be created that the database will be available
+            using AdoDataConnection database = new(ConfigSettings.Default);
+            Dictionary<string, DataRow> companies = new(StringComparer.OrdinalIgnoreCase);
 
-            companies.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Company").AsEnumerable())
+            {
+                if (row is null)
+                    continue;
+
+                companies.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            }
+
+            s_companies = companies;
         }
+        catch
+        {
 
-        return companies;
+        }
     }
 
-    private static Dictionary<string, DataRow> GetInterconnections()
+    private static void SetInterconnections()
     {
-        // It is expected that when a point tag is needing to be created that the database will be available
-        using AdoDataConnection database = new(ConfigSettings.Default);
-        Dictionary<string, DataRow> interconnections = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Interconnection").AsEnumerable())
+        try
         {
-            if (row is null)
-                continue;
+            // It is expected that when a point tag is needing to be created that the database will be available
+            using AdoDataConnection database = new(ConfigSettings.Default);
+            Dictionary<string, DataRow> interconnections = new(StringComparer.OrdinalIgnoreCase);
 
-            interconnections.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Interconnection").AsEnumerable())
+            {
+                if (row is null)
+                    continue;
+
+                interconnections.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            }
+
+            s_interconnections =  interconnections;
         }
+        catch
+        {
 
-        return interconnections;
+        }
     }
 
-    private static Dictionary<string, DataRow> GetVendor()
+    private static void SetVendors()
     {
-        // It is expected that when a point tag is needing to be created that the database will be available
-        using AdoDataConnection database = new(ConfigSettings.Default);
-        Dictionary<string, DataRow> vendors = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Vendor").AsEnumerable())
+        try
         {
-            if (row is null)
-                continue;
+            // It is expected that when a point tag is needing to be created that the database will be available
+            using AdoDataConnection database = new(ConfigSettings.Default);
+            Dictionary<string, DataRow> vendors = new(StringComparer.OrdinalIgnoreCase);
 
-            vendors.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            foreach (DataRow row in database.Connection.RetrieveData("SELECT * FROM Vendor").AsEnumerable())
+            {
+                if (row is null)
+                    continue;
+
+                vendors.AddOrUpdate(row["Acronym"]?.ToString() ?? "", row);
+            }
+
+            s_vendors = vendors;
         }
+        catch
+        {
 
-        return vendors;
+        }
     }
 
     #endregion

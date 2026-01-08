@@ -643,11 +643,6 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
             // Dispose Iaon session
             if (m_iaonSession is not null)
             {
-                //m_serviceHelper.ServiceComponents.Remove(m_iaonSession.InputAdapters);
-                //m_serviceHelper.ServiceComponents.Remove(m_iaonSession.ActionAdapters);
-                //m_serviceHelper.ServiceComponents.Remove(m_iaonSession.OutputAdapters);
-                //m_serviceHelper.ServiceComponents.Remove(m_iaonSession.FilterAdapters);
-
                 m_iaonSession.Dispose();
                 m_iaonSession.StatusMessage -= StatusMessageHandler;
                 m_iaonSession.ProcessException -= ProcessExceptionHandler;

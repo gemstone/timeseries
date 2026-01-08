@@ -2335,10 +2335,8 @@
       <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
       <remarks>
             Source tables are expected to have at least the following fields:
-            <code>
-                 ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
-                 SignalID    GUID        Unique identification for measurement
-            </code></remarks>
+            <codeSnippetGroup><code language="cs" codeLanguage="CSharp" style="cs">ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
+SignalID    GUID        Unique identification for measurement</code></codeSnippetGroup></remarks>
     </member>
     <member name="M:Gemstone.Timeseries.MeasurementKey.GetHashCode">
       <summary>
@@ -10110,7 +10108,7 @@
       <remarks>
         <para>
             As an example, this parser can use a templated expression of the form:
-            <code>
+            <code language="cs">
             {Device.Acronym}:{Device.ID}
             </code>
             then replace the tokens with actual values and properly evaluate the expressions.
@@ -10658,7 +10656,7 @@
       <remarks>
         <para>
             As an example, this parser can use a templated expression of the form:
-            <code>
+            <code language="cs">
             {CompanyAcronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:{Signal.Acronym}
             </code>
             then replace the tokens with actual values and properly evaluate the expressions.

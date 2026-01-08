@@ -10103,6 +10103,53 @@
         </markup>
       </summary>
     </member>
+    <member name="T:Gemstone.Timeseries.Model.DeviceExpressionParser">
+      <summary>
+            Represents a template based token substitution parser that supports binary and advanced expressions. with the Variables geared towards devices.
+            </summary>
+      <remarks>
+        <para>
+            As an example, this parser can use a templated expression of the form:
+            <code>
+            {Device.Acronym}:{Device.ID}
+            </code>
+            then replace the tokens with actual values and properly evaluate the expressions.
+            Example results could look like: GPA_PMU:41
+            </para>
+        <para>
+            Parser also supports more complex C# style expressions using the "eval{}" function
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.DeviceExpressionParser.#ctor(Gemstone.IO.Parsing.TemplatedExpressionParser)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.Model.DeviceExpressionParser" />.
+            </summary>
+      <param name="expressionParser">Existing <see cref="T:Gemstone.IO.Parsing.TemplatedExpressionParser" /> to use.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.DeviceExpressionParser.#ctor(System.String)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.Model.DeviceExpressionParser" />.
+            </summary>
+      <param name="expression">Templated expression to use.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.DeviceExpressionParser.Execute(System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32})">
+      <summary>
+            Create a new expression using the provided expression.
+            </summary>
+      <param name="deviceName">Name of the device.</param>
+      <param name="deviceAcronym">Acronym of the device.</param>
+      <param name="parentID">ID of the parent device.</param>
+      <param name="companyID">ID of the company.</param>
+      <param name="vendorDeviceID">ID of the vendor device.</param>
+      <param name="interconnectionID">ID of the interconnection.</param>
+      <returns>A new string created using the configured expression.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.DeviceExpressionParser.Substitutions">
+      <summary>
+            Additional Variable available in this instance.
+            </summary>
+    </member>
     <member name="T:Gemstone.Timeseries.Model.EventDetails">
       <summary>
             Represents the details for an event.
@@ -10603,6 +10650,59 @@
           </include>
         </markup>
       </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Model.MeasurementExpressionParser">
+      <summary>
+            Represents a template based token substitution parser that supports binary and advanced expressions. with the Variables geared towards measurements.
+            </summary>
+      <remarks>
+        <para>
+            As an example, this parser can use a templated expression of the form:
+            <code>
+            {CompanyAcronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:{Signal.Acronym}
+            </code>
+            then replace the tokens with actual values and properly evaluate the expressions.
+            Example results could look like: GPA_SHELBY-PA1:IPHA and GPA_SHELBY:FREQ
+            </para>
+        <para>
+            Parser also supports more complex C# style expressions using the "eval{}" function, e.g.:
+            <code>
+            eval{'{CompanyAcronym}'.Substring(0,3)}_{DeviceAcronym}eval{'[?{SignalType.Source}=Phasor[-{SignalType.Suffix}]]'.Length}
+            </code></para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.MeasurementExpressionParser.#ctor(Gemstone.IO.Parsing.TemplatedExpressionParser)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.Model.MeasurementExpressionParser" />.
+            </summary>
+      <param name="expressionParser">Existing <see cref="T:Gemstone.IO.Parsing.TemplatedExpressionParser" /> to use.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.MeasurementExpressionParser.#ctor(System.String)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Timeseries.Model.MeasurementExpressionParser" />.
+            </summary>
+      <param name="expression">Templated expression to use.</param>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.MeasurementExpressionParser.Execute(System.String,System.String,System.String,System.String,System.String,System.String,System.Int32,System.Char,System.Int32,System.Nullable{System.Double})">
+      <summary>
+            Create a new expression using the provided expression.
+            </summary>
+      <param name="companyAcronym">Company name acronym to use for the expression.</param>
+      <param name="deviceAcronym">Device name acronym to use for the expression.</param>
+      <param name="vendorAcronym">Vendor name acronym to use for the expression. Can be null.</param>
+      <param name="signalTypeAcronym">Acronym of signal type of the expression.</param>
+      <param name="interconnectionAcronym">Interconnection acronym of the expression.</param>
+      <param name="label">The label associated with the expression, e.g., the phasor or analog label.</param>
+      <param name="signalIndex">Signal index of the expression, if any.</param>
+      <param name="phase">Signal phase of the point, if any.</param>
+      <param name="baseKV">Nominal kV of line associated with phasor.</param>
+      <param name="framesPerSecond">Frames per second to use for the expression.</param>
+      <returns>A new strting created using the configured expression.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.MeasurementExpressionParser.Substitutions">
+      <summary>
+            Additional variables available in this instance.
+            </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Model.Phasor">
       <summary>

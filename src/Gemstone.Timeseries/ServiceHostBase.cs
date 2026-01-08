@@ -555,36 +555,6 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         try
         {
             m_logger.LogInformation("Service stopped.");
-
-            //// As a final operation, shell remote console to clean up temporary razor files
-            //try
-            //{
-            //    if (Gemstone.Common.IsPosixEnvironment)
-            //    {
-            //        using Process shell = new();
-
-            //        shell.StartInfo = new ProcessStartInfo(ConsoleApplicationName)
-            //        {
-            //            CreateNoWindow = true,
-            //            Arguments = "-clearCache"
-            //        };
-
-            //        shell.Start();
-            //    }
-            //    else
-            //    {
-            //        string batchFileName = FilePath.GetAbsolutePath("ClearRazorAssemblyCache.cmd");
-            //        File.WriteAllText(batchFileName, $"@ECHO OFF{Environment.NewLine}TIMEOUT 2{Environment.NewLine}{ConsoleApplicationName} -clearCache");
-
-            //        // This is the only .NET call that will spawn an independent, non-child, process on Windows
-            //        Process.Start(batchFileName);
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    // This is not catastrophic
-            //    Logger.SwallowException(ex, $"Failed to start \"{ConsoleApplicationName}\" to clear temporary RazorEngine files from dynamic assembly cache.");
-            //}
         }
         finally
         {

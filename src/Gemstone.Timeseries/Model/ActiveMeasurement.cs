@@ -184,4 +184,10 @@ public class ActiveMeasurement
         get;
         set;
     }
+
+    public string? PhasorLabel
+    {
+        get;
+        set;
+    }
 }

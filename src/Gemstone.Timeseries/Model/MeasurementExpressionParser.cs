@@ -111,7 +111,7 @@ public class MeasurementExpressionParser
     /// <param name="phase">Signal phase of the point, if any.</param>
     /// <param name="baseKV">Nominal kV of line associated with phasor.</param>
     /// <param name="framesPerSecond">Frames per second to use for the expression.</param>
-    /// <returns>A new strting created using the configured expression.</returns>
+    /// <returns>A new string created using the configured expression.</returns>
     [MethodImpl(MethodImplOptions.Synchronized)]
     public string Execute(
         string? companyAcronym, 
@@ -126,79 +126,22 @@ public class MeasurementExpressionParser
         double? framesPerSecond = null
     )
     {
-        // Set dictionaries
-        SetSignalTypes();
-        SetCompanies(); 
-        SetInterconnections();
-        SetVendors();
-        SetDevices();
-
-        Dictionary<string, DataRow> signalTypes = s_signalTypes ?? [];
-        Dictionary<string, DataRow> companies = s_companies ?? [];
-        Dictionary<string, DataRow> interconnections = s_interconnections ?? [];
-        Dictionary<string, DataRow> vendors = s_vendors ?? [];
-        Dictionary<string, DataRow> devices = s_devices ?? [];
-
-        DataRow? signalTypeValues = null, companyValues = null, interconnectionValues = null, vendorValues = null, deviceValues = null;
-
-        if (!string.IsNullOrWhiteSpace(signalTypeAcronym) && !signalTypes.TryGetValue(signalTypeAcronym, out signalTypeValues))
-            throw new ArgumentOutOfRangeException(nameof(signalTypeAcronym), $"No database definition was found for signal type \"{signalTypeAcronym}\"");
-
-        if (!string.IsNullOrWhiteSpace(companyAcronym) && !companies.TryGetValue(companyAcronym, out companyValues))
-            throw new ArgumentOutOfRangeException(nameof(companyAcronym), $"No database definition was found for company \"{companyAcronym}\"");
-
-        if (!string.IsNullOrWhiteSpace(interconnectionAcronym) && !interconnections.TryGetValue(interconnectionAcronym, out interconnectionValues))
-            throw new ArgumentOutOfRangeException(nameof(interconnectionAcronym), $"No database definition was found for interconnection \"{interconnectionAcronym}\"");
-
-        if (!string.IsNullOrWhiteSpace(vendorAcronym) && !vendors.TryGetValue(vendorAcronym, out vendorValues))
-            throw new ArgumentOutOfRangeException(nameof(vendorAcronym), $"No database definition was found for vendor \"{vendorAcronym}\"");
-
-        // Validate key acronyms
-        label ??= "";
-        deviceAcronym ??= "";
-        signalTypeAcronym ??= "";
-
-        if (baseKV == 0)
-            baseKV = GuessBaseKV(label, deviceAcronym, signalTypeAcronym);
-
         // Define fixed parameter replacements
-        Dictionary<string, string> substitutions = new()
-        {
-            { "{DeviceAcronym}", deviceAcronym },
-            { "{Label}", label },
-            { "{SignalIndex}", signalIndex.ToString() },
-            { "{Phase}", phase.ToString() },
-            { "{BaseKV}", baseKV.ToString() },
-            { "{FramesPerSecond}", framesPerSecond?.ToString() ?? string.Empty }
-        };
+        Dictionary<string, string> substitutions = ProvideMeasurementSubstitutions(
+            companyAcronym,
+            deviceAcronym,
+            vendorAcronym,
+            signalTypeAcronym,
+            interconnectionAcronym,
+            label,
+            signalIndex,
+            phase,
+            baseKV,
+            framesPerSecond);
 
         // Define additional substitutions
         foreach (KeyValuePair<string, string> substitution in Substitutions)
             substitutions.Add(substitution.Key, substitution.Value);
-
-        // Define signal type field value replacements
-        DataColumnCollection columns = signalTypes.First().Value.Table.Columns;
-
-        for (int i = 0; i < columns.Count; i++)
-            substitutions.Add($"{{SignalType.{columns[i].ColumnName}}}", signalTypeValues?[i]?.ToNonNullString() ?? string.Empty);
-
-        // Define company field value replacements
-        columns = companies.First().Value.Table.Columns;
-
-        for (int i = 0; i < columns.Count; i++)
-            substitutions.Add($"{{Company.{columns[i].ColumnName}}}", companyValues?[i]?.ToNonNullString() ?? string.Empty);
-
-        // Define interconnection field value replacements
-        columns = interconnections.First().Value.Table.Columns;
-
-        for (int i = 0; i < columns.Count; i++)
-            substitutions.Add($"{{Interconnection.{columns[i].ColumnName}}}", interconnectionValues?[i]?.ToNonNullString() ?? string.Empty);
-
-        // Define vendor field value replacements
-        columns = vendors.First().Value.Table.Columns;
-
-        for (int i = 0; i < columns.Count; i++)
-            substitutions.Add($"{{Vendor.{columns[i].ColumnName}}}", vendorValues?[i]?.ToNonNullString() ?? string.Empty);
 
         return m_parser.Execute(substitutions);
     }
@@ -252,6 +195,106 @@ public class MeasurementExpressionParser
         return 0;
     }
 
+
+    /// <summary>
+    /// This Provides the substitutions that would be used for the provided parameters.
+    /// </summary>
+    /// <param name="companyAcronym">Company name acronym to use for the expression.</param>
+    /// <param name="deviceAcronym">Device name acronym to use for the expression.</param>
+    /// <param name="vendorAcronym">Vendor name acronym to use for the expression. Can be null.</param>
+    /// <param name="signalTypeAcronym">Acronym of signal type of the expression.</param>
+    /// <param name="interconnectionAcronym">Interconnection acronym of the expression.</param>
+    /// <param name="label">The label associated with the expression, e.g., the phasor or analog label.</param>
+    /// <param name="signalIndex">Signal index of the expression, if any.</param>
+    /// <param name="phase">Signal phase of the point, if any.</param>
+    /// <param name="baseKV">Nominal kV of line associated with phasor.</param>
+    /// <param name="framesPerSecond">Frames per second to use for the expression.</param>
+    /// <returns> a <see cref="Dictionary{TKey, TValue}"/> of the expresions and their values. </returns>
+    public Dictionary<string, string> ProvideMeasurementSubstitutions(
+        string? companyAcronym,
+        string? deviceAcronym,
+        string? vendorAcronym,
+        string? signalTypeAcronym,
+        string? interconnectionAcronym,
+        string? label = null,
+        int signalIndex = -1,
+        char phase = '_',
+        int baseKV = 0,
+        double? framesPerSecond = null
+        )
+    {
+        // Set dictionaries
+        SetSignalTypes();
+        SetCompanies();
+        SetInterconnections();
+        SetVendors();
+        SetDevices();
+
+        Dictionary<string, DataRow> signalTypes = s_signalTypes ?? [];
+        Dictionary<string, DataRow> companies = s_companies ?? [];
+        Dictionary<string, DataRow> interconnections = s_interconnections ?? [];
+        Dictionary<string, DataRow> vendors = s_vendors ?? [];
+        Dictionary<string, DataRow> devices = s_devices ?? [];
+
+        DataRow? signalTypeValues = null, companyValues = null, interconnectionValues = null, vendorValues = null, deviceValues = null;
+
+        if (!string.IsNullOrWhiteSpace(signalTypeAcronym) && !signalTypes.TryGetValue(signalTypeAcronym, out signalTypeValues))
+            throw new ArgumentOutOfRangeException(nameof(signalTypeAcronym), $"No database definition was found for signal type \"{signalTypeAcronym}\"");
+
+        if (!string.IsNullOrWhiteSpace(companyAcronym) && !companies.TryGetValue(companyAcronym, out companyValues))
+            throw new ArgumentOutOfRangeException(nameof(companyAcronym), $"No database definition was found for company \"{companyAcronym}\"");
+
+        if (!string.IsNullOrWhiteSpace(interconnectionAcronym) && !interconnections.TryGetValue(interconnectionAcronym, out interconnectionValues))
+            throw new ArgumentOutOfRangeException(nameof(interconnectionAcronym), $"No database definition was found for interconnection \"{interconnectionAcronym}\"");
+
+        if (!string.IsNullOrWhiteSpace(vendorAcronym) && !vendors.TryGetValue(vendorAcronym, out vendorValues))
+            throw new ArgumentOutOfRangeException(nameof(vendorAcronym), $"No database definition was found for vendor \"{vendorAcronym}\"");
+
+        // Validate key acronyms
+        label ??= "";
+        deviceAcronym ??= "";
+        signalTypeAcronym ??= "";
+
+        if (baseKV == 0)
+            baseKV = GuessBaseKV(label, deviceAcronym, signalTypeAcronym);
+
+        // Define fixed parameter replacements
+        Dictionary<string, string> substitutions = new()
+        {
+            { "{DeviceAcronym}", deviceAcronym },
+            { "{Label}", label },
+            { "{SignalIndex}", signalIndex.ToString() },
+            { "{Phase}", phase.ToString() },
+            { "{BaseKV}", baseKV.ToString() },
+            { "{FramesPerSecond}", framesPerSecond?.ToString() ?? string.Empty }
+        };
+
+        // Define signal type field value replacements
+        DataColumnCollection columns = signalTypes.First().Value.Table.Columns;
+
+        for (int i = 0; i < columns.Count; i++)
+            substitutions.Add($"{{SignalType.{columns[i].ColumnName}}}", signalTypeValues?[i]?.ToNonNullString() ?? string.Empty);
+
+        // Define company field value replacements
+        columns = companies.First().Value.Table.Columns;
+
+        for (int i = 0; i < columns.Count; i++)
+            substitutions.Add($"{{Company.{columns[i].ColumnName}}}", companyValues?[i]?.ToNonNullString() ?? string.Empty);
+
+        // Define interconnection field value replacements
+        columns = interconnections.First().Value.Table.Columns;
+
+        for (int i = 0; i < columns.Count; i++)
+            substitutions.Add($"{{Interconnection.{columns[i].ColumnName}}}", interconnectionValues?[i]?.ToNonNullString() ?? string.Empty);
+
+        // Define vendor field value replacements
+        columns = vendors.First().Value.Table.Columns;
+
+        for (int i = 0; i < columns.Count; i++)
+            substitutions.Add($"{{Vendor.{columns[i].ColumnName}}}", vendorValues?[i]?.ToNonNullString() ?? string.Empty);
+
+        return substitutions;
+    }
     #endregion
 
     #region [ Static ]

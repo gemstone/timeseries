@@ -207,6 +207,8 @@ public class ConnectionParameter
     /// </summary>
     public bool UseAlternateUI { get; init; }
 
+    public string[]? ExpressionVariables { get; init; }
+
     /// <summary>
     /// Gets a <see cref="ConnectionParameter"/> instance from a <see cref="PropertyInfo"/>.
     /// </summary>
@@ -230,7 +232,8 @@ public class ConnectionParameter
             DisplayOrder = getDisplayOrder(info),
             SupportedSignalTypes = signalTypes?.Select(sig => sig.ToString()).ToArray(),
             IsPhasor = isPhasor,
-            UseAlternateUI = getUseAlternateUI(info)
+            UseAlternateUI = getUseAlternateUI(info),
+            ExpressionVariables = getExpressionVariables(info),
         };
 
         static string getCategory(PropertyInfo value)
@@ -326,6 +329,14 @@ public class ConnectionParameter
                 return false;
 
             return attr.UseAlternateUI;
+        }
+
+        static string[]? getExpressionVariables(PropertyInfo info)
+        {
+            if (!info.TryGetAttribute(out ExpressionVariablesAttribute? attr))
+                return null;
+
+            return attr.Variables;
         }
     }
 
@@ -520,7 +531,8 @@ public static class ConnectionParameterExtensions
             DisplayOrder = original.DisplayOrder,
             SupportedSignalTypes = original.SupportedSignalTypes,
             IsPhasor = original.IsPhasor,
-            UseAlternateUI = original.UseAlternateUI
+            UseAlternateUI = original.UseAlternateUI,
+            ExpressionVariables = original.ExpressionVariables,
         };
     }
 }

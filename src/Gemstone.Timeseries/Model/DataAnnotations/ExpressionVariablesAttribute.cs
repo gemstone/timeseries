@@ -26,7 +26,6 @@ using System;
 
 namespace Gemstone.Timeseries.Model.DataAnnotations;
 
-
 /// <summary>
 /// Specifies the available variables that can be used for an expression-based property.
 /// </summary>

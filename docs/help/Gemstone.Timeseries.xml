@@ -8474,7 +8474,7 @@ SignalID    GUID        Unique identification for measurement</code></codeSnippe
         <para>
             It is important that consumers "resume" connection cycle if processing fails (e.g., connection
             to archive is lost). Here is an example:
-            <example><code>
+            <example><code language="cs">
             protected virtual void ProcessMeasurements(IMeasurement[] measurements)
             {
                 try
@@ -10108,7 +10108,7 @@ SignalID    GUID        Unique identification for measurement</code></codeSnippe
       <remarks>
         <para>
             As an example, this parser can use a templated expression of the form:
-            <code language="cs">
+            <code>
             {Device.Acronym}:{Device.ID}
             </code>
             then replace the tokens with actual values and properly evaluate the expressions.
@@ -10656,7 +10656,7 @@ SignalID    GUID        Unique identification for measurement</code></codeSnippe
       <remarks>
         <para>
             As an example, this parser can use a templated expression of the form:
-            <code language="cs">
+            <code>
             {CompanyAcronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:{Signal.Acronym}
             </code>
             then replace the tokens with actual values and properly evaluate the expressions.

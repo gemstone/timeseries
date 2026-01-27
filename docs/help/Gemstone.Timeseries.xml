@@ -463,7 +463,7 @@
       <remarks>
             Derived classes can choose to override this method to handle custom assignment of a <see cref="T:Gemstone.Timeseries.IMeasurement" /> to
             its <see cref="T:Gemstone.Timeseries.IFrame" />. Default behavior simply assigns measurement to frame's keyed measurement dictionary:
-            <code>frame.Measurements[measurement.Key] = measurement;</code></remarks>
+            <code language="cs">frame.Measurements[measurement.Key] = measurement;</code></remarks>
     </member>
     <member name="P:Gemstone.Timeseries.ConcentratorBase.AveragePublicationTimePerFrame">
       <summary>
@@ -2335,8 +2335,10 @@
       <param name="measurementTable">Measurement table name used to load measurement key cache.</param>
       <remarks>
             Source tables are expected to have at least the following fields:
-            <codeSnippetGroup><code language="cs" codeLanguage="CSharp" style="cs">ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
-SignalID    GUID        Unique identification for measurement</code></codeSnippetGroup></remarks>
+            <code language="cs">
+                 ID          NVARCHAR    Measurement key formatted as: ArchiveSource:PointID
+                 SignalID    GUID        Unique identification for measurement
+            </code></remarks>
     </member>
     <member name="M:Gemstone.Timeseries.MeasurementKey.GetHashCode">
       <summary>
@@ -8474,7 +8476,7 @@ SignalID    GUID        Unique identification for measurement</code></codeSnippe
         <para>
             It is important that consumers "resume" connection cycle if processing fails (e.g., connection
             to archive is lost). Here is an example:
-            <example><code>
+            <example><code language="cs">
             protected virtual void ProcessMeasurements(IMeasurement[] measurements)
             {
                 try
@@ -9682,6 +9684,16 @@ SignalID    GUID        Unique identification for measurement</code></codeSnippe
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.PhasorLabel">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.PhasorLabel</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.PhasorType">
       <summary>
         <markup>
@@ -10108,7 +10120,7 @@ SignalID    GUID        Unique identification for measurement</code></codeSnippe
       <remarks>
         <para>
             As an example, this parser can use a templated expression of the form:
-            <code language="cs">
+            <code>
             {Device.Acronym}:{Device.ID}
             </code>
             then replace the tokens with actual values and properly evaluate the expressions.
@@ -10656,7 +10668,7 @@ SignalID    GUID        Unique identification for measurement</code></codeSnippe
       <remarks>
         <para>
             As an example, this parser can use a templated expression of the form:
-            <code language="cs">
+            <code>
             {CompanyAcronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:{Signal.Acronym}
             </code>
             then replace the tokens with actual values and properly evaluate the expressions.
@@ -10695,7 +10707,23 @@ SignalID    GUID        Unique identification for measurement</code></codeSnippe
       <param name="phase">Signal phase of the point, if any.</param>
       <param name="baseKV">Nominal kV of line associated with phasor.</param>
       <param name="framesPerSecond">Frames per second to use for the expression.</param>
-      <returns>A new strting created using the configured expression.</returns>
+      <returns>A new string created using the configured expression.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.MeasurementExpressionParser.ProvideMeasurementSubstitutions(System.String,System.String,System.String,System.String,System.String,System.String,System.Int32,System.Char,System.Int32,System.Nullable{System.Double})">
+      <summary>
+            This Provides the substitutions that would be used for the provided parameters.
+            </summary>
+      <param name="companyAcronym">Company name acronym to use for the expression.</param>
+      <param name="deviceAcronym">Device name acronym to use for the expression.</param>
+      <param name="vendorAcronym">Vendor name acronym to use for the expression. Can be null.</param>
+      <param name="signalTypeAcronym">Acronym of signal type of the expression.</param>
+      <param name="interconnectionAcronym">Interconnection acronym of the expression.</param>
+      <param name="label">The label associated with the expression, e.g., the phasor or analog label.</param>
+      <param name="signalIndex">Signal index of the expression, if any.</param>
+      <param name="phase">Signal phase of the point, if any.</param>
+      <param name="baseKV">Nominal kV of line associated with phasor.</param>
+      <param name="framesPerSecond">Frames per second to use for the expression.</param>
+      <returns> a <see cref="T:System.Collections.Generic.Dictionary`2" /> of the expresions and their values. </returns>
     </member>
     <member name="P:Gemstone.Timeseries.Model.MeasurementExpressionParser.Substitutions">
       <summary>

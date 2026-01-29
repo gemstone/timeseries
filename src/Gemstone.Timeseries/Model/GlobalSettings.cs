@@ -102,8 +102,8 @@ public class GlobalSettings
         try
         {
             dynamic section = ConfigSettings.Default[ConfigSettings.SystemSettingsCategory];
-            double nominalFrequency = section["NominalFrequency", 60.0D, "Nominal frequency of the system in Hertz."];
-            
+            double nominalFrequency = section["SystemFrequency", 60.0D, "Defines the System frequency in Hz."];
+
             if (nominalFrequency <= 0.0D)
                 nominalFrequency = 60.0D;
             
@@ -111,7 +111,7 @@ public class GlobalSettings
         }
         catch (Exception ex)
         {
-            Logger.SwallowException(ex, "Failed to load nominal frequency from settings");
+            Logger.SwallowException(ex, "Failed to load system frequency from settings");
             return 60.0D;
         }
     }

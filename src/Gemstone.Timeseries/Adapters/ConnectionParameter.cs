@@ -207,7 +207,15 @@ public class ConnectionParameter
     /// </summary>
     public bool UseAlternateUI { get; init; }
 
+    /// <summary>
+    /// Gets the names of variables that can be used within expressions.
+    /// </summary>
     public string[]? ExpressionVariables { get; init; }
+
+    /// <summary>
+    /// Gets the toggle visibility settings for this parameter, if applicable.
+    /// </summary>
+    public ToggleVisibilityConfig? ToggleVisibility { get; init; }
 
     /// <summary>
     /// Gets a <see cref="ConnectionParameter"/> instance from a <see cref="PropertyInfo"/>.
@@ -234,6 +242,7 @@ public class ConnectionParameter
             IsPhasor = isPhasor,
             UseAlternateUI = getUseAlternateUI(info),
             ExpressionVariables = getExpressionVariables(info),
+            ToggleVisibility = getToggleVisibility(info)
         };
 
         static string getCategory(PropertyInfo value)
@@ -337,6 +346,19 @@ public class ConnectionParameter
                 return null;
 
             return attr.Variables;
+        }
+
+        static ToggleVisibilityConfig? getToggleVisibility(PropertyInfo info)
+        {
+            if (!info.TryGetAttribute(out ToggleVisibilityAttribute? attr))
+                return null;
+
+            return new ToggleVisibilityConfig
+            {
+                Label = attr.Label,
+                ResetOnTriggerValue = attr.ResetOnTriggerValue,
+                TriggerValue = attr.TriggerValue
+            };
         }
     }
 
@@ -533,6 +555,33 @@ public static class ConnectionParameterExtensions
             IsPhasor = original.IsPhasor,
             UseAlternateUI = original.UseAlternateUI,
             ExpressionVariables = original.ExpressionVariables,
+            ToggleVisibility = original.ToggleVisibility is not null ? new ToggleVisibilityConfig
+            {
+                Label = original.ToggleVisibility.Label,
+                ResetOnTriggerValue = original.ToggleVisibility.ResetOnTriggerValue,
+                TriggerValue = original.ToggleVisibility.TriggerValue
+             } : null
         };
     }
+}
+
+/// <summary>
+/// Represents the toggle visibility configuration for a <see cref="ConnectionParameter"/>.
+/// </summary>
+public class ToggleVisibilityConfig
+{
+    /// <summary>
+    /// Gets the label to display on the toggle switch.
+    /// </summary>
+    public string Label { get; init; } = default!;
+
+    /// <summary>
+    /// Gets whether the property value should be reset to its default when the toggle is changed to the <see cref="TriggerValue"/>.
+    /// </summary>
+    public bool ResetOnTriggerValue { get; init; }
+
+    /// <summary>
+    /// Gets the boolean value of the toggle that triggers the disable/reset behavior.
+    /// </summary>
+    public bool TriggerValue { get; init; }
 }

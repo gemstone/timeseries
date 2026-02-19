@@ -190,7 +190,7 @@ public abstract class ConcentratorBase : IDisposable
         /// <summary>
         /// Releases the unmanaged resources before the <see cref="FrameRateTimer"/> object is reclaimed by <see cref="GC"/>.
         /// </summary>
-        ~FrameRateTimer() => 
+        ~FrameRateTimer() =>
             Dispose(false);
 
         #endregion
@@ -251,7 +251,7 @@ public abstract class ConcentratorBase : IDisposable
 
                     m_timer.Dispose();
                 }
-                    
+
                 m_timer = null;
             }
             finally
@@ -510,7 +510,7 @@ public abstract class ConcentratorBase : IDisposable
     /// <summary>
     /// Releases the unmanaged resources before the <see cref="ConcentratorBase"/> object is reclaimed by <see cref="GC"/>.
     /// </summary>
-    ~ConcentratorBase() => 
+    ~ConcentratorBase() =>
         Dispose(false); // We implement finalizer for this class to ensure sample queue shuts down in an orderly fashion.
 
     #endregion
@@ -785,23 +785,23 @@ public abstract class ConcentratorBase : IDisposable
 
                     break;
                 default:
-                {
-                    if (m_usePrecisionTimer)
                     {
-                        // Subscribe to frame rate timer, creating it if it doesn't exist
-                        AttachToFrameRateTimer(m_framesPerSecond, m_processingInterval);
-                    }
-                    else
-                    {
-                        // Unsubscribe from last frame rate timer, if any
-                        DetachFromFrameRateTimer(m_framesPerSecond, m_processingInterval);
+                        if (m_usePrecisionTimer)
+                        {
+                            // Subscribe to frame rate timer, creating it if it doesn't exist
+                            AttachToFrameRateTimer(m_framesPerSecond, m_processingInterval);
+                        }
+                        else
+                        {
+                            // Unsubscribe from last frame rate timer, if any
+                            DetachFromFrameRateTimer(m_framesPerSecond, m_processingInterval);
 
-                        // Make sure to release publication wait handle if it's currently waiting...
-                        m_publicationWaitHandle?.Set();
-                    }
+                            // Make sure to release publication wait handle if it's currently waiting...
+                            m_publicationWaitHandle?.Set();
+                        }
 
-                    break;
-                }
+                        break;
+                    }
             }
         }
     }
@@ -853,6 +853,7 @@ public abstract class ConcentratorBase : IDisposable
     /// since maximum possible concentrator resolution is one second (i.e., 1 frame per second).
     /// </remarks>
     [ConnectionStringParameter]
+    [Label("Time Resolution")]
     public long TimeResolution
     {
         get => m_timeResolution;
@@ -1296,8 +1297,8 @@ public abstract class ConcentratorBase : IDisposable
             status.AppendLine($"  Pre-lag-time publication: {FramesAheadOfSchedule / (double)PublishedFrames:##0.0000%}");
             status.AppendLine($" Down-sampling application: {DownsampledMeasurements / (double)ProcessedMeasurements:##0.0000%}");
 
-            status.AppendLine(" User function utilization: " + (PublishedFrames > 0 ? 
-                $"{1.0D - (TicksPerFrame - AveragePublicationTimePerFrame.ToTicks()) / TicksPerFrame:##0.0000%} of available time used" : 
+            status.AppendLine(" User function utilization: " + (PublishedFrames > 0 ?
+                $"{1.0D - (TicksPerFrame - AveragePublicationTimePerFrame.ToTicks()) / TicksPerFrame:##0.0000%} of available time used" :
                 "No frames published yet"));
 
             status.AppendLine($"Published measurement loss: {DiscardedMeasurements / (double)ReceivedMeasurements:##0.0000%}");
@@ -1506,14 +1507,14 @@ public abstract class ConcentratorBase : IDisposable
     /// </summary>
     /// <param name="timestamp">Timestamp to calculate distance from real-time.</param>
     /// <returns>A <see cref="Double"/> value indicating the deviation in milliseconds.</returns>
-    public double MillisecondsFromRealTime(Ticks timestamp) => 
+    public double MillisecondsFromRealTime(Ticks timestamp) =>
         SecondsFromRealTime(timestamp) / SI.Milli;
 
     /// <summary>
     /// Sorts the <see cref="IMeasurement"/> placing the data point in its proper <see cref="IFrame"/>.
     /// </summary>
     /// <param name="measurement"><see cref="IMeasurement"/> to sort.</param>
-    public virtual void SortMeasurement(IMeasurement measurement) => 
+    public virtual void SortMeasurement(IMeasurement measurement) =>
         SortMeasurements([measurement]);
 
     /// <summary>
@@ -1768,7 +1769,7 @@ public abstract class ConcentratorBase : IDisposable
     /// Derived classes can override this method to create a new custom <see cref="IFrame"/>. Default
     /// behavior creates a basic <see cref="Frame"/> to hold synchronized measurements.
     /// </remarks>
-    protected internal virtual IFrame CreateNewFrame(Ticks timestamp) => 
+    protected internal virtual IFrame CreateNewFrame(Ticks timestamp) =>
         new Frame(timestamp, ExpectedMeasurements);
 
     /// <summary>
@@ -1781,7 +1782,7 @@ public abstract class ConcentratorBase : IDisposable
     /// </remarks>
     /// <param name="frame">The <see cref="IFrame"/> that is used.</param>
     /// <param name="measurement">The type of <see cref="IMeasurement"/> to use."/></param>
-    protected virtual void AssignMeasurementToFrame(IFrame frame, IMeasurement measurement) => 
+    protected virtual void AssignMeasurementToFrame(IFrame frame, IMeasurement measurement) =>
         frame.Measurements[measurement.Key] = measurement;
 
     /// <summary>
@@ -2029,7 +2030,7 @@ public abstract class ConcentratorBase : IDisposable
     private static readonly Dictionary<Tuple<int, int>, FrameRateTimer> s_frameRateTimers;
 
     // Static Constructor
-    static ConcentratorBase() => 
+    static ConcentratorBase() =>
         s_frameRateTimers = new Dictionary<Tuple<int, int>, FrameRateTimer>();
 
     #endregion

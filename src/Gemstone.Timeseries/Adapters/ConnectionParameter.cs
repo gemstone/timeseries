@@ -356,7 +356,6 @@ public class ConnectionParameter
             return new ToggleVisibilityConfig
             {
                 Label = attr.Label,
-                ResetOnTriggerValue = attr.ResetOnTriggerValue,
                 TriggerValue = attr.TriggerValue
             };
         }
@@ -558,7 +557,6 @@ public static class ConnectionParameterExtensions
             ToggleVisibility = original.ToggleVisibility is not null ? new ToggleVisibilityConfig
             {
                 Label = original.ToggleVisibility.Label,
-                ResetOnTriggerValue = original.ToggleVisibility.ResetOnTriggerValue,
                 TriggerValue = original.ToggleVisibility.TriggerValue
              } : null
         };
@@ -574,11 +572,6 @@ public class ToggleVisibilityConfig
     /// Gets the label to display on the toggle switch.
     /// </summary>
     public string Label { get; init; } = default!;
-
-    /// <summary>
-    /// Gets whether the property value should be reset to its default when the toggle is changed to the <see cref="TriggerValue"/>.
-    /// </summary>
-    public bool ResetOnTriggerValue { get; init; }
 
     /// <summary>
     /// Gets the boolean value of the toggle that triggers the disable/reset behavior.

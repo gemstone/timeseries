@@ -190,4 +190,28 @@ public class ActiveMeasurement
         get;
         set;
     }
+
+    public int? HistorianID
+    {
+        get;
+        set;
+    }
+
+    public int? SignalTypeID
+    {
+        get;
+        set;
+    }
+
+    public int? CompanyID
+    {
+        get;
+        set;
+    }
+
+    public int? InterconnectionID
+    {
+        get;
+        set;
+    }
 }

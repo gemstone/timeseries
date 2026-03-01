@@ -5414,6 +5414,11 @@
             Gets the display order for the parameter. Parameters with the same display order will be displayed in the same row. Lower values are displayed first.
             </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.ExpressionVariables">
+      <summary>
+            Gets the names of variables that can be used within expressions.
+            </summary>
+    </member>
     <member name="M:Gemstone.Timeseries.Adapters.ConnectionParameter.GetConnectionParameter(System.Reflection.PropertyInfo)">
       <summary>
             Gets a <see cref="T:Gemstone.Timeseries.Adapters.ConnectionParameter" /> instance from a <see cref="T:System.Reflection.PropertyInfo" />.
@@ -5483,6 +5488,11 @@
     <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.SupportedSignalTypes">
       <summary>
             Get the array of supported signal types for this parameter.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.ToggleVisibility">
+      <summary>
+            Gets the toggle visibility settings for this parameter, if applicable.
             </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.ConnectionParameter.UpperLimit">
@@ -8476,7 +8486,7 @@
         <para>
             It is important that consumers "resume" connection cycle if processing fails (e.g., connection
             to archive is lost). Here is an example:
-            <example><code language="cs">
+            <example><code>
             protected virtual void ProcessMeasurements(IMeasurement[] measurements)
             {
                 try
@@ -8975,6 +8985,30 @@
     <member name="F:Gemstone.Timeseries.Adapters.RoutingTablesAdaptersList.OldAdapter">
       <summary>
             A list of all <see cref="T:Gemstone.Timeseries.Adapters.IAdapter" /> that existed in the old route calculation, but do NOT exist in the new route calculation. 
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Adapters.ToggleVisibilityConfig">
+      <summary>
+            Represents the toggle visibility configuration for a <see cref="T:Gemstone.Timeseries.Adapters.ConnectionParameter" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Timeseries.Adapters.ToggleVisibilityConfig.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Timeseries.Adapters.ToggleVisibilityConfig</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ToggleVisibilityConfig.Label">
+      <summary>
+            Gets the label to display on the toggle switch.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.ToggleVisibilityConfig.TriggerValue">
+      <summary>
+            Gets the boolean value of the toggle that triggers the disable/reset behavior.
             </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Adapters.UIAdapterProtocolAttribute">
@@ -9564,6 +9598,16 @@
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.CompanyID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.CompanyID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.Description">
       <summary>
         <markup>
@@ -9614,12 +9658,32 @@
         </markup>
       </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.HistorianID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.HistorianID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
     <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.ID">
       <summary>
         <markup>
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
             <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.ID</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.InterconnectionID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.InterconnectionID</parameter>
           </include>
         </markup>
       </summary>
@@ -9750,6 +9814,16 @@
           <include item="SMCMissingTag">
             <parameter>summary</parameter>
             <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.SignalType</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.ActiveMeasurement.SignalTypeID">
+      <summary>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>summary</parameter>
+            <parameter>P:Gemstone.Timeseries.Model.ActiveMeasurement.SignalTypeID</parameter>
           </include>
         </markup>
       </summary>
@@ -11388,6 +11462,27 @@
     <member name="P:Gemstone.Timeseries.Model.UILogMessage.TimeStamp">
       <summary>
             The Timestamp associated with the message.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Timeseries.Model.DataAnnotations.ExpressionVariablesAttribute">
+      <summary>
+            Specifies the available variables that can be used for an expression-based property.
+            </summary>
+      <remarks>
+            This attribute is used to define which variables are available for substitution
+            when parsing expressions. Variables are typically referenced in expressions
+            using a placeholder syntax such as <c>{VariableName}</c>.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Timeseries.Model.DataAnnotations.ExpressionVariablesAttribute.#ctor(System.String[])">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Timeseries.Model.DataAnnotations.ExpressionVariablesAttribute" /> class.
+            </summary>
+      <param name="variables">The variable names available for substitution in the expression.</param>
+    </member>
+    <member name="P:Gemstone.Timeseries.Model.DataAnnotations.ExpressionVariablesAttribute.Variables">
+      <summary>
+            Gets the array of variable names available for use in the expression.
             </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Model.DataAnnotations.FilterMeasurementsAttribute">

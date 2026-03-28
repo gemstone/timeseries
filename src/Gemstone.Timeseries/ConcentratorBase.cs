@@ -610,6 +610,7 @@ public abstract class ConcentratorBase : IDisposable
     [Description("Determines if precision timer should be used for frame publication.")]
     [DefaultValue(true)]
     [Label("Use Precision Timer")]
+    [Category("Frame Timing")]
     public bool UsePrecisionTimer
     {
         get => m_usePrecisionTimer;
@@ -854,6 +855,9 @@ public abstract class ConcentratorBase : IDisposable
     /// </remarks>
     [ConnectionStringParameter]
     [Label("Time Resolution")]
+    [Category("Frame Timing")]
+    [DefaultValue(Ticks.PerMillisecond)]
+    [Description("Defines the maximum time resolution, in ticks, to use when sorting measurements by timestamps into their proper destination frame in Ticks.")]
     public long TimeResolution
     {
         get => m_timeResolution;

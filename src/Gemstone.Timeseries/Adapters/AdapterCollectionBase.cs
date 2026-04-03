@@ -39,6 +39,7 @@ using Gemstone.ActionExtensions;
 using Gemstone.Collections;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.ComponentModel.DataAnnotations;
+using Gemstone.Data.Model;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
@@ -67,7 +68,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is new status message.
     /// </remarks>
-    public event EventHandler<EventArgs<string>>? StatusMessage;
+    public event EventHandler<EventArgs<UILogMessage>>? StatusMessage;
 
     /// <summary>
     /// Event is raised when there is an exception encountered while processing.
@@ -1160,7 +1161,13 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             Log.Publish(level, flags, eventName, status);
 
             using (Logger.SuppressLogMessages())
-                StatusMessage?.SafeInvoke(this, new EventArgs<string>(AdapterBase.GetStatusWithMessageLevelPrefix(status, level)));
+                StatusMessage?.SafeInvoke(this, new EventArgs<UILogMessage>(new UILogMessage
+                {
+                    TimeStamp = DateTime.UtcNow,
+                    Message = status,
+                    Level = level,
+                    Source = Name
+                }));
         }
         catch (Exception ex)
         {
@@ -1484,7 +1491,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
     }
 
     // Raise status message event on behalf of each item in collection
-    private void item_StatusMessage(object? sender, EventArgs<string> e) => StatusMessage?.SafeInvoke(sender, e);
+    private void item_StatusMessage(object? sender, EventArgs<UILogMessage> e) => StatusMessage?.SafeInvoke(sender, e);
 
     // Raise process exception event on behalf of each item in collection
     private void item_ProcessException(object? sender, EventArgs<Exception> e) => ProcessException?.SafeInvoke(sender, e);

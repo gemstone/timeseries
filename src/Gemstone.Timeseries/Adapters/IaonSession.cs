@@ -33,6 +33,7 @@ using System.Text;
 using System.Threading;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Configuration;
+using Gemstone.Data.Model;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
@@ -571,10 +572,10 @@ public class IaonSession : IDefineSettings, IProvideStatus, IDisposable
     /// </summary>
     /// <param name="sender">Event source of the status message.</param>
     /// <param name="e">Event arguments containing the status message to report.</param>
-    public virtual void StatusMessageHandler(object? sender, EventArgs<string> e)
+    public virtual void StatusMessageHandler(object? sender, EventArgs<UILogMessage> e)
 	{
         // Bubble message up to any event subscribers
-        OnStatusMessage(sender, "[{0}] {1}", MessageLevel.Info, GetDerivedName(sender), e.Argument);
+        OnStatusMessage(sender, "[{0}] {1}", e.Argument.Level, GetDerivedName(sender), e.Argument.Message);
 	}
 
     /// <summary>

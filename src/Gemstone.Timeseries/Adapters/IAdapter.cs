@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
+using Gemstone.Data.Model;
 
 namespace Gemstone.Timeseries.Adapters;
 
@@ -44,7 +45,7 @@ public interface IAdapter : ISupportLifecycle, IProvideStatus
         /// <remarks>
         /// <see cref="EventArgs{T}.Argument"/> is new status message.
         /// </remarks>
-        event EventHandler<EventArgs<string>>? StatusMessage;
+        event EventHandler<EventArgs<UILogMessage>>? StatusMessage;
 
         /// <summary>
         /// Event is raised when there is an exception encountered while processing.

@@ -563,6 +563,199 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
     }
 
     /// <summary>
+    /// Terminates the Iaon session and all dependent resources (health/status
+    /// exporters, reporting processes, reload config queue, and run-time log)
+    /// without disposing the <see cref="ServiceHostBase"/> itself. This allows
+    /// the workload to be restarted later via <see cref="ReinitializeIaonSession"/>.
+    /// </summary>
+    /// <remarks>
+    /// This is intended for failover scenarios where a node must stop processing
+    /// data when it transitions to standby, yet remain alive so that it can
+    /// resume processing when it becomes active again.
+    /// </remarks>
+    public void TerminateIaonSession()
+    {
+        m_logger.LogInformation("Terminating Iaon session and dependent resources...");
+
+        // Dispose system health exporter
+        if (m_healthExporter is not null)
+        {
+            m_healthExporter.Enabled = false;
+
+            if (m_iaonSession is not null)
+            {
+                m_healthExporter.StatusMessage -= m_iaonSession.StatusMessageHandler;
+                m_healthExporter.ProcessException -= m_iaonSession.ProcessExceptionHandler;
+            }
+
+            m_healthExporter.Dispose();
+            m_healthExporter = null;
+        }
+
+        // Dispose system status exporter
+        if (m_statusExporter is not null)
+        {
+            m_statusExporter.Enabled = false;
+
+            if (m_iaonSession is not null)
+            {
+                m_statusExporter.StatusMessage -= m_iaonSession.StatusMessageHandler;
+                m_statusExporter.ProcessException -= m_iaonSession.ProcessExceptionHandler;
+            }
+
+            m_statusExporter.Dispose();
+            m_statusExporter = null;
+        }
+
+        // Dispose reload config queue
+        if (m_reloadConfigQueue is not null)
+        {
+            if (m_iaonSession is not null)
+                m_reloadConfigQueue.ProcessException -= m_iaonSession.ProcessExceptionHandler;
+
+            m_reloadConfigQueue.Dispose();
+            m_reloadConfigQueue = null;
+        }
+
+        // Dispose reporting processes
+        m_reportingProcesses = null;
+
+        // Dispose Iaon session
+        if (m_iaonSession is not null)
+        {
+            m_iaonSession.Dispose();
+            m_iaonSession.StatusMessage -= StatusMessageHandler;
+            m_iaonSession.ProcessException -= ProcessExceptionHandler;
+            m_iaonSession.ConfigurationChanged -= ConfigurationChangedHandler;
+            m_iaonSession = null;
+        }
+
+        // Dispose of run-time log
+        if (m_runTimeLog is not null)
+        {
+            m_runTimeLog.ProcessException -= ProcessExceptionHandler;
+            m_runTimeLog.Dispose();
+            m_runTimeLog = null;
+        }
+
+        m_filteredStatusMessages.Clear();
+        m_latestConfiguration = null;
+
+        m_logger.LogInformation("Iaon session terminated.");
+    }
+
+    /// <summary>
+    /// Reinitializes the Iaon session and all dependent resources after a
+    /// previous call to <see cref="TerminateIaonSession"/>. This recreates
+    /// the run-time log, Iaon session, configuration loaders, exporters,
+    /// reporting processes, and triggers a full system initialization.
+    /// </summary>
+    /// <remarks>
+    /// This is intended for failover scenarios where a standby node has been
+    /// elected as the new active node and must resume processing data.
+    /// </remarks>
+    public void ReinitializeIaonSession()
+    {
+        m_logger.LogInformation("Reinitializing Iaon session...");
+
+        dynamic section = Settings.Default[Settings.SystemSettingsCategory];
+
+        // Recreate run-time log
+        m_runTimeLog = new RunTimeLog();
+        m_runTimeLog.FileName = "RunTimeLog.txt";
+        m_runTimeLog.ProcessException += ProcessExceptionHandler;
+        m_runTimeLog.Initialize();
+        PerformanceStatistics.SystemRunTimeLog = m_runTimeLog;
+
+        // Recreate Iaon session
+        m_iaonSession = new IaonSession();
+        m_iaonSession.StatusMessage += StatusMessageHandler;
+        m_iaonSession.ProcessException += ProcessExceptionHandler;
+        m_iaonSession.ConfigurationChanged += ConfigurationChangedHandler;
+
+        // Retrieve configuration cache directory
+        string cachePath = FilePath.GetAbsolutePath(section.ConfigurationCachePath);
+
+        // Reinitialize system settings
+        ConfigurationType = section.ConfigurationType;
+        m_cachedXmlConfigurationFile = FilePath.AddPathSuffix(cachePath) + section.CachedConfigurationFile;
+        m_cachedBinaryConfigurationFile = $"{FilePath.AddPathSuffix(cachePath)}{FilePath.GetFileNameWithoutExtension(m_cachedXmlConfigurationFile)}.bin";
+        m_configurationBackups = section.ConfigurationBackups;
+        m_preferCachedConfiguration = section.PreferCachedConfiguration;
+
+        // Recreate reload config queue
+        m_reloadConfigQueue = ProcessQueue<Tuple<string, Action<bool>>>.CreateSynchronousQueue(ExecuteReloadConfig, 500.0D, Timeout.Infinite, false, false);
+        m_reloadConfigQueue.ProcessException += m_iaonSession.ProcessExceptionHandler;
+
+        // Reinitialize configuration loaders
+        m_configurationLoader = ConfigurationType switch
+        {
+            ConfigurationType.Database => new DatabaseConfigurationLoader { ConnectionString = section.ConnectionString, DataProviderString = section.DataProviderString },
+            ConfigurationType.WebService => new WebServiceConfigurationLoader { URI = section.ConnectionString },
+            ConfigurationType.BinaryFile => new BinaryFileConfigurationLoader { FilePath = section.ConnectionString },
+            ConfigurationType.XmlFile => new XMLConfigurationLoader { FilePath = section.ConnectionString },
+            _ => m_configurationLoader
+        };
+
+        m_binaryCacheConfigurationLoader = new BinaryFileConfigurationLoader
+        {
+            FilePath = m_cachedBinaryConfigurationFile
+        };
+
+        m_xmlCacheConfigurationLoader = new XMLConfigurationLoader
+        {
+            FilePath = m_cachedXmlConfigurationFile
+        };
+
+        m_configurationLoader.StatusMessage += (_, args) => DisplayStatusMessage(args.Argument, MessageLevel.Info);
+        m_binaryCacheConfigurationLoader.StatusMessage += (_, args) => DisplayStatusMessage(args.Argument, MessageLevel.Info);
+        m_xmlCacheConfigurationLoader.StatusMessage += (_, args) => DisplayStatusMessage(args.Argument, MessageLevel.Info);
+
+        m_configurationLoader.ProcessException += ConfigurationLoader_ProcessException;
+        m_binaryCacheConfigurationLoader.ProcessException += ConfigurationLoader_ProcessException;
+        m_xmlCacheConfigurationLoader.ProcessException += ConfigurationLoader_ProcessException;
+
+        m_reloadConfigQueue.Start();
+
+        // Recreate health exporter
+        m_healthExporter = new MultipleDestinationExporter("HealthExporter");
+        m_healthExporter.Initialize([new ExportDestination(FilePath.GetAbsolutePath("Health.txt"), false)]);
+        m_healthExporter.StatusMessage += m_iaonSession.StatusMessageHandler;
+        m_healthExporter.ProcessException += m_iaonSession.ProcessExceptionHandler;
+
+        // Recreate status exporter
+        m_statusExporter = new MultipleDestinationExporter("StatusExporter");
+        m_statusExporter.Initialize([new ExportDestination(FilePath.GetAbsolutePath("Status.txt"), false)]);
+        m_statusExporter.StatusMessage += m_iaonSession.StatusMessageHandler;
+        m_statusExporter.ProcessException += m_iaonSession.ProcessExceptionHandler;
+
+        // Recreate reporting processes
+        m_reportingProcesses = [];
+
+        m_reportingProcesses.LoadImplementations(_ =>
+        {
+            try
+            {
+                // Define processes for each report (initially unscheduled)
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
+        },
+        ex =>
+        {
+            DisplayStatusMessage("Failed to load reporting process: {0}", MessageLevel.Warning, ex.Message);
+            LogException(ex);
+        });
+
+        // Trigger full system initialization (loads configuration and starts adapters)
+        InitializeSystem();
+
+        m_logger.LogInformation("Iaon session reinitialized.");
+    }
+
+    /// <summary>
     /// Releases all the resources used by the <see cref="ServiceHostBase"/> object.
     /// </summary>
     public sealed override void Dispose()

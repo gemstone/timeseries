@@ -37,6 +37,7 @@ using System.Text;
 using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Configuration;
+using Gemstone.Data.Model;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.Expressions.Evaluator;
@@ -67,7 +68,7 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is new status message.
     /// </remarks>
-    public event EventHandler<EventArgs<string>>? StatusMessage;
+    public event EventHandler<EventArgs<UILogMessage>>? StatusMessage;
 
     /// <summary>
     /// Event is raised when <see cref="InputMeasurementKeys"/> are updated.
@@ -957,7 +958,13 @@ public abstract class ActionAdapterBase : ConcentratorBase, IActionAdapter
             Log.Publish(level, flags, eventName, status);
 
             using (Logger.SuppressLogMessages())
-                StatusMessage?.SafeInvoke(this, new EventArgs<string>(AdapterBase.GetStatusWithMessageLevelPrefix(status, level)));
+                StatusMessage?.SafeInvoke(this, new EventArgs<UILogMessage>(new UILogMessage
+                {
+                    TimeStamp = DateTime.UtcNow,
+                    Message = status,
+                    Level = level,
+                    Source = Name
+                }));
         }
         catch (Exception ex)
         {

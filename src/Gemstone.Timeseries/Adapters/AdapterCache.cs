@@ -209,13 +209,13 @@ public static class AdapterCache
 {
     // Notifies derived classes that adapters have been reloaded
     internal static EventHandler? AdaptersReloaded;
+    internal static Lock LoadLock { get; } = new();
 
     private static AdapterTypeInfoMap? s_allAdapters;
     private static Dictionary<Type, UIResourceInfo>? s_uiResources;
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
     private static Dictionary<Type, AdapterCommandInfo>? s_adapterCommands;
     private static Dictionary<(string, string), Type>? s_assemblyTypes;
-    private static readonly Lock s_loadLock = new();
 
     private class StringTupleComparer(StringComparison comparison) : IEqualityComparer<(string, string)>
     {
@@ -249,7 +249,7 @@ public static class AdapterCache
             if (allAdapters is not null)
                 return allAdapters;
 
-            lock (s_loadLock)
+            lock (LoadLock)
             {
                 // Check if another thread already loaded the adapter types
                 if (s_allAdapters is not null)
@@ -350,7 +350,7 @@ public static class AdapterCache
             if (uiResources is not null)
                 return uiResources;
 
-            lock (s_loadLock)
+            lock (LoadLock)
             {
                 // Get list of adapter types, this establishes cache of UI resource attributes
                 _ = AllAdapters;
@@ -371,7 +371,7 @@ public static class AdapterCache
             if (adapterProtocols is not null)
                 return adapterProtocols;
 
-            lock (s_loadLock)
+            lock (LoadLock)
             {
                 // Get list of adapter types, this establishes cache of adapter protocol attributes
                 _ = AllAdapters;
@@ -392,7 +392,7 @@ public static class AdapterCache
             if (adapterCommands is not null)
                 return adapterCommands;
 
-            lock (s_loadLock)
+            lock (LoadLock)
             {
                 // Get list of adapter types, this establishes cache of adapter command attributes
                 _ = AllAdapters;
@@ -414,7 +414,7 @@ public static class AdapterCache
             if (assemblyTypes is not null)
                 return assemblyTypes;
 
-            lock (s_loadLock)
+            lock (LoadLock)
             {
                 // Get list of adapter types, this establishes cache of adapter protocol attributes
                 _ = AllAdapters;
@@ -539,7 +539,7 @@ public static class AdapterCache
     /// </remarks>
     public static void ReloadAdapterTypes()
     {
-        lock (s_loadLock)
+        lock (LoadLock)
         {
             Interlocked.Exchange(ref s_allAdapters, null);
             Interlocked.Exchange(ref s_uiResources, null);
@@ -594,20 +594,16 @@ public static class AdapterCache<T> where T : IAdapter
     private static Dictionary<Type, UIResourceInfo>? s_uiResources;
     private static Dictionary<Type, AdapterProtocolInfo>? s_adapterProtocols;
     private static Dictionary<Type, AdapterCommandInfo>? s_adapterCommands;
-    private static readonly Lock s_loadLock = new();
 
     static AdapterCache()
     {
         AdapterCache.AdaptersReloaded += (_, _) =>
         {
             // If root AllAdapters cache is reloaded, clear local caches to force reload on next access
-            lock (s_loadLock)
-            {
-                Interlocked.Exchange(ref s_allAdapters, null);
-                Interlocked.Exchange(ref s_uiResources, null);
-                Interlocked.Exchange(ref s_adapterProtocols, null);
-                Interlocked.Exchange(ref s_adapterCommands, null);
-            }
+            Interlocked.Exchange(ref s_allAdapters, null);
+            Interlocked.Exchange(ref s_uiResources, null);
+            Interlocked.Exchange(ref s_adapterProtocols, null);
+            Interlocked.Exchange(ref s_adapterCommands, null);
         };
     }
 
@@ -623,7 +619,7 @@ public static class AdapterCache<T> where T : IAdapter
             if (adapters is not null)
                 return adapters;
 
-            lock (s_loadLock)
+            lock (AdapterCache.LoadLock)
             {
                 // Check if another thread already loaded the adapter types
                 if (s_allAdapters is not null)
@@ -631,9 +627,6 @@ public static class AdapterCache<T> where T : IAdapter
 
                 // Dynamic load starting with this generic type first loads all adapters in
                 // non-generic root 'AdapterAttributeCache' class, then filters to type 'T'.
-                // Lock path with via root class 'AllAdapters' property is:
-                //   local lock > root lock (via AllAdapters) > local lock (via AdaptersReloaded event handler)
-                // which all happens within the same thread, so no deadlock concerns
 
                 // Filter adapter properties to type 'T'
                 s_allAdapters = new AdapterTypeInfoMap(AdapterCache.AllAdapters.Where(pair => typeof(T).IsAssignableFrom(pair.Key)).ToDictionary());
@@ -658,7 +651,7 @@ public static class AdapterCache<T> where T : IAdapter
             if (uiResources is not null)
                 return uiResources;
 
-            lock (s_loadLock)
+            lock (AdapterCache.LoadLock)
             {
                 // Get list of adapter types, this establishes cache of UI resource attributes
                 _ = AllAdapters;
@@ -679,7 +672,7 @@ public static class AdapterCache<T> where T : IAdapter
             if (adapterProtocols is not null)
                 return adapterProtocols;
 
-            lock (s_loadLock)
+            lock (AdapterCache.LoadLock)
             {
                 // Get list of adapter types, this establishes cache of adapter protocol attributes
                 _ = AllAdapters;
@@ -700,7 +693,7 @@ public static class AdapterCache<T> where T : IAdapter
             if (adapterCommands is not null)
                 return adapterCommands;
 
-            lock (s_loadLock)
+            lock (AdapterCache.LoadLock)
             {
                 // Get list of adapter types, this establishes cache of adapter command attributes
                 _ = AllAdapters;

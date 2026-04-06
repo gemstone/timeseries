@@ -33,7 +33,7 @@ using System.Text;
 using System.Threading;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Configuration;
-using Gemstone.Data.Model;
+using Gemstone.IO;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;

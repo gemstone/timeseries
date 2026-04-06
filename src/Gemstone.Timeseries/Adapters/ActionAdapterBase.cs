@@ -37,10 +37,9 @@ using System.Text;
 using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Configuration;
-using Gemstone.Data.Model;
+using Gemstone.IO;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
-using Gemstone.Expressions.Evaluator;
 using Gemstone.Expressions.Model;
 using Gemstone.StringExtensions;
 // ReSharper disable NonReadonlyMemberInGetHashCode

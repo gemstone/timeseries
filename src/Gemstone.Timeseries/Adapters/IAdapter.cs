@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
-using Gemstone.Data.Model;
+using Gemstone.IO;
 
 namespace Gemstone.Timeseries.Adapters;
 

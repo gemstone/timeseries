@@ -3133,6 +3133,18 @@
       <returns>
         <c>true</c> if data source was assigned; otherwise, <c>false</c>.</returns>
     </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.ReinitializeIaonSession">
+      <summary>
+            Reinitializes the Iaon session and all dependent resources after a
+            previous call to <see cref="M:Gemstone.Timeseries.ServiceHostBase.TerminateIaonSession" />. This recreates
+            the run-time log, Iaon session, configuration loaders, exporters,
+            reporting processes, and triggers a full system initialization.
+            </summary>
+      <remarks>
+            This is intended for failover scenarios where a standby node has been
+            elected as the new active node and must resume processing data.
+            </remarks>
+    </member>
     <member name="M:Gemstone.Timeseries.ServiceHostBase.ReloadConfig">
       <summary>
             Reloads the system configuration.
@@ -3179,6 +3191,19 @@
           </include>
         </markup>
       </returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.ServiceHostBase.TerminateIaonSession">
+      <summary>
+            Terminates the Iaon session and all dependent resources (health/status
+            exporters, reporting processes, reload config queue, and run-time log)
+            without disposing the <see cref="T:Gemstone.Timeseries.ServiceHostBase" /> itself. This allows
+            the workload to be restarted later via <see cref="M:Gemstone.Timeseries.ServiceHostBase.ReinitializeIaonSession" />.
+            </summary>
+      <remarks>
+            This is intended for failover scenarios where a node must stop processing
+            data when it transitions to standby, yet remain alive so that it can
+            resume processing when it becomes active again.
+            </remarks>
     </member>
     <member name="T:Gemstone.Timeseries.TemporalMeasurement">
       <summary>
@@ -6781,7 +6806,7 @@
         <see cref="F:Gemstone.EventArgs`2.Argument1" /> is the new status message.<br /><see cref="F:Gemstone.EventArgs`2.Argument2" /> is the message <see cref="T:Gemstone.Diagnostics.MessageLevel" />.
             </remarks>
     </member>
-    <member name="M:Gemstone.Timeseries.Adapters.IaonSession.StatusMessageHandler(System.Object,Gemstone.EventArgs{System.String})">
+    <member name="M:Gemstone.Timeseries.Adapters.IaonSession.StatusMessageHandler(System.Object,Gemstone.EventArgs{Gemstone.IO.UILogMessage})">
       <summary>
             Event handler for reporting status messages.
             </summary>
@@ -11429,40 +11454,6 @@
           </include>
         </markup>
       </summary>
-    </member>
-    <member name="T:Gemstone.Timeseries.Model.UILogMessage">
-      <summary>
-            Defines a log message send by the System
-            </summary>
-    </member>
-    <member name="M:Gemstone.Timeseries.Model.UILogMessage.#ctor">
-      <summary>
-        <markup>
-          <include item="SMCAutoDocConstructor">
-            <parameter>Gemstone.Timeseries.Model.UILogMessage</parameter>
-          </include>
-        </markup>
-      </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.UILogMessage.Level">
-      <summary>
-            The <see cref="T:Gemstone.Diagnostics.MessageLevel" /> associates with this <see cref="T:Gemstone.Timeseries.Model.UILogMessage" />.
-            </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.UILogMessage.Message">
-      <summary>
-            The message content.
-            </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.UILogMessage.Source">
-      <summary>
-            The source of the log message. For Adapters this is the Adapter Name. For system messages it is an empty string.
-            </summary>
-    </member>
-    <member name="P:Gemstone.Timeseries.Model.UILogMessage.TimeStamp">
-      <summary>
-            The Timestamp associated with the message.
-            </summary>
     </member>
     <member name="T:Gemstone.Timeseries.Model.DataAnnotations.ExpressionVariablesAttribute">
       <summary>

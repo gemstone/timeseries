@@ -1149,33 +1149,33 @@ public abstract class ConcentratorBase : IDisposable
                 // real-time we will use this value as the + and - timestamp tolerance to validate if the
                 // measurement time is reasonable.
                 long currentTimeTicks = DateTime.UtcNow.Ticks;
-                double distance = (currentTimeTicks - Thread.VolatileRead(ref m_realTimeTicks)) / (double)Ticks.PerSecond;
+                double distance = (currentTimeTicks - Volatile.Read(ref m_realTimeTicks)) / (double)Ticks.PerSecond;
 
                 // Set real-time ticks to current ticks if value is outside of tolerances
                 if (distance > m_leadTime || distance < -m_leadTime)
-                    Thread.VolatileWrite(ref m_realTimeTicks, currentTimeTicks);
+                    Volatile.Write(ref m_realTimeTicks, currentTimeTicks);
             }
 
             // Assume latest measurement timestamp is the best value we have for real-time.
-            return Thread.VolatileRead(ref m_realTimeTicks);
+            return Volatile.Read(ref m_realTimeTicks);
         }
     }
 
     /// <summary>
     /// Gets the total number of measurements ever requested for sorting.
     /// </summary>
-    public long ReceivedMeasurements => Thread.VolatileRead(ref m_receivedMeasurements);
+    public long ReceivedMeasurements => Volatile.Read(ref m_receivedMeasurements);
 
     /// <summary>
     /// Gets the total number of measurements successfully sorted.
     /// </summary>
-    public long ProcessedMeasurements => Thread.VolatileRead(ref m_processedMeasurements);
+    public long ProcessedMeasurements => Volatile.Read(ref m_processedMeasurements);
 
     /// <summary>
     /// Gets the total number of measurements that have been discarded because of old timestamps
     /// (i.e., measurements that were outside the time deviation tolerance from base time, past or future).
     /// </summary>
-    public long DiscardedMeasurements => Thread.VolatileRead(ref m_discardedMeasurements);
+    public long DiscardedMeasurements => Volatile.Read(ref m_discardedMeasurements);
 
     /// <summary>
     /// Gets a reference the last <see cref="IMeasurement"/> that was discarded by the concentrator.
@@ -1185,47 +1185,47 @@ public abstract class ConcentratorBase : IDisposable
     /// <summary>
     /// Gets the calculated latency of the last <see cref="IMeasurement"/> that was discarded by the concentrator.
     /// </summary>
-    public Ticks LastDiscardedMeasurementLatency => Thread.VolatileRead(ref m_lastDiscardedMeasurementLatency);
+    public Ticks LastDiscardedMeasurementLatency => Volatile.Read(ref m_lastDiscardedMeasurementLatency);
 
     /// <summary>
     /// Gets the total number of published measurements.
     /// </summary>
-    public long PublishedMeasurements => Thread.VolatileRead(ref m_publishedMeasurements);
+    public long PublishedMeasurements => Volatile.Read(ref m_publishedMeasurements);
 
     /// <summary>
     /// Gets the total number of published frames.
     /// </summary>
-    public long PublishedFrames => Thread.VolatileRead(ref m_publishedFrames);
+    public long PublishedFrames => Volatile.Read(ref m_publishedFrames);
 
     /// <summary>
     /// Gets the total number of measurements that were sorted by arrival because the measurement reported a bad timestamp quality.
     /// </summary>
-    public long MeasurementsSortedByArrival => Thread.VolatileRead(ref m_measurementsSortedByArrival);
+    public long MeasurementsSortedByArrival => Volatile.Read(ref m_measurementsSortedByArrival);
 
     /// <summary>
     /// Gets the total number of down-sampled measurements processed by the concentrator.
     /// </summary>
-    public long DownsampledMeasurements => Thread.VolatileRead(ref m_downsampledMeasurements);
+    public long DownsampledMeasurements => Volatile.Read(ref m_downsampledMeasurements);
 
     /// <summary>
     /// Gets the total number of missed sorts by timeout processed by the concentrator.
     /// </summary>
-    public long MissedSortsByTimeout => Thread.VolatileRead(ref m_missedSortsByTimeout);
+    public long MissedSortsByTimeout => Volatile.Read(ref m_missedSortsByTimeout);
 
     /// <summary>
     /// Gets the total number of wait handle expirations encountered due to delayed precision timer releases.
     /// </summary>
-    public long WaitHandleExpirations => Thread.VolatileRead(ref m_waitHandleExpirations);
+    public long WaitHandleExpirations => Volatile.Read(ref m_waitHandleExpirations);
 
     /// <summary>
     /// Gets the total number of frames ahead of schedule processed by the concentrator.
     /// </summary>
-    public long FramesAheadOfSchedule => Thread.VolatileRead(ref m_framesAheadOfSchedule);
+    public long FramesAheadOfSchedule => Volatile.Read(ref m_framesAheadOfSchedule);
 
     /// <summary>
     /// Gets the total number of seconds frames have spent in the publication process since concentrator started.
     /// </summary>
-    public Time TotalPublicationTime => ((Ticks)Thread.VolatileRead(ref m_totalPublishTime)).ToSeconds();
+    public Time TotalPublicationTime => ((Ticks)Volatile.Read(ref m_totalPublishTime)).ToSeconds();
 
     /// <summary>
     /// Gets the average required frame publication time, in seconds.
@@ -1264,9 +1264,14 @@ public abstract class ConcentratorBase : IDisposable
 
             if (!m_useLocalClockAsRealTime)
             {
+                Lazy<string> localClockAccuracy = new(() =>
+                {
+                    string deviation = CurrentSecondsFromRealTime().ToString("0.0000");
+                    return $"{deviation} second deviation from latest time";
+                });
+
                 status.Append("      Local clock accuracy: ");
-                status.Append(SecondsFromRealTime(DateTime.UtcNow.Ticks).ToString("0.0000"));
-                status.AppendLine(" second deviation from latest time");
+                status.AppendLine(Enabled ? localClockAccuracy.Value : "Unknown (concentrator not running)");
             }
 
             status.AppendLine($"     Ignore bad timestamps: {IgnoreBadTimestamps}");
@@ -1484,35 +1489,54 @@ public abstract class ConcentratorBase : IDisposable
     }
 
     /// <summary>
-    /// Returns the deviation, in seconds, that the given number of ticks is from real-time (i.e., <see cref="ConcentratorBase.RealTime"/>).
+    /// Returns the deviation, in seconds, that the current time is from real-time (i.e., <see cref="RealTime"/>).
     /// </summary>
-    /// <param name="timestamp">Timestamp to calculate distance from real-time.</param>
-    /// <returns>A <see cref="Double"/> value indicating the deviation, in seconds, from real-time.</returns>
-    public double SecondsFromRealTime(Ticks timestamp)
+    /// <returns>A <see cref="double"/> value indicating the deviation, in seconds, from real-time.</returns>
+    public double CurrentSecondsFromRealTime()
     {
-        // Make sure real-time is initialized for initial distance calculation
-        if (Thread.VolatileRead(ref m_realTimeTicks) == 0)
-        {
-            long currentTimeTicks;
+        Ticks now = DateTime.UtcNow;
+        Ticks realTime = RealTime;
 
-            if (PerformTimestampReasonabilityCheck)
-                currentTimeTicks = DateTime.UtcNow.Ticks;
-            else
-                currentTimeTicks = timestamp;
-
-            Thread.VolatileWrite(ref m_realTimeTicks, currentTimeTicks);
-        }
-
-        return (RealTime - timestamp).ToSeconds();
+        return realTime != 0L
+            ? ComputeDistanceInSeconds(now, realTime)
+            : double.NaN;
     }
 
     /// <summary>
-    /// Returns the deviation, in milliseconds, that the given number of ticks is from real-time (i.e., <see cref="ConcentratorBase.RealTime"/>).
+    /// Returns the deviation, in milliseconds, that the current time is from real-time (i.e., <see cref="RealTime"/>).
+    /// </summary>
+    /// <returns>A <see cref="double"/> value indicating the deviation in milliseconds.</returns>
+    public double CurrentMillisecondsFromRealTime()
+    {
+        Ticks now = DateTime.UtcNow;
+        Ticks realTime = RealTime;
+
+        return realTime != 0L
+            ? ComputeDistanceInMilliseconds(now, realTime)
+            : double.NaN;
+    }
+
+    /// <summary>
+    /// Returns the deviation, in seconds, that the given number of ticks is from real-time (i.e., <see cref="RealTime"/>).
     /// </summary>
     /// <param name="timestamp">Timestamp to calculate distance from real-time.</param>
-    /// <returns>A <see cref="Double"/> value indicating the deviation in milliseconds.</returns>
-    public double MillisecondsFromRealTime(Ticks timestamp) =>
-        SecondsFromRealTime(timestamp) / SI.Milli;
+    /// <returns>A <see cref="double"/> value indicating the deviation, in seconds, from real-time.</returns>
+    public double SecondsFromRealTime(Ticks timestamp)
+    {
+        InitializeRealTime(timestamp);
+        return ComputeDistanceInSeconds(timestamp, RealTime);
+    }
+
+    /// <summary>
+    /// Returns the deviation, in milliseconds, that the given number of ticks is from real-time (i.e., <see cref="RealTime"/>).
+    /// </summary>
+    /// <param name="timestamp">Timestamp to calculate distance from real-time.</param>
+    /// <returns>A <see cref="double"/> value indicating the deviation in milliseconds.</returns>
+    public double MillisecondsFromRealTime(Ticks timestamp)
+    {
+        InitializeRealTime(timestamp);
+        return ComputeDistanceInMilliseconds(timestamp, RealTime);
+    }
 
     /// <summary>
     /// Sorts the <see cref="IMeasurement"/> placing the data point in its proper <see cref="IFrame"/>.
@@ -1709,7 +1733,7 @@ public abstract class ConcentratorBase : IDisposable
                 //      If the measurement time is newer than the current real-time value and within the
                 //      specified time deviation tolerance of the local clock time, then the measurement
                 //      timestamp is set as real-time.
-                if (timestamp <= Thread.VolatileRead(ref m_realTimeTicks))
+                if (timestamp <= Volatile.Read(ref m_realTimeTicks))
                     continue;
 
                 if (PerformTimestampReasonabilityCheck)
@@ -1722,26 +1746,26 @@ public abstract class ConcentratorBase : IDisposable
                     if (timestamp.TimeIsValid(currentTimeTicks, m_leadTime, m_leadTime))
                     {
                         // The new time measurement looks good, so this function assumes the time is "real-time"
-                        Thread.VolatileWrite(ref m_realTimeTicks, timestamp);
+                        Volatile.Write(ref m_realTimeTicks, timestamp);
                     }
                     else
                     {
                         // Measurement ticks were outside of time deviation tolerances so we'll also check to make
                         // sure current real-time ticks are within these tolerances as well
-                        distance = (currentTimeTicks - Thread.VolatileRead(ref m_realTimeTicks)) / (double)Ticks.PerSecond;
+                        distance = (currentTimeTicks - Volatile.Read(ref m_realTimeTicks)) / (double)Ticks.PerSecond;
 
                         if (distance > m_leadTime || distance < -m_leadTime)
                         {
                             // New time measurement was invalid as was current real-time value so we have no choice but to
                             // assume the current time as "real-time", so we set real-time ticks to current ticks
-                            Thread.VolatileWrite(ref m_realTimeTicks, currentTimeTicks);
+                            Volatile.Write(ref m_realTimeTicks, currentTimeTicks);
                         }
                     }
                 }
                 else
                 {
                     // Reasonability checks are disabled, assume newest time is real-time...
-                    Thread.VolatileWrite(ref m_realTimeTicks, timestamp);
+                    Volatile.Write(ref m_realTimeTicks, timestamp);
                 }
             }
         }
@@ -1844,6 +1868,26 @@ public abstract class ConcentratorBase : IDisposable
             // We protect our code from consumer thrown exceptions
             OnProcessException(MessageLevel.Info, new InvalidOperationException($"Exception in consumer handler for {nameof(DiscardingMeasurements)} event: {ex.Message}", ex), "ConsumerEventException");
         }
+    }
+
+    // Makes sure real-time is initialized for distance calculations
+    private void InitializeRealTime(Ticks timestamp)
+    {
+        // In this case, RealTime just queries the local clock
+        if (UseLocalClockAsRealTime)
+            return;
+
+        if (Volatile.Read(ref m_realTimeTicks) != 0)
+            return;
+
+        long currentTimeTicks;
+
+        if (PerformTimestampReasonabilityCheck)
+            currentTimeTicks = DateTime.UtcNow.Ticks;
+        else
+            currentTimeTicks = timestamp;
+
+        Volatile.Write(ref m_realTimeTicks, currentTimeTicks);
     }
 
     // Tick handler for frame rate timer simply signals waiting thread to publish
@@ -2036,6 +2080,17 @@ public abstract class ConcentratorBase : IDisposable
     // Static Constructor
     static ConcentratorBase() =>
         s_frameRateTimers = new Dictionary<Tuple<int, int>, FrameRateTimer>();
+
+    // Static Methods
+    private static double ComputeDistanceInSeconds(Ticks from, Ticks to)
+    {
+        return (to - from).ToSeconds();
+    }
+
+    private static double ComputeDistanceInMilliseconds(Ticks from, Ticks to)
+    {
+        return (to - from).ToMilliseconds();
+    }
 
     #endregion
 }

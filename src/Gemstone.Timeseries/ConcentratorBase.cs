@@ -1264,9 +1264,14 @@ public abstract class ConcentratorBase : IDisposable
 
             if (!m_useLocalClockAsRealTime)
             {
+                Lazy<string> localClockAccuracy = new(() =>
+                {
+                    string deviation = CurrentSecondsFromRealTime().ToString("0.0000");
+                    return $"{deviation} second deviation from latest time";
+                });
+
                 status.Append("      Local clock accuracy: ");
-                status.Append(CurrentSecondsFromRealTime().ToString("0.0000"));
-                status.AppendLine(" second deviation from latest time");
+                status.AppendLine(Enabled ? localClockAccuracy.Value : "Unknown (concentrator not running)");
             }
 
             status.AppendLine($"     Ignore bad timestamps: {IgnoreBadTimestamps}");

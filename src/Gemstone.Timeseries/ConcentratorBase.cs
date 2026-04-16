@@ -1265,7 +1265,7 @@ public abstract class ConcentratorBase : IDisposable
             if (!m_useLocalClockAsRealTime)
             {
                 status.Append("      Local clock accuracy: ");
-                status.Append(SecondsFromRealTime(DateTime.UtcNow.Ticks).ToString("0.0000"));
+                status.Append(CurrentSecondsFromRealTime().ToString("0.0000"));
                 status.AppendLine(" second deviation from latest time");
             }
 
@@ -1484,35 +1484,54 @@ public abstract class ConcentratorBase : IDisposable
     }
 
     /// <summary>
-    /// Returns the deviation, in seconds, that the given number of ticks is from real-time (i.e., <see cref="ConcentratorBase.RealTime"/>).
+    /// Returns the deviation, in seconds, that the current time is from real-time (i.e., <see cref="RealTime"/>).
     /// </summary>
-    /// <param name="timestamp">Timestamp to calculate distance from real-time.</param>
-    /// <returns>A <see cref="Double"/> value indicating the deviation, in seconds, from real-time.</returns>
-    public double SecondsFromRealTime(Ticks timestamp)
+    /// <returns>A <see cref="double"/> value indicating the deviation, in seconds, from real-time.</returns>
+    public double CurrentSecondsFromRealTime()
     {
-        // Make sure real-time is initialized for initial distance calculation
-        if (Volatile.Read(ref m_realTimeTicks) == 0)
-        {
-            long currentTimeTicks;
+        Ticks now = DateTime.UtcNow;
+        Ticks realTime = RealTime;
 
-            if (PerformTimestampReasonabilityCheck)
-                currentTimeTicks = DateTime.UtcNow.Ticks;
-            else
-                currentTimeTicks = timestamp;
-
-            Volatile.Write(ref m_realTimeTicks, currentTimeTicks);
-        }
-
-        return (RealTime - timestamp).ToSeconds();
+        return realTime != 0L
+            ? ComputeDistanceInSeconds(now, realTime)
+            : double.NaN;
     }
 
     /// <summary>
-    /// Returns the deviation, in milliseconds, that the given number of ticks is from real-time (i.e., <see cref="ConcentratorBase.RealTime"/>).
+    /// Returns the deviation, in milliseconds, that the current time is from real-time (i.e., <see cref="RealTime"/>).
+    /// </summary>
+    /// <returns>A <see cref="double"/> value indicating the deviation in milliseconds.</returns>
+    public double CurrentMillisecondsFromRealTime()
+    {
+        Ticks now = DateTime.UtcNow;
+        Ticks realTime = RealTime;
+
+        return realTime != 0L
+            ? ComputeDistanceInMilliseconds(now, realTime)
+            : double.NaN;
+    }
+
+    /// <summary>
+    /// Returns the deviation, in seconds, that the given number of ticks is from real-time (i.e., <see cref="RealTime"/>).
     /// </summary>
     /// <param name="timestamp">Timestamp to calculate distance from real-time.</param>
-    /// <returns>A <see cref="Double"/> value indicating the deviation in milliseconds.</returns>
-    public double MillisecondsFromRealTime(Ticks timestamp) =>
-        SecondsFromRealTime(timestamp) / SI.Milli;
+    /// <returns>A <see cref="double"/> value indicating the deviation, in seconds, from real-time.</returns>
+    public double SecondsFromRealTime(Ticks timestamp)
+    {
+        InitializeRealTime(timestamp);
+        return ComputeDistanceInSeconds(timestamp, RealTime);
+    }
+
+    /// <summary>
+    /// Returns the deviation, in milliseconds, that the given number of ticks is from real-time (i.e., <see cref="RealTime"/>).
+    /// </summary>
+    /// <param name="timestamp">Timestamp to calculate distance from real-time.</param>
+    /// <returns>A <see cref="double"/> value indicating the deviation in milliseconds.</returns>
+    public double MillisecondsFromRealTime(Ticks timestamp)
+    {
+        InitializeRealTime(timestamp);
+        return ComputeDistanceInMilliseconds(timestamp, RealTime);
+    }
 
     /// <summary>
     /// Sorts the <see cref="IMeasurement"/> placing the data point in its proper <see cref="IFrame"/>.
@@ -1846,6 +1865,26 @@ public abstract class ConcentratorBase : IDisposable
         }
     }
 
+    // Makes sure real-time is initialized for distance calculations
+    private void InitializeRealTime(Ticks timestamp)
+    {
+        // In this case, RealTime just queries the local clock
+        if (UseLocalClockAsRealTime)
+            return;
+
+        if (Volatile.Read(ref m_realTimeTicks) != 0)
+            return;
+
+        long currentTimeTicks;
+
+        if (PerformTimestampReasonabilityCheck)
+            currentTimeTicks = DateTime.UtcNow.Ticks;
+        else
+            currentTimeTicks = timestamp;
+
+        Volatile.Write(ref m_realTimeTicks, currentTimeTicks);
+    }
+
     // Tick handler for frame rate timer simply signals waiting thread to publish
     private void StartFramePublication(object? sender, EventArgs e)
     {
@@ -2036,6 +2075,17 @@ public abstract class ConcentratorBase : IDisposable
     // Static Constructor
     static ConcentratorBase() =>
         s_frameRateTimers = new Dictionary<Tuple<int, int>, FrameRateTimer>();
+
+    // Static Methods
+    private static double ComputeDistanceInSeconds(Ticks from, Ticks to)
+    {
+        return (to - from).ToSeconds();
+    }
+
+    private static double ComputeDistanceInMilliseconds(Ticks from, Ticks to)
+    {
+        return (to - from).ToMilliseconds();
+    }
 
     #endregion
 }

@@ -485,6 +485,18 @@
             behavior creates a basic <see cref="T:Gemstone.Timeseries.Frame" /> to hold synchronized measurements.
             </remarks>
     </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.CurrentMillisecondsFromRealTime">
+      <summary>
+            Returns the deviation, in milliseconds, that the current time is from real-time (i.e., <see cref="P:Gemstone.Timeseries.ConcentratorBase.RealTime" />).
+            </summary>
+      <returns>A <see cref="T:System.Double" /> value indicating the deviation in milliseconds.</returns>
+    </member>
+    <member name="M:Gemstone.Timeseries.ConcentratorBase.CurrentSecondsFromRealTime">
+      <summary>
+            Returns the deviation, in seconds, that the current time is from real-time (i.e., <see cref="P:Gemstone.Timeseries.ConcentratorBase.RealTime" />).
+            </summary>
+      <returns>A <see cref="T:System.Double" /> value indicating the deviation, in seconds, from real-time.</returns>
+    </member>
     <member name="P:Gemstone.Timeseries.ConcentratorBase.DiscardedMeasurements">
       <summary>
             Gets the total number of measurements that have been discarded because of old timestamps

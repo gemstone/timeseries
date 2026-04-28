@@ -1736,6 +1736,15 @@
             Releases the unmanaged resources before the <see cref="T:Gemstone.Timeseries.ImmediateMeasurements" /> object is reclaimed by <see cref="T:System.GC" />.
             </summary>
     </member>
+    <member name="M:Gemstone.Timeseries.ImmediateMeasurements.HasMeasurementID(Gemstone.Timeseries.MeasurementKey)">
+      <summary>
+            Determines whether the specified <see cref="T:Gemstone.Timeseries.MeasurementKey" /> exists in the current collection of immediate measurements.
+            </summary>
+      <param name="key">The <see cref="T:Gemstone.Timeseries.MeasurementKey" /> to locate in the collection.</param>
+      <returns>
+        <c>true</c> if the specified <see cref="T:Gemstone.Timeseries.MeasurementKey" /> exists in the collection; otherwise, <c>false</c>.
+            </returns>
+    </member>
     <member name="P:Gemstone.Timeseries.ImmediateMeasurements.Item(Gemstone.Timeseries.MeasurementKey)">
       <summary>
             We retrieve adjusted measurement values within time tolerance of concentrator real-time.

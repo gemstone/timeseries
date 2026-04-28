@@ -509,6 +509,18 @@ public class ImmediateMeasurements : IEnumerable<TemporalMeasurement>, IDisposab
     }
 
     /// <summary>
+    /// Determines whether the specified <see cref="MeasurementKey"/> exists in the current collection of immediate measurements.
+    /// </summary>
+    /// <param name="key">The <see cref="MeasurementKey"/> to locate in the collection.</param>
+    /// <returns>
+    /// <c>true</c> if the specified <see cref="MeasurementKey"/> exists in the collection; otherwise, <c>false</c>.
+    /// </returns>
+    public bool HasMeasurementID(MeasurementKey key)
+    {
+        return m_measurements?.ContainsKey(key) ?? false;
+    }
+
+    /// <summary>
     /// Defines tagged measurements from a data table.
     /// </summary>
     /// <remarks>Expects <see cref="String"/> based tag field to be aliased as "Tag" and <see cref="Guid"/> based measurement ID field to be aliased as "ID".</remarks>

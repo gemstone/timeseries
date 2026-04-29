@@ -446,6 +446,18 @@ public static class AdapterCache
     }
 
     /// <summary>
+    /// Gets the AdapterProtocol attribute for the protocol acronym.
+    /// </summary>
+    /// <param name="acronym"></param>
+    /// <returns>Adapter Protocl for the protocol acronym.</returns>
+    public static AdapterProtocolAttribute? GetProtocolAttribute(string acronym)
+    {
+        return AdapterProtocols.Values
+            .SelectMany(info => info.Attributes)
+            .FirstOrDefault(attr => string.Equals(attr.Acronym, acronym, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
     /// Gets the connection parameters for the adapter and type name, optionally applying connection settings.
     /// </summary>
     /// <param name="assemblyName">Assembly file name for the adapter.</param>

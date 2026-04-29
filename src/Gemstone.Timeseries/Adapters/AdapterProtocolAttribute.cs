@@ -106,6 +106,21 @@ namespace Gemstone.Timeseries.Adapters
         public Application[] Applications { get; }
 
         /// <summary>
+        /// Device fields locked when the device is external. Empty = nothing locked.
+        /// </summary>
+        public string[] LockedDeviceFields { get; }
+
+        /// <summary>
+        /// Measurement fields locked when the measurement is external. Empty = nothing locked.
+        /// </summary>
+        public string[] LockedMeasurementFields { get; }
+
+        /// <summary>
+        /// Phasor fields locked when the phasor is external. Empty = nothing locked.
+        /// </summary>
+        public string[] LockedPhasorFields { get; }
+
+        /// <summary>
         /// Creates a new instance of the <see cref="AdapterProtocolAttribute"/> class.
         /// </summary>
         /// <param name="acronym">Acronym for the adapter protocol.</param>
@@ -115,7 +130,17 @@ namespace Gemstone.Timeseries.Adapters
         /// <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
         /// <param name="loadOrder">Load order of the adapter protocol.</param>
         /// <param name="applications">Applications that support this protocol in the UI.</param>
-        public AdapterProtocolAttribute(string acronym, string name, ProtocolType type, UIVisibility visibility, bool supportsConnectionTest = true, int loadOrder = 0, Application[] applications = null)
+        public AdapterProtocolAttribute(
+            string acronym,
+            string name,
+            ProtocolType type,
+            UIVisibility visibility,
+            bool supportsConnectionTest = true,
+            int loadOrder = 0,
+            Application[] applications = null,
+            string[] lockedDeviceFields = null,
+            string[] lockedMeasurementFields = null,
+            string[] lockedPhasorFields = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(acronym);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -127,6 +152,9 @@ namespace Gemstone.Timeseries.Adapters
             SupportsConnectionTest = supportsConnectionTest;
             LoadOrder = loadOrder;
             Applications = applications ?? DefaultApplications;
+            LockedDeviceFields = lockedDeviceFields ?? Array.Empty<string>();
+            LockedMeasurementFields = lockedMeasurementFields ?? Array.Empty<string>();
+            LockedPhasorFields = lockedPhasorFields ?? Array.Empty<string>();
         }
     }
 

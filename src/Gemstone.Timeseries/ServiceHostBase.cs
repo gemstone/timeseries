@@ -4219,6 +4219,7 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         section.DefaultFrameRate = (30, "Defines the default frame rate used for adapters in frames per second.");
         section.DefaultLeadTime = (10.0D, "Defines the default lead time used for adapters in seconds.");
         section.DefaultLagTime = (10.0D, "Defines the default lag time used for adapters in seconds.");
+        section.DefaultTimeResolution = (10000L, "Defines the default time resolution used for adapters in ticks");
 
         // Classic with condensed phase information
         //private const string DefaultPointTagNameExpression = "{Company.Acronym}_{DeviceAcronym}[?{SignalType.Source}=Phasor[-{SignalType.Suffix}{SignalIndex}]]:[?{Vendor.Acronym}!=[{VendorAcronym}_]][?{Phase}=A[APH]][?{Phase}=B[BPH]][?{Phase}=C[CPH]][?{Phase}=+[PSQ]][?{Phase}=-[NSQ]][?{Phase}=0[ZSQ]]{SignalType.Abbreviation}[?{SignalType.Source}!=Phasor[?{SignalIndex}!=-1[{SignalIndex}]]]";

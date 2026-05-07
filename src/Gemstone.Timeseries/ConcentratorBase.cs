@@ -856,7 +856,7 @@ public abstract class ConcentratorBase : IDisposable
     [ConnectionStringParameter]
     [Label("Time Resolution")]
     [Category("Frame Timing")]
-    [DefaultValue(Ticks.PerMillisecond)]
+    [DefaultValueExpression("Settings.Instance[\"System\"][\"DefaultTimeResolution\"]")]
     [Description("Defines the maximum time resolution, in ticks, to use when sorting measurements by timestamps into their proper destination frame in Ticks.")]
     public long TimeResolution
     {

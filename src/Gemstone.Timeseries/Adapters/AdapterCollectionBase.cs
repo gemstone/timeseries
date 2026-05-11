@@ -1382,7 +1382,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
                         OnItemStatusMessage(
                             item,
                             MessageLevel.Warning,
-                            string.Format(MessageFormat, item.InitializationTimeout / 1000.0),
+                            string.Format(MessageFormat, item.Name, item.InitializationTimeout / 1000.0),
                             "Initialization");
 
                         // ReSharper disable once AccessToModifiedClosure

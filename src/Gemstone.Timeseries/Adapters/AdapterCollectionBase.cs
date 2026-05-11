@@ -1204,6 +1204,13 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
         }
     }
 
+    private static string WrapItemMessage(T item, string message) => $"[{item.Name}] {message}";
+
+    private void OnItemStatusMessage(T item, MessageLevel level, string status, string? eventName = null, MessageFlags flags = MessageFlags.None) =>
+        OnStatusMessage(level, WrapItemMessage(item, status), eventName, flags);
+
+    private static InvalidOperationException WrapItemException(T item, string message, Exception exception) => new(WrapItemMessage(item, $"{message}: {exception.Message}"), exception);
+
     /// <summary>
     /// Raises <see cref="InputMeasurementKeysUpdated"/> event.
     /// </summary>
@@ -1327,8 +1334,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
         catch (Exception ex)
         {
             // Process exception for logging
-            string errorMessage = $"Failed to queue initialize operation for adapter {item.Name}: {ex.Message}";
-            OnProcessException(MessageLevel.Warning, new InvalidOperationException(errorMessage, ex));
+            OnProcessException(MessageLevel.Warning, WrapItemException(item, "Failed to queue initialize operation", ex));
         }
     }
 
@@ -1367,13 +1373,17 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
                 {
                     initializationTimeoutAction = () =>
                     {
-                        const string MessageFormat = "Initialization of adapter {0} has exceeded" +
-                                                     " its timeout of {1} seconds. The adapter may still initialize, however this" +
+                        const string MessageFormat = "Initialization has exceeded" +
+                                                     " its timeout of {0} seconds. The adapter may still initialize, however this" +
                                                      " may indicate a problem with the adapter. If you consider this to be normal," +
                                                      " try adjusting the initialization timeout to suppress this message during" +
                                                      " normal operations.";
 
-                        OnStatusMessage(MessageLevel.Warning, string.Format(MessageFormat, item.Name, item.InitializationTimeout / 1000.0), "Initialization");
+                        OnItemStatusMessage(
+                            item,
+                            MessageLevel.Warning,
+                            string.Format(MessageFormat, item.InitializationTimeout / 1000.0),
+                            "Initialization");
 
                         // ReSharper disable once AccessToModifiedClosure
                         cancelInitializationTimeout = initializationTimeoutAction?.DelayAndExecute(item.InitializationTimeout);
@@ -1429,7 +1439,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
         catch (Exception ex)
         {
             // We report any errors encountered during initialization...
-            OnProcessException(MessageLevel.Warning, new InvalidOperationException($"Failed to initialize adapter {item.Name}: {ex.Message}", ex), "Initialization");
+            OnProcessException(MessageLevel.Warning, WrapItemException(item, "Failed to initialize adapter", ex), "Initialization");
 
             // Initialization failed, so stop the timeout timer
             cancelInitializationTimeout?.Invoke();
@@ -1449,7 +1459,7 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
         catch (Exception ex)
         {
             // We report any errors encountered during startup...
-            OnProcessException(MessageLevel.Warning, new InvalidOperationException($"Failed to start adapter {item.Name}: {ex.Message}", ex), "Startup");
+            OnProcessException(MessageLevel.Warning, WrapItemException(item, "Failed to start adapter", ex), "Startup");
         }
     }
 

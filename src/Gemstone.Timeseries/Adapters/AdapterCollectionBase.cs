@@ -1373,8 +1373,8 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
                 {
                     initializationTimeoutAction = () =>
                     {
-                        const string MessageFormat = "Initialization has exceeded" +
-                                                     " its timeout of {0} seconds. The adapter may still initialize, however this" +
+                        const string MessageFormat = "Initialization of adapter {0} has exceeded" +
+                                                     " its timeout of {1} seconds. The adapter may still initialize, however this" +
                                                      " may indicate a problem with the adapter. If you consider this to be normal," +
                                                      " try adjusting the initialization timeout to suppress this message during" +
                                                      " normal operations.";

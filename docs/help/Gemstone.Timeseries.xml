@@ -4498,6 +4498,21 @@
             This commonly maps to 'TypeName' database field for adapters.
             </remarks>
     </member>
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetProtocolAttribute(System.String)">
+      <summary>
+            Gets the AdapterProtocol attribute for the protocol acronym.
+            </summary>
+      <param name="acronym">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>acronym</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.AdapterCache.GetProtocolAttribute(System.String)</parameter>
+          </include>
+        </markup>
+      </param>
+      <returns>Adapter Protocl for the protocol acronym.</returns>
+    </member>
     <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.ReloadAdapterTypes">
       <summary>
             Clears all cached adapter types and their attributes which will force a reload on next access.
@@ -5156,7 +5171,7 @@
             Marks a class as an adapter protocol.
             </summary>
     </member>
-    <member name="M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[])">
+    <member name="M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[],System.String[],System.String[],System.String[])">
       <summary>
             Creates a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute" /> class.
             </summary>
@@ -5167,6 +5182,33 @@
       <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
       <param name="loadOrder">Load order of the adapter protocol.</param>
       <param name="applications">Applications that support this protocol in the UI.</param>
+      <param name="lockedDeviceFields">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>lockedDeviceFields</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[],System.String[],System.String[],System.String[])</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="lockedMeasurementFields">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>lockedMeasurementFields</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[],System.String[],System.String[],System.String[])</parameter>
+          </include>
+        </markup>
+      </param>
+      <param name="lockedPhasorFields">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>lockedPhasorFields</parameter>
+            <parameter>M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[],System.String[],System.String[],System.String[])</parameter>
+          </include>
+        </markup>
+      </param>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Acronym">
       <summary>a 
@@ -5186,6 +5228,21 @@
     <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.LoadOrder">
       <summary>
             Gets the load order of the adapter protocol.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.LockedDeviceFields">
+      <summary>
+            Device fields locked when the device is external. Empty = nothing locked.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.LockedMeasurementFields">
+      <summary>
+            Measurement fields locked when the measurement is external. Empty = nothing locked.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.LockedPhasorFields">
+      <summary>
+            Phasor fields locked when the phasor is external. Empty = nothing locked.
             </summary>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Name">

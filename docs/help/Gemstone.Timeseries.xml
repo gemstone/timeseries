@@ -4500,18 +4500,10 @@
     </member>
     <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetProtocolAttribute(System.String)">
       <summary>
-            Gets the AdapterProtocol attribute for the protocol acronym.
+            Gets the <see cref="T:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute" /> for the protocol acronym.
             </summary>
-      <param name="acronym">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>acronym</parameter>
-            <parameter>M:Gemstone.Timeseries.Adapters.AdapterCache.GetProtocolAttribute(System.String)</parameter>
-          </include>
-        </markup>
-      </param>
-      <returns>Adapter Protocl for the protocol acronym.</returns>
+      <param name="acronym"></param>
+      <returns>Adapter protocol attribute for the protocol acronym.</returns>
     </member>
     <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.ReloadAdapterTypes">
       <summary>

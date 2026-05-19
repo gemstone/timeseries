@@ -33,6 +33,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
+using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.StringExtensions;
 using Gemstone.TypeExtensions;
@@ -446,10 +447,10 @@ public static class AdapterCache
     }
 
     /// <summary>
-    /// Gets the AdapterProtocol attribute for the protocol acronym.
+    /// Gets the <see cref="AdapterProtocolAttribute"/> for the protocol acronym.
     /// </summary>
     /// <param name="acronym"></param>
-    /// <returns>Adapter Protocl for the protocol acronym.</returns>
+    /// <returns>Adapter protocol attribute for the protocol acronym.</returns>
     public static AdapterProtocolAttribute? GetProtocolAttribute(string acronym)
     {
         return AdapterProtocols.Values
@@ -568,8 +569,21 @@ public static class AdapterCache
     internal static IEnumerable<(AdapterInfo info, TAttr[] attributes)> GetAdapterAttributes<TAttr>(this IEnumerable<AdapterInfo> adapters) where TAttr : Attribute
     {
         return adapters
-            .Select(info => (info, attributes: info.Type.GetCustomAttributes<TAttr>().ToArray()))
+            .Select(info => (info, attributes: safeGetCustomAttributes(info.Type)))
             .Where(item => item.attributes.Length > 0);
+
+        static TAttr[] safeGetCustomAttributes(Type type)
+        {
+            try
+            {
+                return type.GetCustomAttributes<TAttr>().ToArray();
+            }
+            catch (Exception ex)
+            {
+                Logger.SwallowException(ex, $"Failed to get custom attributes for type '{typeof(TAttr).FullName}'", $"{nameof(AdapterCache)}.{nameof(GetAdapterAttributes)}");
+                return [];
+            }
+        }
     }
 
     // Gets all adapters grouped with each of its specified attributes for all adapters with methods that are marked with the attribute.
@@ -577,13 +591,26 @@ public static class AdapterCache
     {
         return adapters.Select(info => (info, methodAttributes: getMethodAttributes(info)));
 
-        (MethodInfo, TAttr)[] getMethodAttributes(AdapterInfo info)
+        static (MethodInfo, TAttr)[] getMethodAttributes(AdapterInfo info)
         {
             return info.Type
                 .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.IgnoreCase)
-                .Select(method => (method, attribute: method.GetCustomAttribute<TAttr>()))
+                .Select(method => (method, attribute: safeGetCustomMethodAttr(method)))
                 .Where(item => item.attribute is not null)
                 .ToArray()!;
+        }
+
+        static TAttr? safeGetCustomMethodAttr(MethodInfo method)
+        {
+            try
+            {
+                return method.GetCustomAttribute<TAttr>();
+            }
+            catch (Exception ex)
+            {
+                Logger.SwallowException(ex, $"Failed to get custom attribute for method '{method.Name}' of type '{method.DeclaringType?.FullName}'", $"{nameof(AdapterCache)}.{nameof(GetAdapterMethodAttributes)}");
+                return null;
+            }
         }
     }
 

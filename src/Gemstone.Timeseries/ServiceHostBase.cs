@@ -308,18 +308,9 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         m_iaonSession.ConfigurationChanged += ConfigurationChangedHandler;
 
         // Attempt to set default culture
-        try
-        {
-            string defaultCulture = section.DefaultCulture;
-            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.CreateSpecificCulture(defaultCulture);     // Defaults for date formatting, etc.
-            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.CreateSpecificCulture(defaultCulture);   // Culture for resource strings, etc.
-        }
-        catch (Exception ex)
-        {
-            DisplayStatusMessage("Failed to set default culture due to exception, defaulting to \"{1}\": {0}", MessageLevel.Error, ex.Message, CultureInfo.CurrentCulture.Name.ToNonNullNorEmptyString("Undetermined"));
-            LogException(ex);
-        }
-
+        CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+      
         // Retrieve application paths as defined in the config file
         string servicePath = FilePath.GetAbsolutePath("");
 
@@ -4246,7 +4237,6 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
         section.PreferCachedConfiguration = (false, "Set to true to try the cached configuration first, before loading database configuration - typically used when cache is updated by external process");
         section.LocalCertificate = ($"{ServiceName}.cer", "Path to the local certificate used by this server for authentication");
         section.RemoteCertificatesPath = (@"Certs\Remotes", "Path to the directory where remote certificates are stored");
-        section.DefaultCulture = ("en-US", "Default culture to use for language, country/region and calendar formats");
         section.CompanyName = ("Grid Protection Alliance", "Defines the company name for the system");
         section.CompanyAcronym = ("GPA", "Defines the company acronym for the system");
 

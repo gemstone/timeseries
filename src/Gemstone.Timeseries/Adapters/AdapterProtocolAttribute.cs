@@ -121,15 +121,19 @@ namespace Gemstone.Timeseries.Adapters
         public string[] LockedPhasorFields { get; }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="AdapterProtocolAttribute"/> class.
+        /// Initializes a new instance of the <see cref="AdapterProtocolAttribute"/> class with the specified parameters.
         /// </summary>
-        /// <param name="acronym">Acronym for the adapter protocol.</param>
-        /// <param name="name">Name of the adapter protocol.</param>
-        /// <param name="type">Type of the adapter protocol.</param>
-        /// <param name="visibility">UI Visibility of the protocol.</param>
-        /// <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
-        /// <param name="loadOrder">Load order of the adapter protocol.</param>
-        /// <param name="applications">Applications that support this protocol in the UI.</param>
+        /// <param name="acronym">The unique acronym representing the adapter protocol.</param>
+        /// <param name="name">The display name of the adapter protocol.</param>
+        /// <param name="type">The type of the adapter protocol, indicating its purpose (e.g., <see cref="ProtocolType.Frame"/> or <see cref="ProtocolType.Measurement"/>).</param>
+        /// <param name="visibility">The visibility of the protocol in the user interface, defined by <see cref="UIVisibility"/>.</param>
+        /// <param name="supportsConnectionTest">A value indicating whether the adapter protocol supports connection testing. Defaults to <c>true</c>.</param>
+        /// <param name="loadOrder">The load order of the adapter protocol, used to determine initialization sequence. Defaults to <c>0</c>.</param>
+        /// <param name="applications">An array of <see cref="Application"/> values specifying the applications that support this protocol in the user interface. Defaults to a predefined set of applications.</param>
+        /// <param name="lockedDeviceFields">An array of field names that are locked for device configuration. Defaults to an empty array if not specified.</param>
+        /// <param name="lockedMeasurementFields">An array of field names that are locked for measurement configuration. Defaults to an empty array if not specified.</param>
+        /// <param name="lockedPhasorFields">An array of field names that are locked for phasor configuration. Defaults to an empty array if not specified.</param>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="acronym"/> or <paramref name="name"/> is <c>null</c>, empty, or consists only of white-space characters.</exception>
         public AdapterProtocolAttribute(
             string acronym,
             string name,
@@ -137,10 +141,10 @@ namespace Gemstone.Timeseries.Adapters
             UIVisibility visibility,
             bool supportsConnectionTest = true,
             int loadOrder = 0,
-            Application[] applications = null,
-            string[] lockedDeviceFields = null,
-            string[] lockedMeasurementFields = null,
-            string[] lockedPhasorFields = null)
+            Application[]? applications = null,
+            string[]? lockedDeviceFields = null,
+            string[]? lockedMeasurementFields = null,
+            string[]? lockedPhasorFields = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(acronym);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);

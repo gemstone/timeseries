@@ -78,5 +78,36 @@ public class BufferBlockMeasurement : Measurement
     /// </summary>
     public int Length { get; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether reception of this buffer block must be acknowledged
+    /// by the subscriber with a <c>ConfirmBufferBlock</c> command.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Maps to IEEE Std 2664-2024 Table 8 bit <c>0x01</c> (REQUIRE CONFIRMATION) on the wire.
+    /// Default value is <c>true</c>, preserving STTP's traditional retransmission semantics where
+    /// the publisher caches each buffer block until acknowledged and retransmits on timeout.
+    /// </para>
+    /// <para>
+    /// When set to <c>false</c>, the buffer block is fire-and-forget: no retransmission cache entry
+    /// is added, the retransmission timer is not (re)started, and the subscriber does not emit a
+    /// confirmation. Useful for high-rate buffer-block streams over reliable transports (TCP)
+    /// where the round-trip acknowledgement overhead is unnecessary.
+    /// </para>
+    /// </remarks>
+    public bool RequireConfirmation { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the raw buffer-block flag byte as it appeared on the wire (IEEE Std 2664-2024
+    /// Table 8). On receive, this carries the publisher's full intent (REQUIRE CONFIRMATION,
+    /// COMPRESSED, CACHE INDEX, etc.); on send, this field is unused by the wire codec - the codec
+    /// constructs the byte from <see cref="RequireConfirmation"/> and other per-block state.
+    /// </summary>
+    /// <remarks>
+    /// Stored as a raw <see cref="byte"/> so this assembly need not take a dependency on the STTP
+    /// flag enum. Cast to <c>BufferBlockFlags</c> at the call site if structured inspection is needed.
+    /// </remarks>
+    public byte Flags { get; set; }
+
     #endregion
 }

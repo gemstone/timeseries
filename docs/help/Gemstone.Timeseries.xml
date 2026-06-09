@@ -365,10 +365,41 @@
             Cached buffer image.
             </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.BufferBlockMeasurement.Flags">
+      <summary>
+            Gets or sets the raw buffer-block flag byte as it appeared on the wire (IEEE Std 2664-2024
+            Table 8). On receive, this carries the publisher's full intent (REQUIRE CONFIRMATION,
+            COMPRESSED, CACHE INDEX, etc.); on send, this field is unused by the wire codec - the codec
+            constructs the byte from <see cref="P:Gemstone.Timeseries.BufferBlockMeasurement.RequireConfirmation" /> and other per-block state.
+            </summary>
+      <remarks>
+            Stored as a raw <see cref="T:System.Byte" /> so this assembly need not take a dependency on the STTP
+            flag enum. Cast to <c>BufferBlockFlags</c> at the call site if structured inspection is needed.
+            </remarks>
+    </member>
     <member name="P:Gemstone.Timeseries.BufferBlockMeasurement.Length">
       <summary>
             Valid length of cached buffer image.
             </summary>
+    </member>
+    <member name="P:Gemstone.Timeseries.BufferBlockMeasurement.RequireConfirmation">
+      <summary>
+            Gets or sets a value indicating whether reception of this buffer block must be acknowledged
+            by the subscriber with a <c>ConfirmBufferBlock</c> command.
+            </summary>
+      <remarks>
+        <para>
+            Maps to IEEE Std 2664-2024 Table 8 bit <c>0x01</c> (REQUIRE CONFIRMATION) on the wire.
+            Default value is <c>true</c>, preserving STTP's traditional retransmission semantics where
+            the publisher caches each buffer block until acknowledged and retransmits on timeout.
+            </para>
+        <para>
+            When set to <c>false</c>, the buffer block is fire-and-forget: no retransmission cache entry
+            is added, the retransmission timer is not (re)started, and the subscriber does not emit a
+            confirmation. Useful for high-rate buffer-block streams over reliable transports (TCP)
+            where the round-trip acknowledgement overhead is unnecessary.
+            </para>
+      </remarks>
     </member>
     <member name="T:Gemstone.Timeseries.ConcentratorBase">
       <summary>
@@ -5165,42 +5196,19 @@
     </member>
     <member name="M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[],System.String[],System.String[],System.String[])">
       <summary>
-            Creates a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute" /> class.
+            Initializes a new instance of the <see cref="T:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute" /> class with the specified parameters.
             </summary>
-      <param name="acronym">Acronym for the adapter protocol.</param>
-      <param name="name">Name of the adapter protocol.</param>
-      <param name="type">Type of the adapter protocol.</param>
-      <param name="visibility">UI Visibility of the protocol.</param>
-      <param name="supportsConnectionTest">Determines if the adapter protocol supports a connection test.</param>
-      <param name="loadOrder">Load order of the adapter protocol.</param>
-      <param name="applications">Applications that support this protocol in the UI.</param>
-      <param name="lockedDeviceFields">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>lockedDeviceFields</parameter>
-            <parameter>M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[],System.String[],System.String[],System.String[])</parameter>
-          </include>
-        </markup>
-      </param>
-      <param name="lockedMeasurementFields">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>lockedMeasurementFields</parameter>
-            <parameter>M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[],System.String[],System.String[],System.String[])</parameter>
-          </include>
-        </markup>
-      </param>
-      <param name="lockedPhasorFields">
-        <markup>
-          <include item="SMCMissingParamTag">
-            <parameter>param</parameter>
-            <parameter>lockedPhasorFields</parameter>
-            <parameter>M:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.#ctor(System.String,System.String,Gemstone.Timeseries.Adapters.ProtocolType,Gemstone.Timeseries.Adapters.UIVisibility,System.Boolean,System.Int32,Gemstone.Timeseries.Adapters.Application[],System.String[],System.String[],System.String[])</parameter>
-          </include>
-        </markup>
-      </param>
+      <param name="acronym">The unique acronym representing the adapter protocol.</param>
+      <param name="name">The display name of the adapter protocol.</param>
+      <param name="type">The type of the adapter protocol, indicating its purpose (e.g., <see cref="F:Gemstone.Timeseries.Adapters.ProtocolType.Frame" /> or <see cref="F:Gemstone.Timeseries.Adapters.ProtocolType.Measurement" />).</param>
+      <param name="visibility">The visibility of the protocol in the user interface, defined by <see cref="T:Gemstone.Timeseries.Adapters.UIVisibility" />.</param>
+      <param name="supportsConnectionTest">A value indicating whether the adapter protocol supports connection testing. Defaults to <c>true</c>.</param>
+      <param name="loadOrder">The load order of the adapter protocol, used to determine initialization sequence. Defaults to <c>0</c>.</param>
+      <param name="applications">An array of <see cref="T:Gemstone.Timeseries.Adapters.Application" /> values specifying the applications that support this protocol in the user interface. Defaults to a predefined set of applications.</param>
+      <param name="lockedDeviceFields">An array of field names that are locked for device configuration. Defaults to an empty array if not specified.</param>
+      <param name="lockedMeasurementFields">An array of field names that are locked for measurement configuration. Defaults to an empty array if not specified.</param>
+      <param name="lockedPhasorFields">An array of field names that are locked for phasor configuration. Defaults to an empty array if not specified.</param>
+      <exception cref="T:System.ArgumentException">Thrown when <paramref name="acronym" /> or <paramref name="name" /> is <c>null</c>, empty, or consists only of white-space characters.</exception>
     </member>
     <member name="P:Gemstone.Timeseries.Adapters.AdapterProtocolAttribute.Acronym">
       <summary>a 

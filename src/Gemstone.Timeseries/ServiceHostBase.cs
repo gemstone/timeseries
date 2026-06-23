@@ -40,7 +40,6 @@ using System.Threading.Tasks;
 using Gemstone.Caching;
 using Gemstone.Configuration;
 using Gemstone.Data;
-using Gemstone.Data.Model;
 using Gemstone.Data.DataSetExtensions;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;

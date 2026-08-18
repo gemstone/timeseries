@@ -445,15 +445,23 @@ public abstract class ServiceHostBase : BackgroundService, IDefineSettings
 
         m_reloadConfigQueue.Start();
 
+        // Capture desired priority in a strongly-typed local; 'section' is dynamic and a dynamic value cannot be
+        // passed as an argument to the LogWarning extension method below (CS1973).
+        ProcessPriorityClass processPriority = section.ProcessPriority;
+
         try
         {
-            // Attempt to assign desired process priority. Note that process will require SeIncreaseBasePriorityPrivilege or 
-            // Administrative privileges to make this change
-            Process.GetCurrentProcess().PriorityClass = section.ProcessPriority;
+            // Attempt to assign desired process priority. Note that the process will require
+            // SeIncreaseBasePriorityPrivilege / Administrative privileges (on Windows) or the CAP_SYS_NICE
+            // capability / root (on POSIX) to raise priority above normal.
+            Process.GetCurrentProcess().PriorityClass = processPriority;
         }
         catch (Exception ex)
         {
-            LogException(ex);
+            // Elevating process priority is best-effort and commonly fails without elevated privileges (e.g.,
+            // when running as a non-root user on Linux). This is non-fatal, so log a concise warning rather than
+            // a full exception - the service continues to run at its default priority.
+            m_logger.LogWarning("Unable to set process priority to {ProcessPriority}: {Message}. Service will continue at default priority.", processPriority, ex.Message);
         }
 
         m_logger.LogInformation("Service started.");

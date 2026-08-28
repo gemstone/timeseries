@@ -35,7 +35,6 @@ using Gemstone.Collections.CollectionExtensions;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
-using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
 using Gemstone.Threading.Collections;

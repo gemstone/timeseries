@@ -47,6 +47,7 @@ using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
 using Gemstone.Threading.LogicalThreads;
+using Gemstone.TypeExtensions;
 using Gemstone.Units;
 
 namespace Gemstone.Timeseries.Adapters;
@@ -824,6 +825,19 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
 
             if (string.IsNullOrWhiteSpace(typeName))
                 throw new InvalidOperationException("No adapter type was defined");
+
+            if (!File.Exists(assemblyName) && AdapterCache.IncludeSubdirectories)
+            {
+                string[] subdirectories = Directory.GetDirectories(AppDomain.CurrentDomain.BaseDirectory,
+                       AdapterCache.DirectoryFilter, SearchOption.TopDirectoryOnly);
+
+                foreach (string subdirectory in subdirectories)
+                    if (File.Exists(Path.Combine(subdirectory, Path.GetFileName(assemblyName))))
+                    {
+                        assemblyName = Path.Combine(subdirectory, Path.GetFileName(assemblyName));
+                        break;
+                    }
+            }
 
             if (!File.Exists(assemblyName))
                 throw new InvalidOperationException("Specified adapter assembly does not exist");

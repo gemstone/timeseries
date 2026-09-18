@@ -31,6 +31,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
@@ -236,7 +237,7 @@ public static class AdapterCache
     }
 
     /// <summary>
-    /// A string containing literal and wildcard characters that filters the subdirectories to search for adapters. 
+    /// A Regex string that filters the subdirectories to search for adapters. 
     /// Defaults to empty string which means all subdirectories are searched.
     /// </summary>
     public static string DirectoryFilter { get; set; } = "";
@@ -273,8 +274,10 @@ public static class AdapterCache
 
                 if (IncludeSubdirectories)
                 {
-                    string[] subdirectories = Directory.GetDirectories(AppDomain.CurrentDomain.BaseDirectory, 
-                        DirectoryFilter, SearchOption.TopDirectoryOnly);
+                    Regex regexFilter = new (DirectoryFilter, RegexOptions.IgnoreCase);
+
+                    string[] subdirectories = Directory.EnumerateDirectories(AppDomain.CurrentDomain.BaseDirectory, 
+                        "*", SearchOption.TopDirectoryOnly).Where(subdirectory => regexFilter.IsMatch(subdirectory)).ToArray();
 
                     foreach (string subdirectory in subdirectories)
                         types = types.Concat(typeof(IAdapter).LoadImplementations(subdirectory));

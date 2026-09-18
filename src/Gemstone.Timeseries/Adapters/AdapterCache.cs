@@ -236,6 +236,18 @@ public static class AdapterCache
     }
 
     /// <summary>
+    /// A string containing literal and wildcard characters that filters the subdirectories to search for adapters. 
+    /// Defaults to empty string which means all subdirectories are searched.
+    /// </summary>
+    public static string DirectoryFilter { get; set; } = "";
+
+    /// <summary>
+    /// A Flag indicating whether to include subdirectories when searching for adapters.
+    /// Defaults to false.
+    /// </summary>
+    public static bool IncludeSubdirectories { get; set; } = false;
+
+    /// <summary>
     /// Gets all time-series adapter types in the application directory.
     /// </summary>
     public static AdapterTypeInfoMap AllAdapters
@@ -257,7 +269,18 @@ public static class AdapterCache
                     return s_allAdapters;
 
                 // Load all adapter types in the application directory
-                s_allAdapters = new AdapterTypeInfoMap(typeof(IAdapter).LoadImplementations()
+                IEnumerable<Type> types = typeof(IAdapter).LoadImplementations();
+
+                if (IncludeSubdirectories)
+                {
+                    string[] subdirectories = Directory.GetDirectories(AppDomain.CurrentDomain.BaseDirectory, 
+                        DirectoryFilter, SearchOption.TopDirectoryOnly);
+
+                    foreach (string subdirectory in subdirectories)
+                        types = types.Concat(typeof(IAdapter).LoadImplementations(subdirectory));
+                }
+
+                s_allAdapters = new AdapterTypeInfoMap(types
                     .Distinct()
                     .Select(type => (type, info: type.GetDescription()))
                     .Select(item => new AdapterInfo

@@ -35,6 +35,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Gemstone.ActionExtensions;
 using Gemstone.Collections;
 using Gemstone.Collections.CollectionExtensions;
@@ -828,8 +829,10 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
 
             if (!File.Exists(assemblyName) && AdapterCache.IncludeSubdirectories)
             {
-                string[] subdirectories = Directory.GetDirectories(AppDomain.CurrentDomain.BaseDirectory,
-                       AdapterCache.DirectoryFilter, SearchOption.TopDirectoryOnly);
+                Regex regexFilter = new(AdapterCache.DirectoryFilter, RegexOptions.IgnoreCase);
+
+                string[] subdirectories = Directory.EnumerateDirectories(AppDomain.CurrentDomain.BaseDirectory,
+                    "*", SearchOption.TopDirectoryOnly).Where(subdirectory => regexFilter.IsMatch(subdirectory)).ToArray();
 
                 foreach (string subdirectory in subdirectories)
                     if (File.Exists(Path.Combine(subdirectory, Path.GetFileName(assemblyName))))

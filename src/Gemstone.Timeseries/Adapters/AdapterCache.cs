@@ -36,6 +36,7 @@ using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
+using Gemstone.IO;
 using Gemstone.StringExtensions;
 using Gemstone.TypeExtensions;
 using ParameterMap = System.Collections.Generic.Dictionary<string, (string label, string? description)>;
@@ -237,13 +238,12 @@ public static class AdapterCache
     }
 
     /// <summary>
-    /// A Regex string that filters the subdirectories to search for adapters. 
-    /// Defaults to empty string which means all subdirectories are searched.
+    /// The Folder to be searched for Adapters. Defaults to "Adapters" in the application base directory.
     /// </summary>
-    public static string DirectoryFilter { get; set; } = "";
+    public static string BaseDirectory { get; set; } = "Adapters";
 
     /// <summary>
-    /// A Flag indicating whether to include subdirectories when searching for adapters.
+    /// A Flag indicating whether to include subdirectories when searching for adapters in the <see cref="BaseDirectory"/>.
     /// Defaults to false.
     /// </summary>
     public static bool IncludeSubdirectories { get; set; } = false;
@@ -272,15 +272,16 @@ public static class AdapterCache
                 // Load all adapter types in the application directory
                 IEnumerable<Type> types = typeof(IAdapter).LoadImplementations();
 
-                if (IncludeSubdirectories)
+                if (!string.IsNullOrEmpty(BaseDirectory) && Directory.Exists(FilePath.GetAbsolutePath($"{BaseDirectory}")))
                 {
-                    Regex regexFilter = new (DirectoryFilter, RegexOptions.IgnoreCase);
-
-                    string[] subdirectories = Directory.EnumerateDirectories(AppDomain.CurrentDomain.BaseDirectory, 
-                        "*", SearchOption.TopDirectoryOnly).Where(subdirectory => regexFilter.IsMatch(subdirectory)).ToArray();
-
-                    foreach (string subdirectory in subdirectories)
-                        types = types.Concat(typeof(IAdapter).LoadImplementations(subdirectory));
+                    string baseDirectory = FilePath.GetAbsolutePath(BaseDirectory);
+                    types = types.Concat(typeof(IAdapter).LoadImplementations(baseDirectory));
+                    if (IncludeSubdirectories)
+                    {
+                        string[] subdirectories = Directory.EnumerateDirectories(baseDirectory, "*", SearchOption.TopDirectoryOnly).ToArray();
+                        foreach (string subdirectory in subdirectories)
+                            types = types.Concat(typeof(IAdapter).LoadImplementations(subdirectory));
+                    }
                 }
 
                 s_allAdapters = new AdapterTypeInfoMap(types

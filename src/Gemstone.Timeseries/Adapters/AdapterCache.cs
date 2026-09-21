@@ -31,7 +31,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
@@ -272,15 +271,19 @@ public static class AdapterCache
                 // Load all adapter types in the application directory
                 IEnumerable<Type> types = typeof(IAdapter).LoadImplementations();
 
-                if (!string.IsNullOrEmpty(BaseDirectory) && Directory.Exists(FilePath.GetAbsolutePath($"{BaseDirectory}")))
+                if (!string.IsNullOrEmpty(BaseDirectory))
                 {
                     string baseDirectory = FilePath.GetAbsolutePath(BaseDirectory);
-                    types = types.Concat(typeof(IAdapter).LoadImplementations(baseDirectory));
-                    if (IncludeSubdirectories)
+
+                    if (Directory.Exists(baseDirectory))
                     {
-                        string[] subdirectories = Directory.EnumerateDirectories(baseDirectory, "*", SearchOption.TopDirectoryOnly).ToArray();
-                        foreach (string subdirectory in subdirectories)
-                            types = types.Concat(typeof(IAdapter).LoadImplementations(subdirectory));
+                        types = types.Concat(typeof(IAdapter).LoadImplementations(baseDirectory));
+
+                        if (IncludeSubdirectories)
+                        {
+                            foreach (string subdirectory in Directory.EnumerateDirectories(baseDirectory))
+                                types = types.Concat(typeof(IAdapter).LoadImplementations(subdirectory));
+                        }
                     }
                 }
 

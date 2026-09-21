@@ -35,20 +35,16 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using Gemstone.ActionExtensions;
 using Gemstone.Collections;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.ComponentModel.DataAnnotations;
-using Gemstone.Data.Model;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
-using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
 using Gemstone.Threading.LogicalThreads;
-using Gemstone.TypeExtensions;
 using Gemstone.Units;
 
 namespace Gemstone.Timeseries.Adapters;
@@ -827,23 +823,34 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             if (string.IsNullOrWhiteSpace(typeName))
                 throw new InvalidOperationException("No adapter type was defined");
 
-            if (!File.Exists(assemblyName) && !string.IsNullOrEmpty(AdapterCache.BaseDirectory) && Directory.Exists(FilePath.GetAbsolutePath($"{AdapterCache.BaseDirectory}")))
+            if (!File.Exists(assemblyName) && !string.IsNullOrEmpty(AdapterCache.BaseDirectory))
             {
-
                 string baseDirectory = FilePath.GetAbsolutePath(AdapterCache.BaseDirectory);
-                if (File.Exists(Path.Combine(baseDirectory, Path.GetFileName(assemblyName))))
-                    assemblyName = Path.Combine(baseDirectory, Path.GetFileName(assemblyName));
-                else if (AdapterCache.IncludeSubdirectories)
+
+                if (Directory.Exists(baseDirectory))
                 {
-                    string[] subdirectories = Directory.EnumerateDirectories(baseDirectory, "*", SearchOption.TopDirectoryOnly).ToArray();
-                    foreach (string subdirectory in subdirectories)
-                        if (File.Exists(Path.Combine(subdirectory, Path.GetFileName(assemblyName))))
+                    string assemblyFileName = Path.GetFileName(assemblyName);
+                    string assemblyPath = Path.Combine(baseDirectory, assemblyFileName);
+
+                    if (File.Exists(assemblyPath))
+                    {
+                        assemblyName = assemblyPath;
+                    }
+                    else if (AdapterCache.IncludeSubdirectories)
+                    {
+                        foreach (string subdirectory in Directory.EnumerateDirectories(baseDirectory))
                         {
-                            assemblyName = Path.Combine(subdirectory, Path.GetFileName(assemblyName));
+                            assemblyPath = Path.Combine(subdirectory, Path.GetFileName(assemblyName));
+
+                            if (!File.Exists(assemblyPath))
+                                continue;
+
+                            assemblyName = assemblyPath;
                             break;
                         }
+                    }
                 }
-            }           
+            }
 
             if (!File.Exists(assemblyName))
                 throw new InvalidOperationException("Specified adapter assembly does not exist");

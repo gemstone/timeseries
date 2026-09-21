@@ -39,11 +39,9 @@ using Gemstone.ActionExtensions;
 using Gemstone.Collections;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.ComponentModel.DataAnnotations;
-using Gemstone.Data.Model;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 using Gemstone.IO;
-using Gemstone.Security.AccessControl;
 using Gemstone.StringExtensions;
 using Gemstone.Threading;
 using Gemstone.Threading.LogicalThreads;
@@ -824,6 +822,35 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
 
             if (string.IsNullOrWhiteSpace(typeName))
                 throw new InvalidOperationException("No adapter type was defined");
+
+            if (!File.Exists(assemblyName) && !string.IsNullOrEmpty(AdapterCache.BaseDirectory))
+            {
+                string baseDirectory = FilePath.GetAbsolutePath(AdapterCache.BaseDirectory);
+
+                if (Directory.Exists(baseDirectory))
+                {
+                    string assemblyFileName = Path.GetFileName(assemblyName);
+                    string assemblyPath = Path.Combine(baseDirectory, assemblyFileName);
+
+                    if (File.Exists(assemblyPath))
+                    {
+                        assemblyName = assemblyPath;
+                    }
+                    else if (AdapterCache.IncludeSubdirectories)
+                    {
+                        foreach (string subdirectory in Directory.EnumerateDirectories(baseDirectory))
+                        {
+                            assemblyPath = Path.Combine(subdirectory, Path.GetFileName(assemblyName));
+
+                            if (!File.Exists(assemblyPath))
+                                continue;
+
+                            assemblyName = assemblyPath;
+                            break;
+                        }
+                    }
+                }
+            }
 
             if (!File.Exists(assemblyName))
                 throw new InvalidOperationException("Specified adapter assembly does not exist");

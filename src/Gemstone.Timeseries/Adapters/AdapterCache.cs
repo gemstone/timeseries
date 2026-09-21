@@ -35,6 +35,7 @@ using System.Threading;
 using Gemstone.ComponentModel.DataAnnotations;
 using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
+using Gemstone.IO;
 using Gemstone.StringExtensions;
 using Gemstone.TypeExtensions;
 using ParameterMap = System.Collections.Generic.Dictionary<string, (string label, string? description)>;
@@ -236,6 +237,17 @@ public static class AdapterCache
     }
 
     /// <summary>
+    /// The Folder to be searched for Adapters. Defaults to "Adapters" in the application base directory.
+    /// </summary>
+    public static string BaseDirectory { get; set; } = "Adapters";
+
+    /// <summary>
+    /// A Flag indicating whether to include subdirectories when searching for adapters in the <see cref="BaseDirectory"/>.
+    /// Defaults to false.
+    /// </summary>
+    public static bool IncludeSubdirectories { get; set; } = false;
+
+    /// <summary>
     /// Gets all time-series adapter types in the application directory.
     /// </summary>
     public static AdapterTypeInfoMap AllAdapters
@@ -257,7 +269,25 @@ public static class AdapterCache
                     return s_allAdapters;
 
                 // Load all adapter types in the application directory
-                s_allAdapters = new AdapterTypeInfoMap(typeof(IAdapter).LoadImplementations()
+                IEnumerable<Type> types = typeof(IAdapter).LoadImplementations();
+
+                if (!string.IsNullOrEmpty(BaseDirectory))
+                {
+                    string baseDirectory = FilePath.GetAbsolutePath(BaseDirectory);
+
+                    if (Directory.Exists(baseDirectory))
+                    {
+                        types = types.Concat(typeof(IAdapter).LoadImplementations(baseDirectory));
+
+                        if (IncludeSubdirectories)
+                        {
+                            foreach (string subdirectory in Directory.EnumerateDirectories(baseDirectory))
+                                types = types.Concat(typeof(IAdapter).LoadImplementations(subdirectory));
+                        }
+                    }
+                }
+
+                s_allAdapters = new AdapterTypeInfoMap(types
                     .Distinct()
                     .Select(type => (type, info: type.GetDescription()))
                     .Select(item => new AdapterInfo

@@ -827,20 +827,23 @@ public abstract class AdapterCollectionBase<T> : ListCollection<T>, IAdapterColl
             if (string.IsNullOrWhiteSpace(typeName))
                 throw new InvalidOperationException("No adapter type was defined");
 
-            if (!File.Exists(assemblyName) && AdapterCache.IncludeSubdirectories)
+            if (!File.Exists(assemblyName) && !string.IsNullOrEmpty(AdapterCache.BaseDirectory) && Directory.Exists(FilePath.GetAbsolutePath($"{AdapterCache.BaseDirectory}")))
             {
-                Regex regexFilter = new(AdapterCache.DirectoryFilter, RegexOptions.IgnoreCase);
 
-                string[] subdirectories = Directory.EnumerateDirectories(AppDomain.CurrentDomain.BaseDirectory,
-                    "*", SearchOption.TopDirectoryOnly).Where(subdirectory => regexFilter.IsMatch(subdirectory)).ToArray();
-
-                foreach (string subdirectory in subdirectories)
-                    if (File.Exists(Path.Combine(subdirectory, Path.GetFileName(assemblyName))))
-                    {
-                        assemblyName = Path.Combine(subdirectory, Path.GetFileName(assemblyName));
-                        break;
-                    }
-            }
+                string baseDirectory = FilePath.GetAbsolutePath(AdapterCache.BaseDirectory);
+                if (File.Exists(Path.Combine(baseDirectory, Path.GetFileName(assemblyName))))
+                    assemblyName = Path.Combine(baseDirectory, Path.GetFileName(assemblyName));
+                else if (AdapterCache.IncludeSubdirectories)
+                {
+                    string[] subdirectories = Directory.EnumerateDirectories(baseDirectory, "*", SearchOption.TopDirectoryOnly).ToArray();
+                    foreach (string subdirectory in subdirectories)
+                        if (File.Exists(Path.Combine(subdirectory, Path.GetFileName(assemblyName))))
+                        {
+                            assemblyName = Path.Combine(subdirectory, Path.GetFileName(assemblyName));
+                            break;
+                        }
+                }
+            }           
 
             if (!File.Exists(assemblyName))
                 throw new InvalidOperationException("Specified adapter assembly does not exist");

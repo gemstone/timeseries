@@ -517,7 +517,7 @@ public class StatisticsEngine : FacileActionAdapterBase
         }
 
         // Register system as a statistics source
-        Register(m_performanceMonitor, GlobalSettings.Default.SystemName, nameof(System), "SYSTEM");
+        Register(m_performanceMonitor, GlobalSettings.Default.SystemName.ToUpper(), nameof(System), "SYSTEM");
     }
 
     /// <summary>

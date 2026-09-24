@@ -29,9 +29,7 @@ using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
 using Gemstone.Data.Model;
 using Gemstone.IO.Parsing;
-using Gemstone.Numeric.EE;
 using Gemstone.StringExtensions;
-using Newtonsoft.Json.Linq;
 using ConfigSettings = Gemstone.Configuration.Settings;
 
 namespace Gemstone.Timeseries.Model;

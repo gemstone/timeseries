@@ -483,7 +483,7 @@ public abstract class IndependentActionAdapterManagerBase<TAdapter> : ActionAdap
 
                 using AdoDataConnection connection = GetConfiguredConnection();
 
-                TableOperations<DeviceRecord> deviceTable = new(connection);
+                ExpressionTableOperations<DeviceRecord> deviceTable = new(connection);
                 string deviceAcronym = string.Format(ParentDeviceAcronymTemplate, Name);
 
                 DeviceRecord device = deviceTable.QueryRecordWhere("Acronym = {0}", deviceAcronym) ?? deviceTable.NewRecord();

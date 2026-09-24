@@ -29,9 +29,7 @@ using Gemstone.Data;
 using Gemstone.Data.DataExtensions;
 using Gemstone.Data.Model;
 using Gemstone.IO.Parsing;
-using Gemstone.Numeric.EE;
 using Gemstone.StringExtensions;
-using Newtonsoft.Json.Linq;
 using ConfigSettings = Gemstone.Configuration.Settings;
 
 namespace Gemstone.Timeseries.Model;
@@ -131,7 +129,7 @@ public class DeviceExpressionParser
 
         using AdoDataConnection connection = new(ConfigSettings.Default);
         {
-            TableOperations<Device> deviceTable = new(connection);
+            ExpressionTableOperations<Device> deviceTable = new(connection);
             parentDevice = deviceTable.QueryRecordWhere("ID = {0}", parentID);
         }
 

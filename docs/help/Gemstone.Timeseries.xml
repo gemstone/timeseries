@@ -4442,6 +4442,11 @@
             <c>("FileAdapters.dll", "FileAdapters.ProcessLauncher")</c> for faster lookups.
             </summary>
     </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache.BaseDirectory">
+      <summary>
+            The Folder to be searched for Adapters. Defaults to "Adapters" in the application base directory.
+            </summary>
+    </member>
     <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.GetAdapters(System.Func{System.ComponentModel.EditorBrowsableState,System.Boolean})">
       <summary>
             Returns all adapters in the application directory filtered by <see cref="T:System.ComponentModel.EditorBrowsableState" />.
@@ -4535,6 +4540,12 @@
             </summary>
       <param name="acronym"></param>
       <returns>Adapter protocol attribute for the protocol acronym.</returns>
+    </member>
+    <member name="P:Gemstone.Timeseries.Adapters.AdapterCache.IncludeSubdirectories">
+      <summary>
+            A Flag indicating whether to include subdirectories when searching for adapters in the <see cref="P:Gemstone.Timeseries.Adapters.AdapterCache.BaseDirectory" />.
+            Defaults to false.
+            </summary>
     </member>
     <member name="M:Gemstone.Timeseries.Adapters.AdapterCache.ReloadAdapterTypes">
       <summary>

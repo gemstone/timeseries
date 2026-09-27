@@ -174,7 +174,7 @@ public static class IndependentAdapterManagerExtensions
 
         using AdoDataConnection connection = instance.HandleGetConfiguredConnection();
 
-        TableOperations<PhasorRecord> phasorTable = new(connection);
+        ExpressionTableOperations<PhasorRecord> phasorTable = new(connection);
         PhasorRecord phasorRecord = phasorTable.QueryRecordWhere("ID = {0}", phasorID);
         return phasorRecord is null ? instance.LookupPointTag(signalID, measurementTable) : phasorRecord.Label.Trim().ToUpper();
     }
@@ -205,10 +205,10 @@ public static class IndependentAdapterManagerExtensions
         // Open database connection as defined in configuration file "systemSettings" category
         using AdoDataConnection connection = instance.GetConfiguredConnection();
 
-        TableOperations<DeviceRecord> deviceTable = new(connection);
-        TableOperations<MeasurementRecord> measurementTable = new(connection);
-        TableOperations<HistorianRecord> historianTable = new(connection);
-        TableOperations<SignalTypeRecord> signalTypeTable = new(connection);
+        ExpressionTableOperations<DeviceRecord> deviceTable = new(connection);
+        ExpressionTableOperations<MeasurementRecord> measurementTable = new(connection);
+        ExpressionTableOperations<HistorianRecord> historianTable = new(connection);
+        ExpressionTableOperations<SignalTypeRecord> signalTypeTable = new(connection);
 
         // Lookup target device ID
         int? deviceID = currentDeviceID > 0 ? currentDeviceID : deviceTable.QueryRecordWhere("Acronym = {0}", instance.Name)?.ID;

@@ -38,6 +38,16 @@ public class AlarmMeasurement : Measurement
     public Guid AlarmID { get; set; }
 
     /// <summary>
+    /// Gets or sets the identifier of the day-based shard that holds this alarm's event details.
+    /// </summary>
+    /// <remarks>
+    /// This value is derived from the day the alarm was raised and is carried on both the raise and clear
+    /// measurements so that the event details for a cleared alarm resolve to the shard for the raise day. A value
+    /// of zero indicates that no event details are associated with the alarm.
+    /// </remarks>
+    public ushort ShardID { get; set; }
+
+    /// <summary>
     /// Gets or sets alarm timestamp.
     /// </summary>
     public Ticks AlarmTimestamp

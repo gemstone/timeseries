@@ -160,7 +160,7 @@ public class MeasurementExpressionParser
                 {
                     // Attempt to lookup first phasor magnitude tag associated with this device
                     using AdoDataConnection connection = new(ConfigSettings.Instance);
-                    TableOperations<Measurement> measurementTable = new(connection);
+                    ExpressionTableOperations<Measurement> measurementTable = new(connection);
                     Measurement? record = measurementTable.QueryRecordWhere("SignalReference = {0}", SignalReference.ToString(deviceAcronym, SignalKind.Magnitude, 1));
                     return record?.PointTag;
                 }

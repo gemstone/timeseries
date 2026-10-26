@@ -29,7 +29,6 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using Gemstone.Data.DataExtensions;
-using Gemstone.Diagnostics;
 using Gemstone.EventHandlerExtensions;
 
 namespace Gemstone.Timeseries.Adapters;
